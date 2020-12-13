@@ -1,0 +1,76 @@
+% Symbols
+\newcommand{\cmark}{\ding{51}}  % checkmark
+\newcommand{\xmark}{\ding{55}}  % xmark
+
+% Quotes
+\newcommand{\inquotes}[1]{{{\glqq}#1{\grqq}}} % quotes
+\newcommand{\qq}{\symbol{34}} % ASCII char double quotes
+\newcommand{\qqqq}{\qq\qq} % double double quotes (= empty string)
+
+% Namings
+\renewcommand{\subsectionautorefname}{Abschnitt}
+\renewcommand{\subsubsectionautorefname}{Abschnitt}
+
+% Fonts
+\renewcommand{\familydefault}{\sfdefault}
+%\renewcommand{\sectfont}{\large\sffamily\bfseries\color{dark-gray}}
+
+% Highlight
+\newcommand{\code}[1]{\texttt{#1}}
+
+% misc
+\newcommand{\watermark}[1]{\AddToShipoutPictureBG{%
+    \AtPageCenter{
+        \rotatebox{15}{
+            \makebox[0pt]{%
+                \Huge\bfseries\color{red}#1
+            }
+        }
+    }%
+}}
+
+% graphics
+\newcommand{\bigimage}[2]{
+    \includegraphics[width=#2, height=#2, keepaspectratio, interpolate]{#1}
+}
+
+\newcommand{\smallimage}[1]{
+    \includegraphics[width=2cm, height=2cm, keepaspectratio, interpolate]{#1}
+}
+
+\newcommand{\titledimage}[2]{
+    \stackinset{l}{1em}{t}{1em}
+        {\colorbox{yellow}{#2}}
+        {\includegraphics[width=0.5\textwidth]{#1}}
+}
+
+\newcommand{\imgfigure}[3]{
+    \begin{figure}[htbp!]
+        \centering
+        \bigimage{#1}{0.9\textwidth}
+        \caption{#2}
+        \label{#3}
+    \end{figure}
+}
+
+% tables
+%\rowcolors[]{2}{gray!15}{white} % possible option \hline
+
+\newcommand{\head}[1]{
+    \cellcolor{black!75}
+    \textcolor{white}{
+        \textbf{#1}
+    }
+}
+
+\newcommand{\headline}{ % Todo: coloring not working...
+    \rowcolor{black!75}
+    \rowfont{\color{white}}
+}
+
+\renewcommand{\arraystretch}{1.5}
+
+% algorithm
+\newcommand{\minbox}[2]{%
+  \mathmakebox[\ifdim#1<\width\width\else#1\fi]{#2}}
+\newcommand{\Let}[2]{\State $ \minbox{1em}{#1} \gets #2 $}

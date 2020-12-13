@@ -1,0 +1,313 @@
+\chapter{Konzeption}
+\label{ch:concept}
+
+\begin{tcolorbox}[title=Todo]
+    \begin{itemize}
+        \item TSN: Argumentation schlüssig?
+        \item Max oder Avg bei TestSet-Inferenz
+    \end{itemize}
+\end{tcolorbox}
+
+In diesem Kapitel werden die Schritte und Entscheidungen erläutert, die zur Erhebung der Daten, zum Training des Classifiers und für die spätere Anwendung notwendig sind.
+Dazu werden vorab einige Entscheidungen und Anforderung an die zu entwickelnden Module geknüpft.
+
+\section{Zwischenschritte}
+\label{sec:steps}
+
+Der Prozess bis zur fertigen Inbetriebnahme schließt folgende drei Schritte ein, die in dieser Reihenfolge abgeschlossen werden müssen:
+
+\begin{description}
+    \item[Data Engineering] Die Daten müssen erhoben und mit dem Deep Learning Modell in Einklang gebracht werden.
+    Aus rohen Videos und strukturierten Annotationen werden Samples in ein einheitliches \gls{ml}-Datenset überführt.
+    \item[Training] Es muss ein einheitlicher Trainingsablauf definiert werden, um die Ergebnisse einzelner Experimente vergleichen zu können.
+    Dabei werden Metriken zur Beurteilung der Modelle und zur Analyse von Konflikten erhoben.
+    \item[Integration] Der trainierte Action Classifier muss in eine Temporal Action Detection integriert werden, sodass ungeschnittene Videos ganzer Spiele verarbeitet werden können.
+    Schließlich muss der Classifier in eine Nutzerschnittstelle integriert und bereitgestellt werden.
+    Die Integration soll zwar ermöglicht werden ist allerdings nicht im Rahmen dieser Arbeit inbegriffen.
+\end{description}
+
+\section{Datenquellen}
+\label{sec:datenquellen}
+
+Essenziell für das Data-Engineering ist, dass die Trainingsdaten die richtigen Informationen enthalten, die es dem Modell erst ermöglichen notwendige Zusammenhänge zu abstrahieren.
+Die Daten müssen genug Informationen enthalten, um die Spielaktion lernbar zu machen.
+Zudem sollten die Daten ein möglichst diverses Spektrum und einen geringen Bias (siehe \cite{Gugger20}) aufweisen und keine Ausrichtung auf spezielle Eigenschaften haben.
+Aus den genannten Gründen wird sich dagegen entschieden nur Aufnahmen einer Taktischen Kamera oder eines bestimmten Stadions zu verwenden.
+Damit das \gls{har}-Modell ausreichend gut adaptiert werden kann, wird stattdessen der Versuch unternommen ein Datenset zu generieren, das Spiele verschiedener Mannschaften, Nationalitäten und Geschlechter beinhaltet.
+Zudem soll das Videomaterial verschiedenen (TV-)Quellen zugrunde liegen, sodass sich das Modell nicht auf bestimmte Eigenschaften des Kameraschnitts (wie Art der Kameraführung, Wiederholungen, Einblendungen, Bildqualität) einschießt.
+
+Diese Rohdaten werden anschließend in ein \gls{ml}-Datenset konvertiert.
+Neuronale Netze lernen mit Samples $(X, Y)$, wobei $x \in X$ ein vierdimensionaler Video-Tensor und $y \in Y$ das Output-Label ist.
+Alle Samples $x$ entsprechen multidimensionalen Matrizen (Tensoren) der Größe $x \in R^{C \times T \times S_x \times S_y}$, die sich aus $T$ Farbbildern ($C=3$) eines Clips zusammensetzen.
+Die Labels entsprechen einem One-Hot-enkodiertem Vektor $y \in \{0, \dots, 1\}^K$.
+
+Da diese Tensoren unkomprimiert bereits in einer kleinen Menge eine erheblichen Teil des Dateispeichers belegen, werden \gls{har}-Datensets in der Regel in einer strukturierten Form als CSV- oder JSON-Datei veröffentlicht.
+Diese Dateien speichern neben dem Label einen nur den Verweis zu der Videoquelle (als Link oder ID) und ggf\. Start- und Endmarkierungen, in denen sich die Aktion im Video ereignet.
+Die rohen Videodaten sind also nicht direkter Bestandteil des Datensets, sondern werden erst zur Laufzeit nachgeladen.
+
+Um ein eigenes, ausreichend großes Datenset zu erstellen, werden in dieser Arbeit mehrere Datenquellen kombiniert und in eine ähnliches Dateiformat überführt.
+Dabei wird die Erhebung von Videomaterial $X$ und die Erhebung von Aktionsannotationen $Y$ separat betrachtet.
+
+\subsection{Aktionsannotationen}
+\label{subsec:aktionsannotationen}
+
+Da Videomaterial von Fußballspielen durch öffentliche oder kommerzielle Video-Plattformen im Internet vergleichsweise einfach zu finden ist, liegt der Fokus bei der Generierung des Datensets primär im Beziehen akkurater Annotationen.
+Die Annotationen müssen eine genaue zeitliche Auflösung haben, die mindestens im Sekundenbereich liegt.
+Das liegt zum einen daran, dass Aktionen bei einem schnellen Spiel oft dicht aufeinander folgen und zum anderen daran, dass sich die Spielaktionen selbst nur wenige Sekunden lang sind.
+Zusätzlich sollen Sie mehr Klassen als die bisherigen Datensets (SoccerNet und SoccerDB) einschließen.
+
+Als Provider für Annotations wird an dieser Stelle auf \gls{sbod}\footnote{Da die Sammlung kontinuierlich erweitert wird, bezieht sich die Bezeichnung \gls{sbod} im Folgenden auf den Stand vom 16.07.2020} \cite{Statsbomb20} zurückgegriffen.
+Dabei handelt es sich um eine frei nutzbare Sammlung professioneller Annotation eines kommerziellen Anbieters.
+Die Sammlung umfasst mehr als 28 Millionen detaillierte Annotationen aus 33 Oberkategorien zu 799 Spielen.
+Die Spiele wurden zwischen 2003 und 2020 ausgetragen und beziehen sich auf zehn internationale Ligen -- davon drei aus dem Frauenfußball.
+Jede der Oberkategorien hat teils zahlreiche zusätzliche Attribute, wodurch sich weitere Unterkategorien ableiten lassen.
+
+In \gls{sbod} ist die Dauer einer Aktion, die mit einem Schuss oder Pass zusammenhängt definiert durch die Dauer, die der Ball zwischen Abspiel und Annahme (\bzw dem Rollen ins Aus oder Tor) zurücklegt.
+Andere Aktionen, wie Tore oder Auswechslungen, sind (wie auch in SoccerNet) als Zeitpunkte definiert.
+Damit alle Klassen in gleicher Weise durch Intervall repräsentiert werden können, wird ein angepasstes Zeitfenster gewählt.
+Dieses ergibt sich aus einer Mindestdauer pro Event, die um den besagten Zeitpunkt oder Mittelpunkt des Intervalls aufgespannt wird.
+Ist das Original-Zeitfenster größer als die Mindestdauer, bleibt das Intervall unverändert.
+
+\subsubsection*{Aktionskatalog}
+
+Die Auswahl erlernbarer Aktionsklassen zur Action Recognition wird eingeschränkt durch die Verfügbarkeit des Providers.
+Eine übersichtliche Auflistung aller erfassten Aktionen ist online\footnote{https://github.com/statsbomb/open-data/raw/master/doc/Open\%20Data\%20Events\%20v4.0.0.pdf (Stand: 08.10.2020)} zu finden.
+Darüber hinaus unterliegt die Auswahl einiger selbstauferlegter Kriterien:
+
+\begin{description}
+    \item[Visuelle Erkennbarkeit] Eine Aktion muss allein auf Basis visueller Reize innerhalb weniger Frames erkennbar sein.
+    Die Klassen \code{Starting XI} oder \code{Tactical Shift} werden dadurch ausgeschlossen.
+    \item[Mindestanzahl an Beispielen] Aktionen müssen mit einer Mindestanzahl an Annotationen repräsentiert sein, damit sie in neuartigen Situationen sicher wiedererkannt werden können.
+    Die untere Grenze wird bei 50 Beispielen festgesetzt und schließt somit Klassen wie \code{Own Goal Against} aus.
+    \item[Maximalanzahl an Beispielen] Einige Aktionen wie \code{Pass} und \code{Carry} sind dermaßen überrepräsentiert, dass sich praktische jeder dieser Aktionen mit mindestens einer weiteren Aktion zeitlich überlagert.
+    Zudem erschwert es die abschließende Temporal Action Detection wenn mehrere gleiche Aktionen direkt hintereinander stattfinden:
+    Wird \zB ein direkter Pass gespielt, erfolgt die Ballannahme gleichzeitig mit der Ballabgabe und es gibt keinen zeitlichen Puffer zwischen beiden \code{Pass}-Aktionen.
+    Die hier verwendete Methodik kann solche Abfolgen von direkt folgender gleicher Aktionen also gar nicht auseinander halten und müsste sie als eine lange Aktion behandeln.
+    \item[Objektive Regeln] Die Aktionen müssen durch ein eindeutiges Regelwerk definiert sein.
+    Klassen wie \code{Pressure}, \code{Error} oder \code{Miscontrol} werden als zu subjektiv eingestuft und werden daher ebenfalls ausgeschlossen.
+\end{description}
+
+Eine abschließende Liste aller insgesamt 32 abgeleiteten Aktionsklassen ist in \autoref{ch:aktionskatalog} zu finden.
+
+\subsection{Videomaterial}
+\label{subsec:videomaterial}
+
+Als erste Video-Datenquelle wird das öffentliche Datenset SoccerNet verwendet.
+Die Videos zu den Spielen sind pro Halbzeit zugeschnitten und können separat heruntergeladen werden.
+Die Spiele decken fünf Europäische Ligen, sowie Spiele der UEFA Championsleague ab, die zwischen 2014 und 2017 ausgetragen wurden.
+Die Videoqualität ist durchweg gut und liegt bei einer Auflösung von mindestens 720p (siehe \cite{SoccerNet20}).
+SoccerNet besteht neben 6,637 Annotationen aus 1,000 Videos zu 500 Fußballspielen, wovon sich 41 mit den Annotationen aus \gls{sbod} überschneiden.
+Diese Menge wird im Vergleich zu anderen Datensets allerdings noch als deutlich zu klein eingeordnet (vgl. \autoref{tab:dataset}).
+
+Daher wird der Großteil der Videos über öffentliche Kanäle der Video-Plattform YouTube bezogen.
+Diese Videos sind nicht pro Halbzeit zugeschnitten und potenziell fehlerbehaftet (\zB durch herausgeschnittene Spielminuten oder eine abweichende Abspielgeschwindigkeit), was ein zusätzliches Pre-Processing erfordert (siehe \autoref{ch:data}).
+
+\section{Relevante HAR-Modelle und Hyperparameter}
+\label{sec:decisions}
+
+Neben der passenden Datengrundlage wird im nächsten Schritt geeignete \gls{har}-Modelle und die zu optimierenden Hyperparameter gesucht.
+Anforderungen an ein passendes \gls{har}-Modell ist primär eine hohe Accuracy, die sich aus \autoref{tab:models} aus \autoref{ch:leaderboard} entnehmen lassen.
+Zudem muss der Modell-Code, sowie vortrainierte Gewichte öffentlich-zugänglich sein und die Architektur sollte eine schnelle Inferenz ermöglichen, da das Modell zur Temporal Action Detection mehrmals für jede Aktion angewandt werden muss.
+Der letzte Punkt schließt Modelle, die auf die Berechnung von Optischem Fluss angewiesen sind, kategorisch aus.
+Die Performance betreffend liefern die Modelle SlowFast, X3D, ip-CSN, NL-I3D, Hidden-Two-Stream und R2+1D die besten Ergebnisse.
+Aus der Gruppe der 3D-ConvNets wird auf NL-I3D verzichtet, da es unter den Ergebnissen von SlowFast bleibt, welches ebenfalls mit Non-Local-Blöcken kombiniert werden kann.
+Zudem wird ein vollwertiges 3D-ConvNet wie I3D als zu groß erachtet, als dass die passende Hardware für das Training bereitgestellt werden kann.
+Außerdem wird das Hidden Two Stream Modell ausgeschlossen, da es zum einen vergleichsweise schwache Ergebnisse liefert und zum anderen das einzige Modell in dieser Liste ist, welches nur eine in C++ geschriebene Implementierung mit dem Deep Learning Framework Caffe \cite{Jia14} bereitstellt.
+Alle weiteren Modelle sind in dem Python-Framework PyTorch \cite{Paszke19} verfügbar und eine gesonderte Test- und Entwicklungsumgebung würde zu zusätzlichem Implementationsaufwand führen, der in diesem Fall als nicht gerechtfertigt angesehen wird.
+
+\subsection{Hyperparameter}
+\label{subsec:hyperparameter}
+
+Durch die Wahl der Architektur ergibt sich das Zielformat, das durch ein \gls{ml}-Datenset bereitgestellt wird und dem \gls{har}-Modell als Input dient.
+Entscheidende Parameter für das Zielformat sind die Auflösung $\gamma_s$, die Samplingrate $\gamma_\tau$ und die Anzahl der Frames $\gamma_t$.
+Die Referenzmodelle R2+1D-34, ip-CSN-152, SlowFast-50 und X3D-L nutzen unterschiedliche Kombinationen dieser Werte, die sich allerdings nur auf vortrainierter Modelle beziehen.
+Technisch sind alle Modelle durch den Einsatz eines dynamischen \pool-Layers in der Lage auch mehr Frames zu verarbeiten.
+\autoref{tab:coverage} zeigt die Parameter, sowie die ursprüngliche Länge eines Clips (Clip-Abdeckung $\Delta$) bei einer Framerate von 25 \gls{fps}.
+
+Die Clip-Abdeckung bezeichnet im Folgenden die Originallänge in Sekunden, die ein Clip im ursprünglichen Video einnimmt.
+Manche Aktionen (bzw\. Aktivitäten) bestehen aus mehreren Unteraktionen und dauern daher länger als andere Aktionen.
+Enthalten die Trainingsdaten zu kurze Samples, kann das Modell \uU nicht genug Informationen erfassen um solche Klassen zu erkennen.
+Das einzelne Bild eines schießenden Spielers kann \zB zur Klassen Torschuss oder aber auch zur Klasse Flanke gehören.
+
+\begin{figure}
+    \centering
+    \csvreader[no head,tabular=|l|r|r|r|r|,
+    table head=\hline,late after line=\\\hline]{tbl/coverage.csv}
+    {1=\model,2=\s,3=\t,4=\sr,5=\d}
+    {\model & \s & \t & \sr & \d}
+    \caption[Samplingstrategien]{Samplingstrategien}
+    \label{tab:coverage}
+\end{figure}
+
+Während in SoccerNet alle Spielaktionen als Events behandelt werden und nur mit einem Zeitpunkt annotiert sind, haben die Samples in SoccerDB eine Kontextlänge von 3 bis 30 Sekunden.
+In \gls{sbod} haben Spielaktionen (ausgenommen die Klasse \emph{TACTICAL\_SHIFT}) eine Kontextlänge von 0 bis 75 Sekunden.
+Allerdings dauern 94,2 \% der Aktionen weniger lang als 3 Sekunden und 99,4 \% weniger als 6 Sekunden.
+
+Im Zuge dieser Arbeit soll $\Delta$ zum einem groß genug gewählt werden, um alle Aktionsklassen lernbar zu machen, zum anderen aber dennoch möglichst klein, um um eine zusätzliche Long-term Feature Aggregation (siehe \autoref{sec:long-term-aggregation-frameworks}) zu vermeiden und den Aufwand so zu begrenzen.
+Daher werden 3 und 6 Sekunden als untere und oberen Grenzen für $\Delta$ festgesetzt.
+
+% experiment
+\subsection{Experimente}
+\label{subsec:experimente}
+
+Im Zuge einiger Experimente soll geprüft werden, welche Architekturen besonders geeignet sind für die Klassifizierung von Spielaktionen.
+Zudem soll geprüft werden unter welchen Hyperparametern sie die besten Ergebnisse liefern.
+Aufgrund von Hardwarebeschränkung können und sollen die Modelle nicht von Grund auf neu trainiert, sondern nur auf Basis vortrainierter Modelle nachtrainiert werden.
+Kandidaten sind die bereits festgelegten Modelle SlowFast, X3D, ip-CSN, R2+1D.
+
+Die Experimente gliedern sich pro Modell zunächst in eine Initialisierungs- und eine Test-Phase.
+Zunächst werden vortrainierte Gewichte (auf Basis von Kinetics oder Sports-1M) in die jeweilige Modellarchitektur geladen.
+Da die vortrainierten Modelle mit anderen Klassen und auch deutlich mehr Klassen vortrainiert wurden, wird das hinterste \fc-Layer entfernt und durch ein neues \fc-Layer mit 32 Knoten für die 32 Klassen des neuen Datensets ausgetauscht.
+Die Gewichte des neuen \fc-Layers sind im Gegensatz zu den restlichen Layern zufällig initialisiert, was ein deutliches Ungleichgewicht der Wissensverteilung innerhalb des Netzes zur Folge hat.
+Um die Lücke zwischen Klassifikationslayer und dem Rest des Netzes zu verringern wird in der ersten Initialisierungsphase ausschließlich das \fc-Layer trainiert und alle anderen Layer werden während des Trainings eingefroren.
+Das Sampling der Daten erfolgt nach den gleichen Vorgaben wie es beim Pre-Training der Fall war.
+
+Nach Abschluss der Initialisierungspahse ist das Wissen deutlich gleichmäßiger verteilt.
+Jedoch ist das Netz im Großteil noch optimiert auf das vorangegangen Training eines generischen Datensets (wie Kinetics) und erzielt erwartungsgemäß kaum bessere Ergebnisse als vorher..
+
+In der anschließenden ersten Testphase werden nun alle Layer (unter Berücksichtigung der Einschränkungen aus \autoref{sec:hardwareeinschrankungen}) nachtrainiert.
+Dabei werden verschiedene Konfigurationen getestet um eine Clip-Abdeckung der oben genannten Ober- und Untergrenze zu ermöglichen.
+Da die Konfiguration der Pre-Trainings aus \autoref{tab:coverage} die untere Grenze alle nicht erreichen, werden für jedes Modell die Hyperparameter $\gamma_s$, $\gamma_t$ und $\gamma_\tau$ optimiert, um einen längeren Kontext zu ermöglichen.
+Technisch gesehen wird somit durch den Einsatz eines dünneren Samplings \bzw dem Ausnutzen des dynamischen Avg-Pooling-Layers eine Temporal Feature Aggregation umgesetzt.
+
+Der alternative Einsatz von \glspl{tsn} im Kontext dieser Arbeit wird als weniger geeignet eingeschätzt, da die Untersegmente eines Samples verschiedene Klassen beinhalten können.
+Dieser Fall kann am Beispiel einer Wiederholung veranschaulicht werden: Ein längerer Clip wird in drei Untersegmente geteilt, wovon eins eine Auswechslung und die anderen beiden eine Torwiederholung zeigen.
+Im TSN würde der Clip als Tor klassifiziert werden, da diese Aktionen im Durchschnitt über alle drei Snippets öfter vertreten ist.
+Da der Fehler über alle Snippets zurückpropagiert wird, würde das Netz während des Trainngs so einen fehlerhaften Zusammenhang zwischen Tor und Auswechslung lernen.
+\gls{tsn} ist also nur einsetzbar, wenn die Clips über seine komplette Länge nicht mit anderen Klassen interferiert.
+
+\subsubsection*{Fine-Tuning}
+
+In einer zweiten Testphase werden pro Modell die Hyperparameter mit dem größten Potential gewählt und mit zusätzlichen Samples weiter nachtrainiert.
+Kommt es dabei zu Overfitting, werden weitere Hyperprameter durch Regularisierungstechniken (siehe \autoref{subsec:reaktive-aenderungen}) manuell angepasst.
+Findet kein Overfitting statt, werden \ggf tiefere Varianten mit zusätzlichen Layern getestet um noch bessere Ergebnisse zu erlangen.
+
+Problematisch ist die Tatsache, dass die Modelle in den Experimenten verschieden lange Videos verarbeiten und sich die Trainings- und Validierungssets dadurch unterscheiden.
+Zwar bleibt die Anzahl der Samples gleich, da ein Clip pro Sekunde gesamplet werden.
+Die Labels pro Samples können jedoch bei verschiedener Länge abweichen.
+Um trotzdem vergleichbare Ergebnisse zu erheben, werden im Testset immer Samples mit einer Clip-Abdeckung von $\Delta=10$ Sekunden verwendet.
+Die Länge liegt bewusst über der definierten Obergrenze und orientiert sich an der Clip-Länge anderer \gls{har}-Datasets wie Kinetics.
+Während der Evaluation wird ein Clip des Testsets in fünf Chunks segmentiert, die sich gleichverteilt über die komplette Clip-Länge verteilen und je nach Konfiguration potentiell überschneiden.
+Die Chunks werden einzeln inferiert und der endgültigen Score pro Clip ergibt sich aus den Maximalscore pro Klasse über aller Chunks.
+
+%\subsubsection*{Vergleichbarkeit mit SoccerNet}
+
+%Das einzige veröffentlichte Datenset im Bereich Fußball ist SoccerNet.
+%Daher wird schließlich mit einem speziellen Test-Set evaluiert, das genau den Testdaten von SoccerNet entspricht.
+%Die beste Architektur wird mit den vortrainierten Gewichten aus Phase XL übernommen und mit SoccerNet-500 nachtrainiert und mit dem Original Testset evaluiert.
+%Dieses Set weist auch die gleichen negativen Einflussfaktoren auf, wie im Original:
+%\item 3) Vergleichbarkeit: Überrepräsentation von Hintergrund von X, Fehlerhafte Annotationen, Nur eine Aktion pro Spielminute
+
+\section{Überschneidungen von Aktionen}
+
+Der oben genannte Aktionskatalog hat mit insgesamt 32 Aktionsklassen das Potenzial einige Aktionen zu beinhalten die sich mit anderen zeitlich überschneiden.
+Dazu zählt einerseits der Fall, dass zwei Aktionen von zwei verschiedenen Spielern tatsächlich zeitgleich ausgeführt werden.
+Andererseits können abhängig von der Problembeschreibung \zB hierarchische Klassen definiert werden, sodass sich eine Klasse \code{penaltyKick} immer mit der Klasse \emph{footShot} überlagert.
+
+Um die Signifikanz dieses Problems zu verdeutlichen wurden für verschiedene $\Delta$ untersucht, wie oft sich eine Klasse mit einer anderen überschneidet.
+\autoref{fig:overlaps} zeigt das Ergebnis in einer Matrix.
+Wie man sieht, ereignen sich \zB 74 \% der Aktionen \code{saved} (innerhalb einer Clip-Abdeckung von $\Delta=4$ Sekunden) gleichzeitig mit Aktionen der Klasse \code{footShot}.
+Bei einer niedrigeren Wahl von $\Delta$ sind die Abhängigkeiten entsprechend geringer, es treten jedoch die gleichen Kombinationen hoher Abhängigkeiten auf.
+Die häufigsten Kombinationen sind folgende:
+
+\begin{enumerate}
+    \item \code{saved} mit \code{footShot}
+    \item \code{penaltyKick} mit \code{goal}
+    \item \code{badBehavior} mit \code{card}
+    \item \code{goal} mit \code{footShot}
+    \item \code{collected} mit \code{cross}
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=.95\linewidth]{img/data-plots/1sec/background_ratio_all_1sek.eps}
+        \caption{$\Delta = 1$}
+        %\label{fig:anno_bg_ratio}
+    \end{subfigure}%
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=.95\linewidth]{img/data-plots/4sec/background_ratio_all_202010-1419-3706.eps}
+        \caption{$\Delta = 4$}
+        %\label{fig:anno_classes}
+    \end{subfigure}
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=.95\linewidth]{img/data-plots/8sec/background_ratio_all_202010-1419-4303.eps}
+        \caption{$\Delta = 8$}
+        %\label{fig:anno_classes}
+    \end{subfigure}
+    \caption{Skalierung des Background- und Überschneidungsverhältnisses zur Wahl von $\Delta$}
+    \label{fig:ratios}
+\end{figure}
+
+Dass die Zahl der Überschneidungen mit der Wahl von $\Delta$ skaliert, belegt auch der wachsende Anteil von Samples mit mehr als einer Aktion, wie \autoref{fig: ratios} zeigt.
+Dabei wird die in \autoref{subsec:segmentierung-und-sampling-strategie} verwendete Sampling-Strategie verwendet.
+
+\begin{figure}
+    \centering
+    \bigimage{img/data-plots/4sec/pairwise_occurrences_all_202010-1419-3817}{\textwidth}
+    \caption{Anteil paarweiser Überschneidungen pro Klasse (hier: $\Delta = 4$)}
+    \label{fig:overlaps}
+\end{figure}
+%% wie wird der einfluss geprüft
+
+Als Folge der oben veranschaulichten Statistiken wird vorab auf ein Multi-Label-Ansatz gesetzt.
+Das Verfahren ist damit auch flexibler bei Anpassungen des Aktionskatalogs und kommt ohne ein künstlichen \emph{Background}-Labels aus.
+Zudem kann auf ein aufwendiges Verfahren dedizierte, überschneidungsfreie Intervalle für jede Aktion zu finden verzichtet werden.
+Stattdessen kann das ungeschnittene Videomaterial gleichmäßig segmentiert werden und jedes Segment erhält Labels für alle darin stattfindenden Aktionen.
+
+\section{Umgang mit Fehlern im Datenset}
+\label{sec:umgang-mit-fehlern-in-datenset}
+
+Auch wenn die Annotationen aus \gls{sbod} manuell erfasst und verifiziert wurden, können sie dennoch Fehler enthalten.
+Und selbst bei gegebener Fehlerfreiheit, lägen ihnen wahrscheinlich ein anderes als das in dieser Arbeit verwendetes Videomaterial zugrunde.
+\gls{sbod} dient zur Auswertung von Spieldaten und ist auf Vollständigkeit aller Aktionen angewiesen.
+Der Grundlegende Unterschied zum Datenset dieser Arbeit ist, dass dieses Datenset ausschließlich sichtbare Aktionen umfassen soll.
+Als Ground Truth gilt also immer nur das, was in dem jeweiligen Clip wirklich zu sehen ist.
+\Dh zum einem dass Aktionen die passiert sind, im Video aber nicht sichtbar sind (\zB weil die Kamera gerade ins Publikum schwänkt), entfernt werden müssen.
+Zum anderen bedeutet es, dass Wiederholungen von Aktionen im Video zusätzliche Aktionen darstellen, auch wenn sie sich in der realen Welt zu einem anderen Zeitpunkt ereignet haben.
+
+Damit nicht jeder Datensatz einzeln korrigiert werden muss, wird ein Post-Processing-Schritt in das Trainingssetup aufgenommen.
+Während des Trainings werden die Fehler der Loss-Funktion pro Sample protokolliert, sodass im Anschluss nur die Samples mit dem höchsten Fehlerwerten manuell verifiziert und im Fehlerfall korrigiert werden müssen.
+Der Ablauf orientiert sich an \cite{Gugger20} und \cite{Cioppa20}, die durch die Ergebnisse der Fehlerfunktion Fehler in den Annotationen von SoccerNet gefunden haben.
+
+\section{Konzeptuelle Umsetzung}
+\label{sec:konzeptuelle-umsetzung}
+
+Das \gls{har}-Modell lässt sich in ein modulares Framework integrieren, mit dem ungeschnittene Videos kompletter Halbzeiten verarbeitet werden können.
+Das Framework deckt den kompletten Zyklus von der Datenaufbereitung, über das Training bis zur Inbetriebnahme ab.
+Das Modell ist dabei gegen eine andere Architektur austauschbar, sofern es eine wohl-definierte Schnittstelle bereitstellt.
+
+Der Endnutzer stellt ein Video in Form einer \gls{url} oder eines Uploads bereit und erhält eine Liste der Spielaktionen.
+
+\begin{figure}[htbp!]
+    \centering
+    \includegraphics[width=0.9\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{fig/usecase.eps}
+    \caption{Anwendungsfalldiagramm: Framework}
+    \label{fig:usecase}
+\end{figure}
+
+\autoref{fig:usecase} zeigt die Funktionen aus Anwenderperspektive.
+
+Um alle Experimente in einer generischen Umgebung durchzuführen wurde eine modulare Implementation umgesetzt, die auf dem Konzepten des Frameworks Lightning (\cite{Falcon19}) basiert.
+In \autoref{fig:modules} sind die drei Kernmodule zur Datenintegration, dem Training und der Evaluierung, sowie der vorgelagerte Prozess der Datenerfassung schemenhaft veranschaulicht.
+
+\begin{figure}
+    \centering
+    \bigimage{fig/modules-top}{0.8\textwidth}
+    \caption{Module zur konzeptuellen Umsetzung}
+    \label{fig:modules}
+\end{figure}
+
+Die Hyperparameter aus \autoref{subsec:hyperparameter} sind für das Datenmodul konfigurierbar.
+Das Datenmodul beinhaltet Klassen zum Erstellen und Bereitstellen valider Samples, die vom Trainings- und Evaluation-Modul genutzt werden können.
+
+Das Trainingsmodul benutzt die Samples zur Optimierung des \gls{har}-Backbones.
+Hervorzuheben ist, dass das \gls{har}-Modell keinerlei Abhängigkeiten zu anderen Komponenten hat und komplett austauschbar ist.
+
+Pro Epoche werden die Scores und Losses aus dem Training an das Evaluationsmodul übergeben.
+Das Evaluationsmodul sichert diese Werte zusammen mit den Ground-Truth Labels und weiteren Metadaten in Form eines Reports in einer \gls{csv}-Datei.
+Ebenfalls werden Metriken und Statistiken über einen Logging-Mechanismus während des Training an einen Cloud-Speicher\footnote{Ergebnisse unter https://www.comet.ml/narendorf/soccar-32} übermittelt.
+Abschließend werden auch Hyperparameter, der Quellcode, die Modellgewichte und der Report in der Cloud gesichert, sodass sich alle Ergebnisse eindeutig reproduzieren lassen.

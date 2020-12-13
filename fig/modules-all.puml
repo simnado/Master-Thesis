@@ -1,0 +1,100 @@
+@startuml
+
+
+() "http" as COMETAPI
+cloud "COMET" {
+}
+COMET  - COMETAPI
+
+COMET ..> har : reproduce
+
+
+package "har" {
+
+
+
+() "HAR Backbone" as Net
+
+  package "Data Processing" {
+
+  database "Annotation\nDatabase" as DB {
+
+}
+
+database "Video\nFiles" as Files {
+
+}
+      () "Config" as DataConfig
+
+      [DataModule] -left- DataConfig
+
+      component [DataModule]
+
+      component [Database]
+      DB .left.> [Database] : "<<manifest>>"
+
+      component [DataSet] as MultiLabelDataSet
+      [DataModule] --> [MultiLabelDataSet]
+      [MultiLabelDataSet] --> [Database]
+      [MultiLabelDataSet] <.right. Files : "<<manifest>>"
+
+      }
+
+  package "Training" {
+  () "Config" as TrainConfig
+
+    component [TrainModule]
+    TrainModule --> [Trainer]
+    TrainModule -> [Classifier]
+    TrainConfig - [TrainModule]
+
+    component [Trainer]
+    [Trainer] -down-> MultiLabelDataSet
+
+
+    component [Classifier]
+
+    Classifier ..> Net : use
+
+
+  }
+
+  package "Evaluation" {
+
+  database "Report" as Report {
+
+}
+    component [EvalModule]
+    () "Config" as EvalConfig
+    [EvalModule] - EvalConfig
+
+    [EvalModule] -up-> [Logger]
+    [EvalModule] -> [DatasetEvaluator]
+    [EvalModule] -> [ClassificationEvaluator]
+
+    [DatasetEvaluator]
+    [DatasetEvaluator] ..> MultiLabelDataSet : analyze
+    [DatasetEvaluator] -> [DatabaseTransactions]
+
+    [DatabaseTransactions]
+    [DatabaseTransactions] ..> [Database] : relabel
+
+    [Logger]
+    [Logger] .up.> COMETAPI : upload
+    [Logger] ..> Trainer : report
+    [Logger] .left.> Report : write
+
+    [ClassificationEvaluator]
+    [ClassificationEvaluator] ..> MultiLabelDataSet : read
+    [ClassificationEvaluator] --> [DatabaseTransactions]
+    Report <.. [ClassificationEvaluator] : read
+
+  }
+
+}
+
+
+
+
+
+@enduml

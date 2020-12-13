@@ -1,0 +1,10 @@
+@startuml
+(*) -r-> "Laden\ndes Videos"
+-r-> "Presentation\nTimestamps\n analysieren"
+-r-> "Clip-\nSegmentierung"
+-r-> "Inference"
+-r-> "Score-\nAggregation"
+-r-> "Intervallbildung\nmit Grenzwert"
+
+-r-> (*)
+@enduml

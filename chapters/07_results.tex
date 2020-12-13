@@ -1,0 +1,140 @@
+\chapter{Ergebnisse}
+\label{ch:results}
+
+In diesem Kapitel werden die Ergebnisse der in \autoref{subsec:experimente} beschriebenen Experimente vorgestellt.
+Zunächst wird in \autoref{sec:hyperparameter-optimierung} für jedes Modell eine optimierte Wahl an Hyperparametern gesucht und ein erster Eindruck der Eignung für das Problem gewonnen.
+In \autoref{sec:adjust-overfitting} wird das jeweils beste Modell einer Gruppe weiter optimiert, indem reaktiv auf Phänome, wie Overfitting reagiert wird.
+Anschließend werden in \autoref{sec:qualitative-analyse} eine Qualitative Analyse bzgl\. der häufigsten Daten- und Klassifikationsfehler durchgeführt und in \autoref{sec:abgrenzung-einfacher-und-schwerer-events} die Metriken pro Klasse verglichen.
+
+\begin{tcolorbox}[title=Todo]
+    \begin{itemize}
+        \item Wert für $\gls{tld:Theta}_\text{train}$ nachtragen!
+        \item Parallel Koordinaten Plot zu 7.1
+        \item 7.2: Optimierung pro Modell (Anzahl Epochen, Weight Decay, Tiefere Modelle)
+        \item 7.3: Basieredn auf letzter oder bester Epoche?
+        \item 7.3: Beispiele in den Anhang (\zB Statistik mit 10 \% der Daten gleich-verteilter Samples: Anteil Luftperspektive zu Anteil falsch klassifiziert)
+        \item 7.4: Plot aus 1. Testphase x=Events, y=Punkte pro Run mit Metrik (Accuracy)
+        \item 7.4: Clustering out of scope?
+        \item Section zu Grenzen und Hypothesen?
+        \item Links zu Binder
+    \end{itemize}
+
+    Desweiteren sind bis auf AUROC alle Metriken durch einen Score-Grenzwert definiert, der angibt ab welcher Sicherheit ein Label für einen Score-Wert übernommen wird.
+    Initial liegt der Grenzwert bei 50 \%.
+    Wenn der Label-Score eines Samples über 50 \% liegt, wird es \ua mit diesem Label klassifiziert.
+    Es kann entweder ein globaler Score-Grenzwert für alle Labels oder individuelle Grenzwerte pro Label gesetzt werden.
+    Um einen geeigneten globalen Score-Wert zu finden werden vorab verschiedene Grenzwerte (an Balanced Accuracy) ausprobiert, der für alle weiteren Metriken verwendet wird.
+
+\end{tcolorbox}
+
+\section{Hyperparameter Optimierung / Temporal Feature Aggregation}
+\label{sec:hyperparameter-optimierung}
+
+Um eine zeitliche Clip-Abdeckung von 3 bis 6 Sekunden pro Sample zu ermöglichen werden verschiedene Aggregationen getestet.
+Alle Modelle nutzen eine dynamisches Avg-\pool-Layer zwischen dem letzten \conv- und dem ersten \fc-Layer, das die Verarbeitung von Tensoren variabler Länge $T$ zulässt.
+Um eine geeignete Methode zu finden, wird der Einfluss von Avg-Pooling und Subsampling auf den jeweils gleichen Daten pro Modell verglichen.
+Zudem werden der Einfluss verschiedener Auflösungen verglichen.
+
+\autoref{tab:pre} zeigt die Ergebnisse, indem pro Modell ausgehend von das Basiskonfiguration zunächst die Clip-Abdeckung und Anschließend die Auflösung erhöht wird.
+Die Abdeckung wird durch die Erhöhung von $\gamma_t$, die Erhöhung von $\gamma_\tau$ oder der Erhöhung beider Parameter vergrößert.
+Anschließend wird basierend auf dem besten Ergebnis testweise $\gamma_s$ erhöht.
+
+\begin{figure}
+    \centering
+    \csvreader[no head,tabular=|l|r|r|r|r||r|r|r|,
+    table head=\hline,late after line=\\\hline]{tbl/pre-eval.csv}
+    {1=\model,2=\s,3=\t,4=\sr,5=\d,6=\result,7=\ihatelatex,8=\reallyshittylatex}
+    {\model & \s & \t & \sr & \d & \result & \ihatelatex & \reallyshittylatex}
+    \caption{Ergebnisse zur Hyperparameter-Optimierung}
+    \label{tab:pre}
+\end{figure}
+
+Die Experimente werden mit $\gls{tld:Theta}_\text{train} = 100$ Samples pro Klasse (inklusive 100 Background-Samples) durchgeführt.
+
+\subsection{Beobachtungen}
+
+% todo:
+
+\subsection{Wahl geeigneter Konfigurationen}
+\label{subsec:wahl-geeigneter-konfigurationen}
+
+% todo:
+
+\section{Reaktive Optimierung}
+\label{sec:adjust-overfitting}
+
+In dieser zweiten Phase werden die in \autoref{subsec:wahl-geeigneter-konfigurationen} gewählten Modelle mit bis zu $\gls{tld:Theta}_\text{train} = 250$ Samples pro Klasse nachtrainiert.
+Dabei kommt eine neue Version des in Phase 1 verwendeten Datensets zum Einsatz, indem nach Abschluss von Phase 1 einige Datenfehler korrigiert wurden.
+
+Anschließend wird reaktiv auf die Ergebnisse des Trainings reagiert.
+
+% todo:
+
+\section{Qualitative Analyse}
+\label{sec:qualitative-analyse}
+
+In diesem Kapitel werden diejenigen Samples, die den größen Loss innerhalb eines Trainings vorweisen, genauer analysiert.
+Grundlage ist eine Analyse der Experimente im Nachgang der Initialisierungsphase, sowie der in \autoref{subsec:wahl-geeigneter-konfigurationen} ausgewählten Experimenten im Nachgang der ersten Testphase.
+
+In Zuge der Analyse werden zum einen Datenfehler (wie in \autoref{sec:nachgang} beschrieben) behoben.
+Zusätzlich werden manuell Informationen über die $25$ größten Fehler (abhängig vom Loss der Trainingsergebnisse) innerhalb eines Experiments erhoben.
+
+Die Analyse folgt einem definiertem Protokoll:
+Sind alle Experimente einer Phase abgeschlossen, wird zunächst eine neue Transaktionsdatei erstellt.
+Für jedes der genannten Durchläufe (der jeweiligen Phase) wird das Relabel-Tool mit den persistierten Score- und Loss-Werte des je letzten Epoche initialisiert.
+Das Relabel-Tool erhält ebenfalls Zugriff auf die Datenbankinstanz, die sich aus der persistierten JSON-Datenbank und den in dieser Phase bereits durchgeführten Transaktionen zusammensetzt.
+So kann das Relabel-Tool \ua erkennen, das der selbe Fehler schon in einem vorherigen Experiment behoben wurde.
+
+Die Samples werden absteigend nach Loss-Wert sortiert und dem Nutzer iterativ präsentiert.
+Der Nutzer kann das Sample als Datenfehler in Form einer Transaktion beheben oder als Klassifikationsfehler markieren.
+Als Klassifikationsfehler markierte Samples werden automatisch geloggt und im Cloud-Speicher abgelegt.
+Die Analyse kann abgebrochen werden, sobald mindestens $25$ Klassifikationsfehler erfasst wurden.
+
+\subsection{Datenfehler}
+
+% todo:
+
+\subsection{Klassifikationsfehler}
+
+% todo:
+
+\section{Abgrenzung einfacher und schwerer Events}
+\label{sec:abgrenzung-einfacher-und-schwerer-events}
+
+Da ein Großteil der in \autoref{subsec:metriken} vorgestellten Metriken pro Klasse erhoben werden, kann eine genauere Analyse über die Komplexität zur Klassifizierung einer einzelnen Klasse gemacht werden.
+Wie einfach oder schwer eine Klasse zu lernen ist, soll pro Modell und Modell-übergreifend veranschaulicht werden.
+
+%(z.B. Tor oder Einwurf ist leichter als Abseits)
+
+% todo
+
+% \section{Grenzen und Hypothesen}
+
+%\section{Anwendung der Modelle auf SoccerNet-500}
+%\label{sec:anwendung-der-modelle-auf-soccernet-500}
+
+%Im ersten Durchgang werden alle Modelle mit Daten aus SoccerNet-500 trainiert.
+
+%Die Daten werden wie im Original-Paper nach Spiel aufgeteilt im Verhältnis (3:2:1).
+%Für jede Annotation wird ein Eintrag im Datenframe erstellt, sowie für jede Spielminute, in der keine der drei definierten Aktionen stattfindet.
+%Während in SoccerNet das ganze Videomaterial von einer Minute komprimiert wurde, werden in diesem Aufbau nur Tensoren von 5 Sekunden als Input genutzt.
+%Für die Spielminuten ohne Annotation wird eine Hintergrund-Aktion in der 30. Sekunde der Spielminute erstellt, sodass es zu keiner potenziellen Überschneidung kommen kann.
+
+%Aus dem Datenframe werden anschließend H5-Datensets mit je 400 (50 und 100) Trainings- (Validierungs- und Test-) samples pro Klasse gespeichert.
+
+%\subsection{Ergebnisse}
+
+%<<tab:soccernet>> zeigt die Ergebnisse des ersten Durchlaufs.
+
+%\begin{figure}
+%    \centering
+%    \csvautotabular{tbl/s.csv}
+%    \caption[]{Vergleich SoccerNet Benchmark}
+%    \label{tab:soccernet}
+%\end{figure}
+
+%In alle Modellen wurden nur die hinteren \fc-, sowie Teile des letzten \res-Layers trainiert, sodass die Zahl der trainierbaren Parameter etwa gleich sind pro Modell.
+%Weitere Layer wurden bewusst nicht trainiert, um ein Overfitting zu vermeiden.
+%Für alle Modelle gilt, dass sie ab einer gewissen Epoche overfitten, was auf zu wenig Samples zurückzuführen ist.
+%Insbesondere ip-CSN ist schwer zu trainieren, da es aufgrund der hohen Auflösung viel Speicher einnimmt und somit nur eine kleine Batchgröße ermöglicht.
+%Im Gegenseatz zu Slowfast, das die selbe Auflösung verarbeitet, werden in ip-CSN alle Frames des Tensors verarbeitet (in Slowfast nur jeder zweite).

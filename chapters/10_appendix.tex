@@ -1,0 +1,31 @@
+\chapter{Rechenergebnisse von HAR-Modellen in der Literatur}
+\label{ch:leaderboard}
+
+\autoref{tab:models} zeigt die publizierten Rechenergebnisse der in \autoref{ch:sota} vorgestellten Modelle im Vergleich.
+Die Ergebnisse von UCF-101 beziehen sich alle auf die als 3-fold-Accuracy angegebene Metrik.
+Sports-1M zeigt jeweils die Accuracy im Format \emph{clip@1}/\emph{video@1} und Kinetics stets die Top-1-Accuracy.
+
+\begin{figure}
+    \csvautotabular{tbl/models.csv}
+    \label{tab:models}
+\end{figure}
+
+\chapter{Aktionskatalog}
+\label{ch:aktionskatalog}
+
+In \autoref{tab:action} werden alle 32 Klassen des im Rahmen dieser Arbeit generierten und in \autoref{ch:data} vorgestellten Datensets aufgelistet.
+Neben der Anzahl ist die durchschnittliche und maximaler Dauer pro Aktion vermerkt, die sich aus den Annotationen in \cite{Statsbomb20} ergeben.
+Aktionen, die hier keinen Wert vorweisen werden lediglich als Zeitpunkt in \gls{sbod} repräsentiert.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \csvautotabular{tbl/actions_a.csv}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \csvautotabular{tbl/actions_b.csv}
+    \end{subfigure}
+    \label{tab:action}
+\end{figure}

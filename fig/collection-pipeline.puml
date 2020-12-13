@@ -1,0 +1,28 @@
+@startuml
+
+
+
+    |automatic|
+    start
+    if (Provider) then (SoccerNet)
+        :Local Video Search;
+    else (YouTube)
+        |manual|
+        :Online Video Search;
+    endif
+    |automatic|
+    :Video Download;
+    if (Provider) then (SoccerNet)
+
+    else (YouTube)
+      :OCR Align;
+    endif
+    :Action Transformation;
+    |manual|
+    :Integrity Check;
+    |automatic|
+    stop
+
+
+@enduml
+

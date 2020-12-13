@@ -1,0 +1,69 @@
+@startuml
+
+() "http" as COMETAPI
+cloud "COMET" {
+}
+COMET  - COMETAPI
+
+COMET ..> har : reproduce
+
+
+package "har" {
+
+
+  component [TrainModule]
+
+
+  package "Data Processing" {
+
+    database "Annotation\nDatabase" as DB {
+
+    }
+
+    database "Video\nFiles" as Files {
+
+    }
+    () "Config" as DataConfig
+
+    [DataModule] -right- DataConfig
+
+    component [DataModule]
+
+    component [Database]
+    DB .up.> [Database] : "<<manifest>>"
+
+    component [DataSet] as MultiLabelDataSet
+    [DataModule] --> [MultiLabelDataSet]
+    [MultiLabelDataSet] --> [Database]
+    [MultiLabelDataSet] .right.> [TrainModule] : Samples
+    [MultiLabelDataSet] <.. Files : "<<manifest>>"
+
+  }
+
+  package "Evaluation" {
+
+    component [EvalModule]
+
+    [EvalModule] -up-> [Logger]
+    [EvalModule] -left-> [DatasetEvaluator]
+
+    [DatasetEvaluator]
+    [DatasetEvaluator] ..> MultiLabelDataSet : analyze
+
+
+    Evaluation -left-> [Database] : update
+
+    [Logger]
+    [Logger] .up.> COMETAPI : upload
+    TrainModule .left.> Evaluation: scores
+
+
+  }
+
+}
+
+
+
+
+
+@enduml

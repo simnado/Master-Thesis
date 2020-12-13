@@ -1,0 +1,36 @@
+@startuml
+
+interface Dataset {
+    String version
+    Map<String, Video[]> database
+}
+
+Dataset --> "*" Class : taxonomy
+Dataset --> "*" VideoHalf
+
+interface Class {
+    String nodeName
+    String nodeId
+    .. Extension ..
+    Object selector
+}
+
+interface VideoHalf {
+    Number duration
+    String resolution
+    String subset
+    String url
+    .. Extension ..
+    Number[] segment
+}
+
+interface Annotation {
+    String label
+    Number[] segment
+    .. Extension ..
+    String url
+}
+
+VideoHalf -right-> "*" Annotation : annotations
+
+@enduml

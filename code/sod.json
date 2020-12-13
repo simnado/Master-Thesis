@@ -1,0 +1,51 @@
+{
+  "id": "2b65150f-9bf1-42ac-98e7-ebc64527ec2f",
+  "index": 1912,
+  "period": 2,
+  "timestamp": "00:17:05.920",
+  "minute": 62,
+  "second": 5,
+  "type": {
+    "id": 16,
+    "name": "Shot"
+  },
+  "possession": 154,
+  "possession_team": {},
+  "play_pattern": {},
+  "team": {},
+  "player": {},
+  "position": {},
+  "location": [
+    115.0,
+    42.0
+  ],
+  "duration": 0.573,
+  "related_events": [
+    "b5b02724-7317-4ec5-890b-4f94ac574b08"
+  ],
+  "shot": {
+    "statsbomb_xg": 0.14743067,
+    "end_location": [
+      120.0,
+      36.2,
+      0.6
+    ],
+    "key_pass_id": "0274b1ac-3459-4609-ad6a-61801905aea9",
+    "outcome": {
+      "id": 97,
+      "name": "Goal"
+    },
+    "technique": {
+      "id": 93,
+      "name": "Normal"
+    },
+    "type": {
+      "id": 87,
+      "name": "Open Play"
+    },
+    "body_part": {
+      "id": 37,
+      "name": "Head"
+    }
+  }
+}

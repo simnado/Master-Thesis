@@ -1,0 +1,26 @@
+\newcommand{\primarymetric}{62,0 \%}
+
+\begin{prefacesection}{Abstract}
+    Die Erkennung von Aktionen in Videos (auch \gls{har}) ist Gegenstand aktueller Forschung im Bereich Video Understanding.
+    Großspurige Datensets beschränken sich meist auf allgemeine, Domänen-übergreifende Klassen, die eindeutig voneinander abgrenzbar sind und nicht in Kombination auftreten.
+    Hingegen finden im Bereich von Feldsportarten, wie Fußball, oft viele, visuell ähnliche Aktionen in kürzester Zeit statt.
+    Bestehende Datensets dieser Domäne bilden bislang nur einen Bruchteil der Spielaktionen aus der realen Welt ab.
+    Hier knüpft die vorliegende Arbeit an, in der ein Multi-Label-Datenset mit insgesamt 32 verschiedenen Spielaktionen, basierend auf TV-Aufzeichnungen von Fußballspielen, neu generiert wird.
+    In anschließenden Benchmarks kommen verschiedene \gls{dnn}-Architekturen (wie R2+1D, SlowFast, ir-CSN) als Video-Classifier zum Einsatz, die anhand des neuen Datensets mit Methoden des Transfer-Learnings und ohne weitere Zwischenschritte (\emph{Ende-zu-Ende}) trainiert werden.
+    Die Ergebnisse zeigen, dass aktuelle Modelle des Deep-Learnings bereits in der Lage sind, diese Aktionen ausreichend gut zu erkennen (mit einer Balanced Accuracy von \primarymetric).
+    Zum anderen können Spielaktionen in verschiedene Schwierigkeitsgrade kategorisiert werden, deren Erkennung maßgeblich abhängt von der Auflösung und der Geschwindigkeit der Videos.
+
+    \begin{tcolorbox}[title=Todo]
+        Ergebnisse und Eigenschaften des Datensets, Englisch nochmal übersetzen
+    \end{tcolorbox}
+
+
+    Action Recognition is the key problem of Video Understanding and has not been explored as far as the two-dimensional variant of Object Recognition.
+    However, recently there have been frequent new breakthroughs that replace existing models.
+    Videos of field sports, such as soccer, are particularly demanding in this area, since possible game actions have a high intra-class variance and low inter-class similarity.
+    Existing data sets only represent a fraction of game actions of the real world and are hardly relevant in the field of soccer scouting.
+    This is where the work at hand follows, the aim of which is to train a central multi-label video classifier for recognizing game actions with a data set specially generated for this purpose.
+    This data set offers a spectrum of 32 different classes, \dots
+    The results should benefit from the training of a large number of classes as well as the use of factorized 3D convolution.
+
+\end{prefacesection}

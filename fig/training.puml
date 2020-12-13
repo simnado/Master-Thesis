@@ -1,0 +1,59 @@
+@startuml
+participant Main
+
+Main -> Trainer: fit(model, train_dl, val_dl)
+activate Trainer
+
+loop all epochs
+
+    loop batch in train_dl
+        Trainer -> Trainer : schedule(epoch, iteration)
+
+        Trainer -> Trainer: forward(batch)
+        activate Trainer
+        Trainer <-- Trainer: loss, scores
+        deactivate Trainer
+
+        Trainer -> Trainer: backward(loss)
+
+    end
+    Trainer -> "Evaluator": evaluate(train_dl, train_scores)
+    activate "Evaluator"
+    Trainer <-- "Evaluator": Metrics
+    deactivate "Evaluator"
+
+    loop batch in val_dl
+        Trainer -> Trainer: forward(batch)
+        activate Trainer
+        Trainer <-- Trainer: loss, scores
+        deactivate Trainer
+    end
+    Trainer -> "Evaluator": evaluate(val_dl, val_scores)
+    activate "Evaluator"
+    Trainer <-- "Evaluator": Metrics
+    deactivate "Evaluator"
+
+    Trainer -> Evaluator : save()
+    activate Evaluator
+    Evaluator -> Logger: save(metrics, hparams, weights, losses)
+    activate Logger
+    Evaluator <-- Logger
+    deactivate Logger
+    Trainer <-- Evaluator
+    deactivate Evaluator
+
+    alt early stopping
+        Trainer <-- Trainer: break
+        deactivate Trainer
+    end
+
+    deactivate Trainer
+
+end
+
+
+
+Trainer -> Main:
+deactivate Trainer
+
+@enduml

@@ -1,0 +1,21 @@
+@startmindmap
+
+* Action Recognition
+** Detection & Tracking
+*** improved Dense Trajectories
+*** ?
+** Feature Extraction & Classification
+*** Optical Flow + SVM
+*** ?
+** Deep Learning
+*** Early Fusion
+*** Late Fusion
+**** 2D-CNN + LSTM
+**** 2D-CNN + Pooling
+*** 3D-Convolution
+*** Factorized 3D-Convolution
+**** Factorized Architecture
+**** 2D followed by 1D Convolution
+**** Channel-separated Convolution
+
+@endmindmap

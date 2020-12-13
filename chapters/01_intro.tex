@@ -1,0 +1,97 @@
+\chapter{Einleitung}
+\label{ch:intro}
+
+\begin{tcolorbox}[title=Todo]
+ \begin{itemize}
+  \item Modellübersichtsgrafik: Mapping von Frames to Labels
+ \end{itemize}
+ \end{tcolorbox}
+
+Die automatisierte Klassifizierung von Videomaterial im Alltag vieler Menschen ein fester Bestandteil.
+Auswertungen von Überwachungskameras, Gesten-Steuerung an Smartphones und Erkennung von Müdigkeit am Steuer sind nur einige Beispiele.
+Der Sport- und im speziellen der Fußballsektor ist besonders gekennzeichnet durch eine hohe Anzahl öffentlich verfügbarer Videos \cite{Giancola18}, aus denen neues Wissen abgeleitet werden kann.
+Diese Arbeit beschäftigt sich in diesem Zusammenhang mit der Erkennung atomarer wohl-definierter Spielaktionen, wie Torschüsse, Auswechslungen oder Fouls, die eine spezielle Form der \gls{har} ist.
+Die Spielaktionen sollen effizient und ausschließlich anhand des zugrunde liegenden Videobilds erkannt werden.
+
+Der Einsatz von Deep-Learning im Bereich der Video-Klassifizierung führte in den letzten Jahren zu einem signifikanten Fortschritt \cite{Abu-Bakar19}.
+Besonders durch die Verfügbarkeit von \gls{gpu}s und den Veröffentlichungen neuer umfassender Datensets, konnten die Erkennungsraten in den letzten Jahren deutlich verbessert werden. % todo: quelle
+
+In der Sportdomäne ergeben sich technische Herausforderungen in der Erkennung von Spielaktionen -- vor allem durch die Ähnlichkeit der Videos.
+Man spricht in diesem Zusammenhang von einer besonders hohen Inter-Klassen-Ähnlichkeit (inter-class similarity), die sich dadurch auszeichnet, dass verschiedene Klassen ähnliche visuelle Merkmale aufweisen, sich jedoch semantisch unterscheiden \cite{Sozykin17}.
+Dazu kommt eine besonders hohe Intra-Klassen-Varianz (intra-class variance) \cite{Ballan09}, \dh verschiedene Samples der gleichen Klassen können einen sehr unterschiedlichen Verlauf haben.
+Weitere Herausforderungen sind die Ungleichverteilung (imbalance) der Aktionsklassen, sowie die potenzielle Überschneidung von Klassen \cite{Jiang19}.
+
+\section{Motivation}
+\label{sec:motivation}
+
+Im Fußball-Scouting sind Spieldaten eine begehrte Ressource.
+Vor allem die Auswertung von Videomaterial aus TV-Aufzeichnungen erfordert jedoch viel Zeit.
+Dazu werden Spiele meist manuell mit Markierungen zu den Spielaktionen, wie Tore, Auswechslungen oder Zweikämpfen versehen.
+Diese Markierungen, im Folgenden Annotationen genannt, bestehen aus einem Label (entspricht der Aktionsklasse), sowie einer Start- und Endzeit, die den Zeitraum im Video definieren, in der die Aktion stattfindet.
+
+Die Annotationen gelten im Kontext der Klassifikation als die \sog verifizierte Ground Truth.
+Praktischen Einsatz erlangen derartige Annotationen auch im Scouting.
+Fußball-Scouts können \zB effizienter an einer qualitativen Video-Analyse arbeiten, wenn sie wissen an welchen Stellen im Video, die für sie interessanten Aktionen stattfinden.
+
+Das Annotieren selbst ist allerdings ein zeitaufwendiger, teuer und monotoner Prozess.
+Spieldaten werden meist von freiwilligen Datenpflegern einer Community-Website oder von professionellen Datenpflegern erfasst.
+Datenprovider wie Wyscout, stellen bis zu 400 Vollzeitressourcen ein, die pro Spiel bis zu 2000 Annotationen beisteuern können \cite{Jiang19}.
+
+Diese Arbeit optimiert zunächst mittels existierender Modelle die Klassifikation von hand-annotierter Spielaktionen.
+Dadurch soll ermöglicht werden, dass derartige Annotationen künftig für den produktiven Einsatz im Scouting voll- oder teil-automatisiert generiert werden können und der manuelle Aufwand reduziert wird.
+
+\section{Forschungsfrage}
+\label{sec:forschungsfrage}
+
+In der Fußballdomäne gibt es zurzeit nur kleine oder unvollständige Datensets \cite{Giancola18} \cite{Jiang19}.
+Darüber hinaus sind die Erkennungsraten bei der Anwendung auf diesen Datensets vergleichsweise gering verglichen mit den groß angelegten, generischen Datensets \cite{Kay17} \cite{Karpathy14} im Bereich \gls{har}.
+Zum einen mag das daran liegen, dass diese ein deutlich breiteres Repertoire an Videomaterial einschließen und zum anderen, dass sie Benchmarks unter deutlich höherer Rechenlast optimiert wurden.
+Die vorliegende Arbeit versucht diese Lücke zu verringern, indem auch bisher unbeachtete Spielaktionen erfasst werden und zur Optimierung aktueller Modelle genutzt werden.
+
+Die Fragen, der sich diese Arbeit widmet, ist:
+\begin{enumerate}
+    \item Kann ein breiteres Spektrum an Spielaktionen mit bestehenden, modernen Methoden des Deep-Learnings erlernt werden?
+    \item Welche Art von Spielaktionen machen die Action Recognition besonders schwer?
+\end{enumerate}
+Beide Fragen sollen unter Anwendung des aktuellen Forschungsstands beantwortet werden.
+
+\section{Zielsetzung und Abgrenzung}
+\label{sec:zielsetzung}
+
+Ziel der Arbeit ist ein optimiertes \gls{har}-Modell, welches beliebige Videoclips einer bestimmten Länge klassifizieren kann und die darin enthaltenen Spielaktionen erkennt.
+Das Modell soll in der Lage sein, alle auf visuellen Bewegungen basierenden Spielaktionen, zu erkennen.
+Die Erkennungsrate sollte sich im Bereich bereits publizierter Modelle dieser Domäne bewegen, sodass damit generierten Annotationen in gleicher Weise wie manuell erstellte Annotationen nutzbar sein.
+
+Da die Verknüpfung der Spielaktionen zum ausführenden Spieler, ein eigenständiges fundamentales Problem darstellt, wird im Rahmen dieser Arbeit darauf verzichtet.
+Ebenso werden mehrstufige Modelle zur Lösung des Problems aufgrund eines zu hohen Entwicklungsaufwands vorab ausgeschlossen.
+Untersucht werden daher nur Modelle, die den direkten Zusammenhang zwischen sequentiellen Farbbildern und den darin stattfindenden Spielaktionen direkt abbilden.
+
+\section{Aufbau der Arbeit}
+\label{sec:aufbau-der-arbeit}
+
+In \autoref{ch:basics} werden zunächst alle grundlegenden Begriffe und Variablen definiert.
+Um zu verstehen welche Art von Daten erkannt werden soll, werden die Begriffe der Aktion und Aktionserkennung (\gls{har}) fachlich eingeordnet.
+Zur Lösung des Problems werden mehrere Forschungsstränge beleuchtet, wobei der Fokus schließlich auf Deep-Learning gesetzt wird.
+In \autoref{sec:backbone-modelle} werden dazu grundlegende Techniken und Modelle des Deep-Learnings präsentiert.
+
+\autoref{ch:sota} beschäftigt sich mit den Forschungsentwicklungen im Bereich \gls{har}.
+Dabei werden detailliert verschiedene Ansätze und konkrete Architekturen vorgestellt, sowie Methoden die Architekturen auf ungeschnittenem Bildmaterial anzuwenden.
+In \autoref{sec:temporal-action-detection} wird angeschnitten, wie Aktionsintervalle auf Basis eines \gls{har}-Modells erfasst werden können, bevor in \autoref{sec:datensets-und-benchmarks} die populärsten Datensets und aktuelle Benchmarks verglichen werden.
+
+Basierend auf den Informationen der vorherigen Kapitel wird in \autoref{ch:concept} ein Vorgehen beschrieben, wie ein Datenset zur Action Recognition vielfältiger Spielaktionen gerneriert werden kann.
+Dabei werden mögliche Datenquellen und Anforderungen an die Beschaffenheit des generierten Datensets aufgezeigt.
+Anschließend werden einige für diese Aufgabe geeignete Architekturen ausgewählt und ein Vorhaben beschrieben, das zeigt wie die Modelle auf die Daten angepasst werden können.
+Als Ergebnis ergibt sich in \autoref{subsec:experimente} ein Vorhaben, welches im Zuge von Experimenten genauer untersucht wird.
+In \autoref{sec:umgang-mit-fehlern-in-datenset} wird ein weiterer Feedback-Kanal zum Umgang mit Daten- und Klassifikationsfehlern präsentiert, bis in \autoref{sec:konzeptuelle-umsetzung} die modulare Umsetzung aller zu entwickelnden Komponenten zusammengefasst wird.
+
+\autoref{ch:data} und \autoref{ch:training} beschäftigen sich mit der Umsetzung der drei Kernkomponenten zum Data-Engineering, Training und der Evaluation.
+Dazu wird in \autoref{sec:datenerhebung} der Prozess der Datenerhebung beschrieben, die in einem Mutli-Label-\gls{har}-Datenset gipfelt.
+Anschließend werden in \autoref{sec:eigenschaften-des-datensets} die Eigenschaften dieses Datensets vorgestellt und in \autoref{sec:pre-processing} die Art und Weise wie aus dem Datenset Samples für das Deep Learning Modell generiert werden.
+\autoref{ch:training} definiert ein einheitlich reproduzierbares Trainingsprotokoll, das die Bestimmung von Hyperparametern, verwendete Metriken und das Ändern fehlerhafter Daten einschließt.
+
+In \autoref{ch:results} werden die Rechenergebnisse durchgeführter Experimente vorgestellt und analysiert.
+Dabei werden Rückschlüsse auf geeignete Hyperparameter der Deep-Learning-Modelle und die Komplexität der verschiedenen Spielaktionen gezogen.
+
+\autoref{ch:integration} präsentiert kurz die mögliche Anwendbarkeit eines \gls{har}-Modells in der realen Welt an, wobei das Modell iterativ auf ungeschnittenen Videos angewandt wird.
+
+Abschließend fasst \autoref{ch:zusammenfassung} die Arbeit zusammen und gibt einen Ausblick und ein Fazit zur Fragestellung.

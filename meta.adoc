@@ -1,0 +1,37 @@
+:appendix-refsig: Anhang
+:appversion: 0.5.0
+:doctype: book
+:appendix-caption: Anhang
+:attribute-missing: warn
+:bibtex-style: apa
+:caution-caption: Achtung
+:chapter-refsig: Kapitel
+:description: TBA
+//:data-uri:
+:example-caption: Beispiel
+:eqnums: AMS
+:failure-level: WARN
+//:favicon:
+:figure-caption: Abbildung
+// :front-cover-image:
+:imagesoutdir: /out/thesis/img
+:important-caption: Wichtig
+:keywords: Machine Learning, Deep Learning, Action Recognition
+:lang: DE
+:listing-caption: Quellcode
+:mmdc: /usr/local/bin/mmdc
+:note-caption: Hinweis
+:outdir: /out
+:pdf-version: 1.7
+:preface-title: Vorwort
+:revdate: 2020-07-30
+:revnumber: {appversion}
+:section-refsig: Abschnitt
+:sectnums:
+:stem: latexmath
+:table-caption: Tabelle
+:toc: left
+:toc-title: Inhaltsverzeichnis
+:toclevels: 3
+:warning-caption: Warnung
+:xrefstyle: short

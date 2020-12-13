@@ -1,0 +1,38 @@
+@startuml
+
+
+() "http" as COMETAPI
+cloud "Cloud\nStorage" as COMET {
+}
+COMET  -down- COMETAPI
+
+COMET .right.> har : reproduce
+
+
+package "har" {
+
+() "HAR Backbone" as Net
+
+
+
+component [DataModule]
+component [TrainModule]
+component [EvalModule]
+
+DataModule ..> TrainModule : Samples
+DataModule ..> EvalModule : Samples
+TrainModule .left.> EvalModule : Scores
+TrainModule .right.> Net : use
+EvalModule --> DataModule : update
+EvalModule -down-> COMETAPI : save
+
+}
+
+component [DataCollecting]
+  database "Annotation\nDatabase" as DB {
+  }
+
+  DB .left.> DataModule : "<<manifest>>"
+  DataCollecting ..> DB : create
+
+@enduml

@@ -1,0 +1,20 @@
+@startgantt
+-- Recognition --
+
+[Sample 1] on {Cross:70%}{Shot:29%}{Goal:1%} lasts 32 days
+[Sample 2] on {Cross:55%}{Shot:40%}{Goal:5%} lasts 32 days
+[Sample 2] starts 10 days after [Sample 1]'s start
+[Sample 2] ends 10 days after [Sample 1]'s end
+[Sample 3] on {Cross:13%}{Shot:80%}{Goal:7%} lasts 32 days
+[Sample 3] starts 10 days after [Sample 2]'s start
+[Sample 3] ends 10 days after [Sample 2]'s end
+[Sample 4] on {Cross:5%}{Shot:80%}{Goal:15%} lasts 32 days
+[Sample 4] starts 10 days after [Sample 3]'s start
+[Sample 4] ends 10 days after [Sample 3]'s end
+[Sample 5] on {Cross:0%}{Shot:5%}{Goal:95%} lasts 32 days
+[Sample 5] starts 10 days after [Sample 4]'s start
+[Sample 5] ends 10 days after [Sample 4]'s end
+
+-- Detection --
+
+@endgantt

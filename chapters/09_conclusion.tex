@@ -1,0 +1,55 @@
+\chapter{Zusammenfassung}
+\label{ch:zusammenfassung}
+
+Zum Ende dieser Arbeit wird noch einmal der Umfang und die Ergebnisse rekapituliert.
+Darüber hinaus wird ein Ausblick gegeben, wie sich die Ergebnisse durch weitere Schritte verbessern ließen und eine Einschätzung ob die angewandten Methoden dieser Arbeit das Ziel erreichen konnten.
+
+\begin{tcolorbox}[title=Todo]
+ \begin{itemize}
+  \item Ergebnisse in Rekapitulation einbauen
+ \end{itemize}
+ \end{tcolorbox}
+
+\section{Rekapitulation}
+\label{sec:rekapitulation}
+
+Um Video Understand im Fußball-Sektor gibt es bis dato kein umfangreiches Datenset mit mehr als zehn Klassen.
+Im Zuge dieser Arbeit wurde ein mächtigeres Datenset mit insgesamt 32 Spielaktionsklassen auf Basis öffentlich zugänglicher Daten erstellt.
+Durch die Verfügbarkeit dieses neuen Datensets, konnte moderne Deep Learning Modelle zu Multi-Label Action Recognition trainiert werden, deren Ergebnisse nicht hinter den Ergebnissen vorangegangener Datensets zurückbleiben.
+
+Im Zuge des Training wurden Modelle aus den Kategorien 3D-Convolution und faktorisierter 3D-Convolution getestet und herausgearbeitet welche Samplingstrategie für die jeweilige Kategorie am besten geeignet ist.
+Darüber hinaus konnte auf Basis der Rechenergebnisse eine umfassende Analyse der Aktionsklassen durchgeführt werden, die Spielaktionen bestimmte Schwierigkeitsgrade zugeteilt.
+
+%todo: was ist jetzt am besten? wie gut genau und was ist leicht und was ist schwer?
+
+\section{Ausblick}
+\label{sec:ausblick}
+
+Die Rechenergebnisse dieser Arbeit stellen eine solide Baseline zukünftiger Arbeiten dar, die durch zusätzlichen Aufwand noch viel Verbesserungspotential hat.
+Offensichtlich lassen sich noch bessere Ergebnisse erziehen, wenn das vorgestellte Baseline-Modell von Grund auf mit den neuen Datenset trainiert würde, was aus Hardware-Beschränkungen im Rahmen dieser Arbeit nicht möglich war.
+Weitere Fortschritte sind denkbar durch die Hinzunahme der Audiosignale der zugrunde liegenden Videos.
+Ein ähnlicher Ansatz wurde bereits in \cite{Wang19} beschrieben.
+Ebenso vielversprechend ist die in \cite{Wu20} vorgestellte Methodik die räumliche Auflösung während des Trainings von niedrig- zu höher auflösenden Samples zu variieren.
+
+Mehrschrittige Modell, die aufgrund des erhöhten Entwicklungsaufwand im Vorfeld ausgeschlossen wurden, könnten ebenfalls Fortschritte bringen.
+So könnten \zB vorab Kamerawechsel erkannt werden und Clips ausschließlich so gesamplet werden, dass sie kontinuierliche Bewegung ohne Kameraschnitte zeigen.
+Alternative kann die Information eines Kamerawechsels, wie auch weitere separat erhobene Informationen wie Ballposition oder Spielerkoordinaten in das Baseline-Modell einfließen.
+
+Im Anschluss an die Action Recognition kann die hier nur naiv umgesetzte Temporal Action Detection durch den Einsatz eines mächtigeren Modells aus \autoref{sec:temporal-action-detection} ersetzt werden, die mit genaueren Annotationen eines abgewandelten Datensets trainiert werden können.
+
+Zusätzlich kann auf der selben Datengrundlage (mit gleichen Spielen) ein Datenset mit Spielerkoordinaten und Identifiern erstellt werden.
+Mit solchen Daten kann \ggf ein Modell zum Tracking von Spielern oder sogar der Projizierung von Spielern auf Spielfeldkoordinaten erstellt werden und mit dem hier vorgestellten Modell zur Aktionserkennung verknüpft werden.
+So wäre eine vollständige Erfassung Spieler-bezogenen Statistiken auf Basis von Spielaktionen und Spielerpositionen möglich, die das Fußball-Scouting nachhaltig prägen könnte.
+
+\section{Fazit}
+\label{sec:fazit}
+
+Abschließend lassen sich die Fragestellungen aus \autoref{sec:forschungsfrage} beide mit \emph{Ja} beantworten.
+Die Lernbarkeit von bis zu 32 wurde im Zuge zahlreicher Experimente mehrmals bewiesen.
+Als besonders anspruchsvoll gelten hierbei \dots
+
+% todo: zweite frage
+
+Auch der produktive Einsatz der Action Recognition in eine Anwendung zur Temporal Action Detection war möglich.
+Aufgrund zu ungenauer Intervallgrenzen in dem neu erhobenen Datenset, konnte der Erfolg der Detection nicht quantifiziert werden.
+Jedoch werden die Ergebnisse (subjektiv) für anwendbar befunden.

@@ -1,0 +1,41 @@
+@startuml
+interface Match {
+  Enum provider
+  String externalId
+  String homeTeam
+  String awayTeam
+  String league
+  String season
+  Date playedAt
+
+  Number firstHalfDuration
+  Number secondHalfDuration
+
+  Enum split
+}
+
+interface Video {
+    Enum provider
+    String externalId
+    String filename
+    Enum period
+    Number startTime
+    Number endTime
+}
+
+Video "2" -right-> "1" Match : match >
+
+interface Action {
+    Enum provider
+    String externalId
+    String class
+    String externalClass
+    Number period
+    Number second
+    Number duration
+}
+
+Action "*" -left-> "1" Match : match >
+
+
+@enduml

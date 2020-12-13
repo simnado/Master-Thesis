@@ -1,0 +1,89 @@
+% class options:
+% - select either [german] or [english]
+% - select the type of thesis from:
+%   [bachelor, master, generic]
+%   (in case of generic, use \type{} to specify it)
+% - use option "alpha" for abbreviated citation (instead of numbers)
+% - option "draft" is available, too
+% - use options "utf8" or "latin1" to select inputencoding
+\documentclass[german, master, utf8]{base/thesis_KBS}
+
+\addbibresource{lib.bib}
+
+\usepackage{units}    % useful for settings units:              \unit[23]{m}
+\usepackage{nicefrac} % for setting fractions esp. within text: \nicefrac{km}{h}
+
+\usepackage{algorithm, algorithmic}  % for pseudo code (cf. documentation)
+\renewcommand{\algorithmiccomment}[1]{\qquad{\small // \textit{#1}}}
+
+%\bibliography{library}
+\input{glossary}
+\include{util//commands}
+\include{util//abbreviations}
+\include{util//lst_json}
+
+\usepackage{draftwatermark}
+\SetWatermarkText{Draft}
+\SetWatermarkScale{1.5}
+\SetWatermarkColor[gray]{0.8}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\title{Deep-Learning-basierte Klassifikation von Spielaktionen in Fußballvideos}
+\author{Simon Narendorf}
+\email{snarendorf@uni-osnabrueck.de}
+\firstSupervisor{Prof. Dr. Joachim Hertzberg}
+\secondSupervisor{Dr. Isabel Hübener}
+%\shorttitle{...}                       % by default = title
+%\dept{...}                             % by default KBS UOS
+%\submitdate{November 2004}             % by default current month & year
+%\signcity{}                            % by default Osnabr�ck
+%signline{Osnabr�ck, 11. Dezember 2004} % by default "signcity, submitdate"
+
+\generatetitle
+
+\cleardoublepage
+
+\include{chapters//00_abstract}
+
+\cleardoublepage
+\tableofcontents
+
+
+\startTextChapters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\include{chapters//01_intro}
+\include{chapters//02_basics}
+\include{chapters//03_sota}
+\include{chapters//04_concept}
+\include{chapters//05_data}
+\include{chapters//06_training}
+\include{chapters//07_results}
+\include{chapters//08_integration}
+\include{chapters//09_conclusion}
+
+% Anhang
+\cleardoublepage
+\appendix
+\include{chapters//10_appendix}
+
+
+% DON'T set \bibliographystyle here -- use the documentclass option instead
+%\bibliographystyle{abbrv}
+
+\printbibliography[heading=bibintoc]
+
+% Glossar
+\cleardoublepage
+\printglossary[type=\acronymtype, title=Abkürzungsverzeichnis, toctitle=Abkürzungsverzeichnis]
+\printglossary[title=Glossar, toctitle=Glossar]
+\printglossary[type=symbols, title=Symbolverzeichnis, toctitle=Symbolverzeichnis]
+
+
+\closing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}

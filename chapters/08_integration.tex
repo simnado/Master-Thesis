@@ -1,0 +1,86 @@
+\chapter{Integration}
+\label{ch:integration}
+
+In diesem Kapitel werden abschließend die notwendigen Schritte zur Integration des \gls{har}-Backbone in direkt nutzbare Umgebung genannt.
+Dies schließt die Integration der Action Recognition in eine Temporal Action Detection ein, sowie die Integration der Detection in eine Pipeline zur Verarbeitung neuer ungesehener Videos durch den Nutzer.
+
+\begin{tcolorbox}[title=Todo]
+    \begin{itemize}
+        \item Intervallbildung mit Grenzwerten out of scope? (Demo nur mit Scores)
+        \item Localization: Ergebnisse out of scope?
+        \item Localization: Werden Grenzen implizit selbst erlernt?
+        \item Deployment: Link einfügen
+        \item Die Inbetriebnahme sieht ein iterative Anwendung des \gls{har}-Modells auf konsekutiven Clip-Segmenten eines ungeschnittenen Videos vor.
+        \item Die Ergebnisse werden anschließend mit einem naiven Smoothing zur Intervallen transformiert.
+        \item Inbetriebnahme eines zusätzliches Modell aus \autoref{sec:temporal-action-detection} zur Temporal Action Detection ist aufgrund des Zeitrahmens nicht vorgesehen.
+    \end{itemize}
+\end{tcolorbox}
+
+\section{Abbildung auf Zeitintervall}
+\label{sec:localization}
+
+Eine Temporal Action Detection wird im Rahmen dieser Arbeit nur naiv umgesetzt indem das \gls{har}-Modell iterativ mit einem Versatz von einer Sekunde auf dem ungeschnittenen Video angewandt wird.
+\autoref{fig:detection} zeigt wie sich die Clipsegmente und die damit verbundenen Scores überlagern.
+
+\begin{figure}
+    \centering
+    \bigimage{fig/detection}{\textwidth}
+    \caption{Gantt-Diagramm: Überlagerung der Scores während der Temporal Action Detection}
+    \label{fig:detection}
+\end{figure}
+
+Jeder Zeitpunkt $t_i$, gibt es abhängig von der Clip-Abdeckung $t_\Delta$ mehrere Clips $\psi \in \Psi$, die sich mit $t_i$ zeitlich überlagern.
+Der endgültige Score $\hat{y}_{c \in \gls{tld:A}, t_i}$ einer Klasse ist ergibt sich aus dem Maximum aller Scores überlagernder Clips:
+
+\begin{equation}
+    \label{eq:detection}
+    \hat{y}_{c \in \gls{tld:A}, t_i} =  \max\limits_{ \psi \in \Psi } y_{c, t_i, \psi} \times \text{overlap}([t_\psi, t_\psi + t_\Delta ], [t_i, t_i + 1]) \times \text{influence}(\frac{t_{\psi, i}}{t_\Delta})
+\end{equation}
+
+Die Hilfsfunktion $\text{overlap}$ (\autoref{eq:overlap}) filtert alle Clips ohne Überschneidung mit der jeweiligen Videosekunde heraus, während die die Funktion $\text{influence}$ Scores geringer gewichtet, deren Clip sich nur ganz am Anfang oder ganz am Ende mit der gesuchten Videosekunde überschneidet.
+
+\begin{equation}
+    \label{eq:overlap}
+    \text{overlap}(t_1, t_2) = t_1^1 \leq t_2^2 \land t_2^1 \geq t_1^2
+\end{equation}
+
+\begin{equation}
+    \label{eq:influence}
+    \text{influence}(x) =  \max \{0, -9{(x-0.5)}^4 + 1\}
+\end{equation}
+
+Aus den resultierenden Scores  $\hat{y}_{t_i}$ können mithilfe von neuen Grenzwerten feste Intervalle geformt werden, was jedoch nicht dem Umfang dieser Arbeit entspricht.
+Zudem wird angemerkt, dass eine auf Intervallen basierte Evaluierung mit Metriken wie tIoU (temporal Intersection over Union) zu Ergebnissen mit einem geringen Informationsgehalt führt, da die zeitlichen Ground-Truth-Intervall nicht manuell erstellt und validiert wurden.
+
+%\subsection{Evalutierung für temp. Action Localization}
+%* Sparsity Concentration Index (SCI) \cite{Sun15}
+%1. sample M pairs of video Frames for each sequence
+%2. final score $p_i$ for class $i$ is depending on entropy
+
+\section{Inference-Pipeline}
+\label{sec:inference-pipeline}
+
+Um das \gls{har}-Modell in der realen Welt einzusetzen, wird eine Anwendung bereitgestellt, die ungeschnittene Videos verarbeiten kann.
+In der Anwendung kann der Nutzer ein Video wahlweise hochladen oder einen YouTube-Link zu dem Video angeben.
+Zusätzlich kann eins der vortrainierten Modelle und ein Klassifikationsgrenzwert ausgewählt werden.
+
+Mit Absenden des Daten wird das Video lokal hoch- \bzw heruntergeladen, analysiert und in Clips segmentiert.
+Anschließend wird, wie zuvor beschrieben, das \gls{har}-Modell inferiert und die Scores anschließend für jeden Zeitpunkt aggregiert.
+
+Auf Basis des vom Nutzer angegebenen Grenzwerts können nur die Annotationen (im gleichen Format wie die JSON-Datenbank der Trainingsdaten) heruntergeladen werden.
+Alternativ kann auch ein Ausschnitt des Video mit eingebrannten Scores heruntergeladen werden.
+\autoref{fig:inference-pipeline} zeigt den kompletten Ablauf.
+
+\begin{figure}
+    \centering
+    \bigimage{fig/inference}{0.8\textwidth}
+    \caption{Aktivitätsdiagramm: Inferenz-Pipeline}
+    \label{fig:inference-pipeline}
+\end{figure}
+
+Die während des Trainings erforderlichen Schritte des zufallsbasierten Samplings entfällt an dieser Stelle, da eben alle Zeitpunkte des Videos erfasst werden sollen.
+Auch der Schritt zur Data Augmentation wird hier nicht mehr benötigt und würde die Inferenz nur zusätzlich erschweren.
+
+\section{Deployment}
+
+

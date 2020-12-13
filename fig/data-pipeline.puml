@@ -1,0 +1,27 @@
+@startuml
+
+
+    |einmalig|
+    start
+    if (Provider) then (SoccerNet)
+        :HD Download;
+        :Video Konvertierung;
+    else (YouTube)
+      :SD Download;
+    endif
+    :Metadaten-Erfassung;
+    fork
+    |pro Training|
+    :Clip-Segmentierung;
+    :Sampling;
+    fork
+    |pro Sample|
+    :Data Augmentation;
+    :Standardization;
+    |pro Training|
+    endfork
+    |einmalig|
+    endfork
+    stop
+
+@enduml
