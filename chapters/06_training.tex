@@ -88,7 +88,7 @@ Anschließend findet das eigentliche Training dem wie folgt beschriebenen, fest 
 \label{subsec:trainingsschleife}
 
 Alle Experimente folgen dem gleichen Schema in Form eines Trainings-Loops:
-\autoref{fig:train-loop} zeigt den Algorithmus des Trainings-Loops für eine der Phasen, in der pro Epoche eine Schleife durchlaufen wird:
+\autoref{fig:train-loop} zeigt den Algorithmus des Trainings-Loops, in der pro Epoche eine Schleife durchlaufen wird:
 
 Zunächst werden Batches aus dem Trainingsset gesamplet, bevor der Vorwärts- und Rückwärts-Pass des \gls{har}-Modells durchlaufen wird.
 Aus den Scores (Predictions) des Vorwärtspasses, werden mithilfe der Ground-Truth-Labels $y$ die Fehlerwerte (Losses) berechnet.
@@ -137,8 +137,8 @@ In den hinteren Dritteln kann diese Startlösung langsamer optimiert werden als 
 \end{figure}
 
 Der Backward-Pass basiert auf einem Adam-Optimierer \cite{Kingma14} mit der Standardkonfiguration nach \cite{Gugger20}.
-Die Anzahl der Epochen wird zunächst auf 10 beschränkt, was ausreicht zum Initialisieren \bzw. Vergleich verschiedener Hyperparameter.
-Erst in der zweiten Phase werden die Netze für mehr als 10 Epochen trainiert.
+Die Anzahl der Epochen wird in der ersten und zweiten Phase auf 10 beschränkt, was ausreicht zum Initialisieren \bzw. Vergleich verschiedener Hyperparameter.
+Erst in der vierter Phase werden die Netze für mehr als 10 Epochen trainiert.
 
 \subsection{Reaktive Änderungen}
 \label{subsec:reaktive-aenderungen}
@@ -171,17 +171,17 @@ Die oberen vier Metriken, werden jeweils pro Klasse erhoben, um später Aussagen
 Darüber hinaus wird der Durchschnitt über alle Klassen Klasse (Macro) oder das direkte Verhältnis auf Basis der klassenübergreifend aufsummieren Faktoren (TP, FP, etc.) erfasst (Micro).
 Sofern nicht anders hervorgehoben, sind die im weiteren Verlauf vorgestellten, skalaren Metrikwerte immer Macro-Werte.
 
-\section{Nachgang}
+\section{Verifikation}
 \label{sec:nachgang}
 
-Im Nachgang eines Experiments werden neben der Einsicht der Metriken und zufälliger Samples auch potenzielle Daten-Fehler erfasst.
+Im Phase 3 der Experimente werden basierend auf den vorhergegangenen Experimenten potenzielle Daten-Fehler verifiziert.
 Da aus Zeitgründen nicht alle Samples kontrolliert werden können, wird sich auf diejenigen Samples beschränkt, die mit erhöhter Wahrscheinlichkeit fehlerhaft gelabelt sind.
-Hierfür wird auf die während des Trainings von \code{Evaluator} persistierten Scores und Losses zurückgegriffen.
-Mit deren Hilfe genügt es, nur die Samples mit den höchsten Loss-Werten manuell zu kontrollieren.
+Hierfür wird auf die während des Trainings persistierten Scores und Losses zurückgegriffen, die in einem Fehlerbericht persistiert sind.
+Mit Hilfe des Fehlerberichts genügt es, nur die Samples mit den höchsten Loss-Werten manuell zu kontrollieren.
 
 Schon während des Samplings (\autoref{subsec:segmentierung-und-sampling-strategie}) wird jedes Sample mit einer eindeutigen ID verknüpft, die sich aus dem zugehörigen Match und der Startmarkierung (in Videozeit) zusammensetzt.
 Mithilfe der ID können die Annotationen auch nachträglich aus der JSON-Datenbank geladen und die Scores mit den Ground-Truth-Labels des Samples verglichen werden.
-Im Nachgang der ersten Phase werden die Samples der letzten Epoche für alle Datensets absteigend nach ihrem Loss sortiert und mit Hilfe eines Relabel-Tools kontrolliert und \ggf korrigiert.
+Dabei werden die Samples der besten Epoche für alle Datensets absteigend nach ihrem Loss sortiert und mit Hilfe eines Relabel-Tools verifiziert und im Fehlerfall \ggf korrigiert.
 Wird ein Fehler entdeckt kann dieser auf dreierlei Weisen behoben werden:
 
 \begin{description}
@@ -194,6 +194,6 @@ Wird ein Fehler entdeckt kann dieser auf dreierlei Weisen behoben werden:
     \item[Verdeckte Aktion] Eine Aktion, die stattgefunden hat, ist im Kamerabild nicht zu sehen und muss aus der Datenbank gelöscht werden.
 \end{description}
 
-Das Relabel-Tool speichert die Änderungen nicht direkt in der JSON-Datei, die die Datenbank darstellt, sondern in einer zusätzlichen Datenstruktur, die ausschließlich die Datenbank-Transaktionen speichert.
+Das Relabel-Tool speichert die Änderungen nicht direkt in der JSON-Datenbank, sondern in einer zusätzlichen Datenstruktur, die ausschließlich die Datenbank-Transaktionen speichert, die für ein Update notwendig sind.
 Zur Laufzeit wird die JSON-Datenbank in den Arbeitsspeicher geladen und kann dort optional mit Hilfe der Transaktionsdatei angepasst werden.
 Um die Transaktionen endgültig zu speichern kann die angepasste Datenbank mit einer neuen Versionsnummer wieder auf dem Dateisystem persistiert werden.

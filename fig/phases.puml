@@ -1,0 +1,15 @@
+@startuml
+
+[*] -> Phase1
+Phase1 -> Phase2
+Phase2 -> Phase3
+Phase3 -> Phase4
+Phase4 -> [*]
+
+Phase1 : Initialisierung \nder //fc//-Layer
+Phase2 : Hyperparameter\nOptimierung
+Phase3 : Verifikation &\n Relabeling
+Phase4 : Fine-Tuning &\nBenchmark
+
+
+@enduml

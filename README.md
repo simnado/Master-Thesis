@@ -6,4 +6,4 @@
 
 ---
 
-to compile run `pdflatex thesis && sudo biber thesis && pdflatex thesis`
+to compile run `make`

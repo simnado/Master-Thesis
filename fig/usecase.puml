@@ -1,42 +1,52 @@
 @startuml
-rectangle Framework {
+
+usecase Data as "
+Data-Engineering
+--
+Erstellung des Datensets\nbasierend auf Feeds und\nVideos
+..Ergebnis..
+Initiale Datenbank\n(JSON)"
 
 usecase Inference as "
-Inference
+Inferenz
 --
 Klassifikation neuer,\nnicht-annotierter Videos
 ..Ergebnis..
 Menge an Tupeln:\n(Intervall, Klassen)"
+
+rectangle Framework {
 
 usecase Training as "
 Training
 --
 Optimierung eines\nDeep Learning Modells\n mit annotierten Videos
 ..Ergebnis..
-Optimierte Modell-Gewichte,\nScore- und Fehler\npro Beispiel"
+Optimierte \n Modell-Gewichte &\n Fehlerreport"
 
 usecase Post as "
-Post-Processing
+Verifikation
 --
-Manueller Abgleich der\n Trainingsbeispiele mit großem\nFehler, Beheben von Datenfehlern
+Manueller Abgleich \n anhand auffälliger Samples &\nBeheben von Datenfehlern
 ..Ergebnis..
 Angepasste Datenbank"
 
-(Post) <.. (Scores und\n Fehler laden) : include
-(Post) <.. (Datenbank laden): include
+(Post) <.. (Fehlerreport\nladen) : include
+(Post) <.. (Datenbank\nladen): include
 
-(Training) <.. (Datenbank laden) : include
+(Training) <.. (Datenbank\nladen) : include
 (Training) <.. (Model &\n Modell-Gewichte\nladen) : include
 
 
 (Inference) <.. (Model &\n Modell-Gewichte\nladen) : include
-(Inference) <.. (Video Upload) : include
 }
 
-:User: -down-> (Inference)
+:Endnutzer: --> (Inference)
 :Data\nScientist: as Scientist
-Scientist -down-> (Training)
+Scientist --> (Training)
 :Annotator: as Annotator
-Annotator -down-> (Post)
+Annotator --> (Post)
+Annotator --> (Data)
+(Inference) <.. (Video Upload) : include
+
 
 @enduml

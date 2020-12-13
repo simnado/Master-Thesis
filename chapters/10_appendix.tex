@@ -29,3 +29,20 @@ Aktionen, die hier keinen Wert vorweisen werden lediglich als Zeitpunkt in \gls{
     \end{subfigure}
     \label{tab:action}
 \end{figure}
+
+\chapter{Paarweise Intersektion von Spielaktionen}
+\label{ch:overlaps}
+
+In \autoref{fig:overlaps} wurde für alle 32 Klassen der prozentuale Anteil aller Sampler einer Klasse berechnet der jeweils in Kombination mit einer anderen Klasse auftritt.
+Ein Eintrag $c_{ij}$ lässt sich wie folgt interpretieren:
+$c_{ij}$ \% aller Samples der Klasse $i$ treten gemeinsam mit der der Klasse $j$ auf.
+
+Wie man sieht, ereignen sich \zB 74 \% der Aktionen \code{saved} (innerhalb einer Clip-Abdeckung von $\Delta=4$ Sekunden) gleichzeitig mit Aktionen der Klasse \code{footShot}.
+Bei einer niedrigeren Wahl von $\Delta$ sind die Abhängigkeiten entsprechend geringer, es treten jedoch die gleichen Kombinationen hoher Abhängigkeiten auf.
+
+\begin{figure}
+    \centering
+    \bigimage{img/data-plots/4sec/pairwise_occurrences_all_202010-1419-3817}{\textwidth}
+    \caption{Anteil paarweiser Überschneidungen pro Klasse (hier: $\Delta = 4$)}
+    \label{fig:overlaps}
+\end{figure}

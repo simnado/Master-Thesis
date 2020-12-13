@@ -20,10 +20,12 @@ Der Prozess bis zur fertigen Inbetriebnahme schließt folgende drei Schritte ein
     \item[Data Engineering] Die Daten müssen erhoben und mit dem Deep Learning Modell in Einklang gebracht werden.
     Aus rohen Videos und strukturierten Annotationen werden Samples in ein einheitliches \gls{ml}-Datenset überführt.
     \item[Training] Es muss ein einheitlicher Trainingsablauf definiert werden, um die Ergebnisse einzelner Experimente vergleichen zu können.
-    Dabei werden Metriken zur Beurteilung der Modelle und zur Analyse von Konflikten erhoben.
-    \item[Integration] Der trainierte Action Classifier muss in eine Temporal Action Detection integriert werden, sodass ungeschnittene Videos ganzer Spiele verarbeitet werden können.
+    Dabei werden Metriken zur Evaluation der Modelle und zur Analyse von Konflikten erhoben.
+    \item[Verifikation] Mithilfe des trainierte Klassifizierer werden Samples manuell verifiziert.
+    Die Ground-Truth-Labels jener Samples, deren Fehler während des Trainings auffällig hoch sind, werden manuell verifiziert um so die Datenqualität zu verbessern.
+    \item[Inferenz] Das trainierte Modell muss in eine Temporal Action Detection integriert werden, sodass ungeschnittene Videos ganzer Spiele verarbeitet werden können.
     Schließlich muss der Classifier in eine Nutzerschnittstelle integriert und bereitgestellt werden.
-    Die Integration soll zwar ermöglicht werden ist allerdings nicht im Rahmen dieser Arbeit inbegriffen.
+    Die Integration soll technisch ermöglicht werden ist, allerdings nicht Bestandteil dieser Arbeit.
 \end{description}
 
 \section{Datenquellen}
@@ -146,7 +148,6 @@ Allerdings dauern 94,2 \% der Aktionen weniger lang als 3 Sekunden und 99,4 \% w
 Im Zuge dieser Arbeit soll $\Delta$ zum einem groß genug gewählt werden, um alle Aktionsklassen lernbar zu machen, zum anderen aber dennoch möglichst klein, um um eine zusätzliche Long-term Feature Aggregation (siehe \autoref{sec:long-term-aggregation-frameworks}) zu vermeiden und den Aufwand so zu begrenzen.
 Daher werden 3 und 6 Sekunden als untere und oberen Grenzen für $\Delta$ festgesetzt.
 
-% experiment
 \subsection{Experimente}
 \label{subsec:experimente}
 
@@ -155,17 +156,16 @@ Zudem soll geprüft werden unter welchen Hyperparametern sie die besten Ergebnis
 Aufgrund von Hardwarebeschränkung können und sollen die Modelle nicht von Grund auf neu trainiert, sondern nur auf Basis vortrainierter Modelle nachtrainiert werden.
 Kandidaten sind die bereits festgelegten Modelle SlowFast, X3D, ip-CSN, R2+1D.
 
-Die Experimente gliedern sich pro Modell zunächst in eine Initialisierungs- und eine Test-Phase.
-Zunächst werden vortrainierte Gewichte (auf Basis von Kinetics oder Sports-1M) in die jeweilige Modellarchitektur geladen.
-Da die vortrainierten Modelle mit anderen Klassen und auch deutlich mehr Klassen vortrainiert wurden, wird das hinterste \fc-Layer entfernt und durch ein neues \fc-Layer mit 32 Knoten für die 32 Klassen des neuen Datensets ausgetauscht.
+Pro Modell findet zunächst in einem Initialisierungsschritt statt, in der die vortrainierten Gewichte (auf Basis von Kinetics oder Sports-1M) in die jeweilige Modellarchitektur geladen werden.
+Da die vortrainierten Modelle mit anderen Klassen und auch deutlich mehr Klassen vortrainiert wurden, wird das hinterste \fc-Layer entfernt und durch ein neues \fc-Layer mit 32 Output-Knoten für die 32 Klassen des neuen Datensets ersetzt.
 Die Gewichte des neuen \fc-Layers sind im Gegensatz zu den restlichen Layern zufällig initialisiert, was ein deutliches Ungleichgewicht der Wissensverteilung innerhalb des Netzes zur Folge hat.
-Um die Lücke zwischen Klassifikationslayer und dem Rest des Netzes zu verringern wird in der ersten Initialisierungsphase ausschließlich das \fc-Layer trainiert und alle anderen Layer werden während des Trainings eingefroren.
+Um die Lücke zwischen Klassifikationslayer und dem Rest des Netzes zu verringern wird in diesem Schritt ausschließlich das \fc-Layer trainiert und alle anderen Layer werden während des Trainings eingefroren.
 Das Sampling der Daten erfolgt nach den gleichen Vorgaben wie es beim Pre-Training der Fall war.
 
 Nach Abschluss der Initialisierungspahse ist das Wissen deutlich gleichmäßiger verteilt.
-Jedoch ist das Netz im Großteil noch optimiert auf das vorangegangen Training eines generischen Datensets (wie Kinetics) und erzielt erwartungsgemäß kaum bessere Ergebnisse als vorher..
+Jedoch ist das Netz im Großteil noch optimiert auf das vorangegangen Training eines generischen Datensets (wie Kinetics) und erzielt erwartungsgemäß kaum bessere Ergebnisse als vorher.
 
-In der anschließenden ersten Testphase werden nun alle Layer (unter Berücksichtigung der Einschränkungen aus \autoref{sec:hardwareeinschrankungen}) nachtrainiert.
+In einem anschließenden Schritt werden nun alle Layer (unter Berücksichtigung der Einschränkungen aus \autoref{sec:hardwareeinschrankungen}) nachtrainiert.
 Dabei werden verschiedene Konfigurationen getestet um eine Clip-Abdeckung der oben genannten Ober- und Untergrenze zu ermöglichen.
 Da die Konfiguration der Pre-Trainings aus \autoref{tab:coverage} die untere Grenze alle nicht erreichen, werden für jedes Modell die Hyperparameter $\gamma_s$, $\gamma_t$ und $\gamma_\tau$ optimiert, um einen längeren Kontext zu ermöglichen.
 Technisch gesehen wird somit durch den Einsatz eines dünneren Samplings \bzw dem Ausnutzen des dynamischen Avg-Pooling-Layers eine Temporal Feature Aggregation umgesetzt.
@@ -176,16 +176,16 @@ Im TSN würde der Clip als Tor klassifiziert werden, da diese Aktionen im Durchs
 Da der Fehler über alle Snippets zurückpropagiert wird, würde das Netz während des Trainngs so einen fehlerhaften Zusammenhang zwischen Tor und Auswechslung lernen.
 \gls{tsn} ist also nur einsetzbar, wenn die Clips über seine komplette Länge nicht mit anderen Klassen interferiert.
 
-\subsubsection*{Fine-Tuning}
+\subsubsection*{Fine-Tuning/Benchmark}
 
-In einer zweiten Testphase werden pro Modell die Hyperparameter mit dem größten Potential gewählt und mit zusätzlichen Samples weiter nachtrainiert.
+Nachdem die optimalen Hyperparameter pro Modell gefunden sind, wird jeweilige die Variante mit dem größten Potential gewählt und mit zusätzlichen Samples weiter nachtrainiert.
 Kommt es dabei zu Overfitting, werden weitere Hyperprameter durch Regularisierungstechniken (siehe \autoref{subsec:reaktive-aenderungen}) manuell angepasst.
 Findet kein Overfitting statt, werden \ggf tiefere Varianten mit zusätzlichen Layern getestet um noch bessere Ergebnisse zu erlangen.
 
 Problematisch ist die Tatsache, dass die Modelle in den Experimenten verschieden lange Videos verarbeiten und sich die Trainings- und Validierungssets dadurch unterscheiden.
-Zwar bleibt die Anzahl der Samples gleich, da ein Clip pro Sekunde gesamplet werden.
-Die Labels pro Samples können jedoch bei verschiedener Länge abweichen.
-Um trotzdem vergleichbare Ergebnisse zu erheben, werden im Testset immer Samples mit einer Clip-Abdeckung von $\Delta=10$ Sekunden verwendet.
+Zwar bleibt die Anzahl der Samples gleich, da ein Clip pro Sekunde gesamplet wird.
+Die Labels pro Sample können jedoch bei verschiedener Länge abweichen.
+Um trotzdem vergleichbare Ergebnisse zu erheben, werden zur Evaluation im Testset immer Samples mit einer Clip-Abdeckung von $\Delta=10$ Sekunden verwendet.
 Die Länge liegt bewusst über der definierten Obergrenze und orientiert sich an der Clip-Länge anderer \gls{har}-Datasets wie Kinetics.
 Während der Evaluation wird ein Clip des Testsets in fünf Chunks segmentiert, die sich gleichverteilt über die komplette Clip-Länge verteilen und je nach Konfiguration potentiell überschneiden.
 Die Chunks werden einzeln inferiert und der endgültigen Score pro Clip ergibt sich aus den Maximalscore pro Klasse über aller Chunks.
@@ -205,9 +205,7 @@ Dazu zählt einerseits der Fall, dass zwei Aktionen von zwei verschiedenen Spiel
 Andererseits können abhängig von der Problembeschreibung \zB hierarchische Klassen definiert werden, sodass sich eine Klasse \code{penaltyKick} immer mit der Klasse \emph{footShot} überlagert.
 
 Um die Signifikanz dieses Problems zu verdeutlichen wurden für verschiedene $\Delta$ untersucht, wie oft sich eine Klasse mit einer anderen überschneidet.
-\autoref{fig:overlaps} zeigt das Ergebnis in einer Matrix.
-Wie man sieht, ereignen sich \zB 74 \% der Aktionen \code{saved} (innerhalb einer Clip-Abdeckung von $\Delta=4$ Sekunden) gleichzeitig mit Aktionen der Klasse \code{footShot}.
-Bei einer niedrigeren Wahl von $\Delta$ sind die Abhängigkeiten entsprechend geringer, es treten jedoch die gleichen Kombinationen hoher Abhängigkeiten auf.
+Eine dedizierte Grafik ist in \autoref{ch:overlaps} zu finden.
 Die häufigsten Kombinationen sind folgende:
 
 \begin{enumerate}
@@ -242,16 +240,8 @@ Die häufigsten Kombinationen sind folgende:
     \label{fig:ratios}
 \end{figure}
 
-Dass die Zahl der Überschneidungen mit der Wahl von $\Delta$ skaliert, belegt auch der wachsende Anteil von Samples mit mehr als einer Aktion, wie \autoref{fig: ratios} zeigt.
+Dass die Zahl der Überschneidungen mit der Wahl von $\Delta$ skaliert, belegt auch der wachsende Anteil von Samples mit mehr als einer Aktion, wie \autoref{fig:ratios} zeigt.
 Dabei wird die in \autoref{subsec:segmentierung-und-sampling-strategie} verwendete Sampling-Strategie verwendet.
-
-\begin{figure}
-    \centering
-    \bigimage{img/data-plots/4sec/pairwise_occurrences_all_202010-1419-3817}{\textwidth}
-    \caption{Anteil paarweiser Überschneidungen pro Klasse (hier: $\Delta = 4$)}
-    \label{fig:overlaps}
-\end{figure}
-%% wie wird der einfluss geprüft
 
 Als Folge der oben veranschaulichten Statistiken wird vorab auf ein Multi-Label-Ansatz gesetzt.
 Das Verfahren ist damit auch flexibler bei Anpassungen des Aktionskatalogs und kommt ohne ein künstlichen \emph{Background}-Labels aus.
@@ -262,25 +252,31 @@ Stattdessen kann das ungeschnittene Videomaterial gleichmäßig segmentiert werd
 \label{sec:umgang-mit-fehlern-in-datenset}
 
 Auch wenn die Annotationen aus \gls{sbod} manuell erfasst und verifiziert wurden, können sie dennoch Fehler enthalten.
-Und selbst bei gegebener Fehlerfreiheit, lägen ihnen wahrscheinlich ein anderes als das in dieser Arbeit verwendetes Videomaterial zugrunde.
+Und selbst bei gegebener Fehlerfreiheit, läge ihnen wahrscheinlich ein anderes als das in dieser Arbeit verwendete Videomaterial zugrunde.
 \gls{sbod} dient zur Auswertung von Spieldaten und ist auf Vollständigkeit aller Aktionen angewiesen.
 Der Grundlegende Unterschied zum Datenset dieser Arbeit ist, dass dieses Datenset ausschließlich sichtbare Aktionen umfassen soll.
 Als Ground Truth gilt also immer nur das, was in dem jeweiligen Clip wirklich zu sehen ist.
-\Dh zum einem dass Aktionen die passiert sind, im Video aber nicht sichtbar sind (\zB weil die Kamera gerade ins Publikum schwänkt), entfernt werden müssen.
+\Dh zum einem, dass Aktionen die passiert sind, im Video aber nicht sichtbar sind (\zB weil die Kamera gerade ins Publikum schwänkt), entfernt werden müssen.
 Zum anderen bedeutet es, dass Wiederholungen von Aktionen im Video zusätzliche Aktionen darstellen, auch wenn sie sich in der realen Welt zu einem anderen Zeitpunkt ereignet haben.
 
-Damit nicht jeder Datensatz einzeln korrigiert werden muss, wird ein Post-Processing-Schritt in das Trainingssetup aufgenommen.
-Während des Trainings werden die Fehler der Loss-Funktion pro Sample protokolliert, sodass im Anschluss nur die Samples mit dem höchsten Fehlerwerten manuell verifiziert und im Fehlerfall korrigiert werden müssen.
-Der Ablauf orientiert sich an \cite{Gugger20} und \cite{Cioppa20}, die durch die Ergebnisse der Fehlerfunktion Fehler in den Annotationen von SoccerNet gefunden haben.
+Aufgrund der zeitlichen Limitation dieser Arbeit kann nicht jeder Datensatz einzeln korrigiert werden.
+Stattdessen wird ein Verifikationsschritt zwischen der Hyperparameter-Optimierung und dem endgültigen Benchmark eingebaut.
+Während des Trainings werden stets die Fehler der Loss-Funktion pro Sample protokolliert, sodass im Anschluss nur besonders auffällige Samples mit einem vergleichsweise hohen Fehlerwert manuell verifiziert und im Fehlerfall korrigiert werden müssen.
+Der Ablauf orientiert sich an \cite{Gugger20} und \cite{Cioppa20}, die durch die Ergebnisse der Loss-Funktion Fehler in den Annotationen von SoccerNet gefunden haben.
 
-\section{Konzeptuelle Umsetzung}
+\begin{figure}[htbp!]
+    \centering
+    \includegraphics[width=0.9\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{fig/phases.eps}
+    \caption{Ablauf der Experimente in vier Phasen}
+    \label{fig:phases}
+\end{figure}
+
+\autoref{fig:phases} zeigt das Vorgehen, welchen in insgesamt vier Phasen gestaffelt ist.
+
+\section{Modulare Implementation}
 \label{sec:konzeptuelle-umsetzung}
 
-Das \gls{har}-Modell lässt sich in ein modulares Framework integrieren, mit dem ungeschnittene Videos kompletter Halbzeiten verarbeitet werden können.
-Das Framework deckt den kompletten Zyklus von der Datenaufbereitung, über das Training bis zur Inbetriebnahme ab.
-Das Modell ist dabei gegen eine andere Architektur austauschbar, sofern es eine wohl-definierte Schnittstelle bereitstellt.
-
-Der Endnutzer stellt ein Video in Form einer \gls{url} oder eines Uploads bereit und erhält eine Liste der Spielaktionen.
+Zur Umsetzung wurde auf ein modulares Framework gesetzt, das die Kernfunktionen für alle Zwischenschritte implementiert.
 
 \begin{figure}[htbp!]
     \centering
@@ -289,10 +285,20 @@ Der Endnutzer stellt ein Video in Form einer \gls{url} oder eines Uploads bereit
     \label{fig:usecase}
 \end{figure}
 
-\autoref{fig:usecase} zeigt die Funktionen aus Anwenderperspektive.
+\autoref{fig:usecase} zeigt die Anwendungsfälle aller Zwischenschritte, beginnend mit dem Data-Engineering, das vorab initial ausgeführt wird und die Trainingsdaten in einer Datenbank speichert.
+Die Datenbank bildet die Import-Schnittstelle zu dem Framework, mit dem sich alle der vier, oben vorgestellten Phasen einheitlich zu durchlaufen lassen.
+Während des Trainings die Trainingsdaten aus der Datenbank und die Modellgewichte aus entsprechenden Checkpoint-Dateien geladen.
+Anhand der Trainingsdaten wird das Modell optimiert und die optimierten Gewichte werden als Ergebnis in neuen Checkpoint-Dateien persistiert.
+Ebenso wird während des Trainings ein Fehlerreport erfasst, der pro Sample Informationen wie Scores und den jeweiligen Fehler der Loss-Funktion erfasst.
+Dieser Report wird als weiteres Ergebnis persisitiert.
+Im Verifikationsschritt werden Checkpoints und Fehlerreport der potenziell besten Epoche geladen und auffällige Samples werden manuell verifiziert.
+Das Ergebnis ist eine angepasste Version der initialen Datenbank, in der die erkannten Fehler behoben sind.
+Der abschließende Schritt der Inferenz ist möglich mit der Export-Schnittstelle der Modell-Gewichte.
+Das Framework schließt den vorgelagerten Zwischenschritt des Data-Engineering und den optionalen Schritt der Inferenz also nicht mit ein, stellt aber dennoch Schnittstellen für beide Prozesse zur Verfügung.
+
 
 Um alle Experimente in einer generischen Umgebung durchzuführen wurde eine modulare Implementation umgesetzt, die auf dem Konzepten des Frameworks Lightning (\cite{Falcon19}) basiert.
-In \autoref{fig:modules} sind die drei Kernmodule zur Datenintegration, dem Training und der Evaluierung, sowie der vorgelagerte Prozess der Datenerfassung schemenhaft veranschaulicht.
+In \autoref{fig:modules} sind die drei Kernmodule zur Datenintegration, Training und Evaluierung schemenhaft veranschaulicht.
 
 \begin{figure}
     \centering
@@ -301,13 +307,14 @@ In \autoref{fig:modules} sind die drei Kernmodule zur Datenintegration, dem Trai
     \label{fig:modules}
 \end{figure}
 
-Die Hyperparameter aus \autoref{subsec:hyperparameter} sind für das Datenmodul konfigurierbar.
-Das Datenmodul beinhaltet Klassen zum Erstellen und Bereitstellen valider Samples, die vom Trainings- und Evaluation-Modul genutzt werden können.
+Die Hyperparameter aus \autoref{subsec:hyperparameter} sind allesamt für das Datenmodul konfigurierbar.
+Das Datenmodul beinhaltet Klassen zum Erstellen und Bereitstellen valider Samples, die auf Grundlage der Datenbank erzeugt und vom Training- und Evaluation-Modul in Form von Batches genutzt werden können.
 
-Das Trainingsmodul benutzt die Samples zur Optimierung des \gls{har}-Backbones.
-Hervorzuheben ist, dass das \gls{har}-Modell keinerlei Abhängigkeiten zu anderen Komponenten hat und komplett austauschbar ist.
+Das Trainingsmodul nutzt diese Samples zur Optimierung des \gls{har}-Backbones.
+Das Backbones-Modell ist dabei gegen jede andere Architektur austauschbar, sofern sie eine wohl-definierte Schnittstelle bereitstellt.
+Während des Trainings werden Metriken, Checkpoint- und Fehlerreport-Dateien erfasst und an das Evaluationsmodul in Form eines Loggings übermittelt.
 
-Pro Epoche werden die Scores und Losses aus dem Training an das Evaluationsmodul übergeben.
-Das Evaluationsmodul sichert diese Werte zusammen mit den Ground-Truth Labels und weiteren Metadaten in Form eines Reports in einer \gls{csv}-Datei.
-Ebenfalls werden Metriken und Statistiken über einen Logging-Mechanismus während des Training an einen Cloud-Speicher\footnote{Ergebnisse unter https://www.comet.ml/narendorf/soccar-32} übermittelt.
-Abschließend werden auch Hyperparameter, der Quellcode, die Modellgewichte und der Report in der Cloud gesichert, sodass sich alle Ergebnisse eindeutig reproduzieren lassen.
+Das Evaluationsmodul sichert alle geloggten Daten zusammen mit weiteren Metadaten in einem Cloud-Speicher\footnote{Ergebnisse unter https://www.comet.ml/narendorf/soccar-32}.
+Auch die Hyperparameter und der Quellcode werden pro Experiment in der Cloud gesichert, sodass sich alle Ergebnisse eindeutig reproduzieren lassen.
+Zudem hat das Evaluationsmodule eine Funktion zur in \autoref{sec:umgang-mit-fehlern-in-datenset} beschriebenen Verifikation und kann basierend auf einem Fehlerreport die zugrunde liegende Datenbank anpassen.
+

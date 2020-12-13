@@ -20,4 +20,4 @@ src/package-lock.json
 *.glo
 *.ist
 *.tdn
-
+*.idea

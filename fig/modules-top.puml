@@ -1,38 +1,47 @@
 @startuml
 
 
-() "http" as COMETAPI
 cloud "Cloud\nStorage" as COMET {
-}
-COMET  -down- COMETAPI
-
-COMET .right.> har : reproduce
-
-
-package "har" {
-
-() "HAR Backbone" as Net
-
-
-
-component [DataModule]
-component [TrainModule]
-component [EvalModule]
-
-DataModule ..> TrainModule : Samples
-DataModule ..> EvalModule : Samples
-TrainModule .left.> EvalModule : Scores
-TrainModule .right.> Net : use
-EvalModule --> DataModule : update
-EvalModule -down-> COMETAPI : save
 
 }
 
-component [DataCollecting]
-  database "Annotation\nDatabase" as DB {
-  }
 
-  DB .left.> DataModule : "<<manifest>>"
-  DataCollecting ..> DB : create
+
+
+package "Framework" {
+
+    component [DataModule] {
+        () "Database" as Database
+    }
+
+
+    component [TrainModule] {
+        () "HAR Backbone" as Net
+        () "Batch" as TrainBatch
+    }
+
+
+    component [EvalModule] {
+        () "Batch" as EvalBatch
+        () "Report" as Report
+        () "Checkpoints" as Checkpoints
+        () "Metrics"
+    }
+
+    DataModule -> TrainBatch : sample
+    DataModule --> EvalBatch : sample
+
+    TrainModule --> Report : log
+    TrainModule --> Checkpoints : log
+    TrainModule --> Metrics : log
+
+    EvalModule --> Database : verify
+    EvalModule -right-> COMET : upload
+
+}
+
+COMET -> Framework : reproduce
+
+
 
 @enduml
