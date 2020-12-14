@@ -45,13 +45,17 @@ Die Max-Aggregation kann derartige Zustände erkennen, da die Maxima sich auf di
 
 \section{Evaluation der Experimente}
 
-jeweils epochen und $\gls{tld:Theta}_\text{train}$
+\begin{tcolorbox}[title=Todo]
+    \begin{itemize}
+        \item jeweils epochen und $\gls{tld:Theta}_\text{train}$ nennen
+        \item Parallel coordinates
+    \end{itemize}
+\end{tcolorbox}
+
 
 \subsubsection{Initialisierung und Hyperparameter Optimierung}
 
-+Parallel coordinate $\gls{tld:Theta}_\text{train} = 100$ für Phase 1 (200 Phase 2)
-
-Um eine zeitliche Clip-Abdeckung von 3 bis 6 Sekunden pro Sample zu ermöglichen werden verschiedene Aggregationen getestet.
+Um eine zeitliche Clip-Abdeckung von 3 bis 6 Sekunden pro Sample zu ermöglichen werden zu diesem Zweck in der zweiten Phase verschiedene Hyperparameter getestet.
 Alle Modelle nutzen eine dynamisches Avg-\pool-Layer zwischen dem letzten \conv- und dem ersten \fc-Layer, das die Verarbeitung von Tensoren variabler Länge $T$ zulässt.
 Um eine geeignete Methode zu finden, wird der Einfluss von Avg-Pooling und Subsampling auf den jeweils gleichen Daten pro Modell verglichen.
 Zudem werden der Einfluss verschiedener Auflösungen verglichen.
@@ -59,6 +63,7 @@ Zudem werden der Einfluss verschiedener Auflösungen verglichen.
 \autoref{tab:pre} zeigt die Ergebnisse, indem pro Modell ausgehend von das Basiskonfiguration zunächst die Clip-Abdeckung und Anschließend die Auflösung erhöht wird.
 Die Abdeckung wird durch die Erhöhung von $\gamma_t$, die Erhöhung von $\gamma_\tau$ oder der Erhöhung beider Parameter vergrößert.
 Anschließend wird basierend auf dem besten Ergebnis testweise $\gamma_s$ erhöht.
+Die Experimente in \autoref{tab:pre} wurden dazu mit $\gls{tld:Theta}_\text{train} = 100$ Samples pro Klasse (inklusive 100 Background-Samples) durchgeführt.
 
 \begin{figure}
     \centering
@@ -70,17 +75,23 @@ Anschließend wird basierend auf dem besten Ergebnis testweise $\gamma_s$ erhöh
     \label{tab:pre}
 \end{figure}
 
-Die Experimente werden mit $\gls{tld:Theta}_\text{train} = 100$ Samples pro Klasse (inklusive 100 Background-Samples) durchgeführt.
-
 \subsubsection{Verifikation}
 
-+protokoll, beispiele, häufige fehler (Datenfehler, Klassifikationsfehler), basis: beste ep
+\begin{tcolorbox}[title=Todo]
+    \begin{itemize}
+        \item protokoll: Abbruchbedingung sinnvoll?
+        \item beispiele im Anhang?,
+        \item häufige fehler (Datenfehler, Klassifikationsfehler),
+        \item basis: beste ep
+        \item Anzahl = 25 ?
+    \end{itemize}
+\end{tcolorbox}
 
-In diesem Kapitel werden diejenigen Samples, die den größen Loss innerhalb eines Trainings vorweisen, genauer analysiert.
-Grundlage ist eine Analyse der Experimente im Nachgang der Initialisierungsphase, sowie der in \autoref{subsec:wahl-geeigneter-konfigurationen} ausgewählten Experimenten im Nachgang der ersten Testphase.
 
+In der dritten Phase werden diejenigen Samples, die den größen Loss innerhalb eines Trainings vorweisen, genauer analysiert.
+Grundlage ist eine Analyse der Experimente aus Phase 2.
 In Zuge der Analyse werden zum einen Datenfehler (wie in \autoref{sec:nachgang} beschrieben) behoben.
-Zusätzlich werden manuell Informationen über die $25$ größten Fehler (abhängig vom Loss der Trainingsergebnisse) innerhalb eines Experiments erhoben.
+Zusätzlich werden manuell Informationen über die $25$ größten Fehler (abhängig vom Loss im Fehlerreport) innerhalb eines Experiments erhoben.
 
 Die Analyse folgt einem definiertem Protokoll:
 Sind alle Experimente einer Phase abgeschlossen, wird zunächst eine neue Transaktionsdatei erstellt.
@@ -95,29 +106,43 @@ Die Analyse kann abgebrochen werden, sobald mindestens $25$ Klassifikationsfehle
 
 \subsubsection{Fine-Tuning und Benchmark}
 
-anpassung pro modell, reaktiv auf Phänome, wie Overfitting, Optimierung pro Modell (Anzahl Epochen, Weight Decay, Tiefere Modelle)
+\begin{tcolorbox}[title=Todo]
+    \begin{itemize}
+        \item anpassung pro modell: reaktiv auf Phänome, wie Overfitting, Optimierung pro Modell (Anzahl Epochen, Weight Decay, Tiefere Modelle)?
+    \end{itemize}
+\end{tcolorbox}
 
-In dieser zweiten Phase werden die in \autoref{subsec:wahl-geeigneter-konfigurationen} gewählten Modelle mit bis zu $\gls{tld:Theta}_\text{train} = 250$ Samples pro Klasse nachtrainiert.
-Dabei kommt eine neue Version des in Phase 1 verwendeten Datensets zum Einsatz, indem nach Abschluss von Phase 1 einige Datenfehler korrigiert wurden.
-
+In der vierten Phase werden die besten Modelle aus Phase 2 mit bis zu $\gls{tld:Theta}_\text{train} = 250$ Samples pro Klasse auf Grundlage der verifizierten Datenbank aus Phase 3 nachtrainiert.
 Anschließend wird reaktiv auf die Ergebnisse des Trainings reagiert.
+\autoref{tab:exp4} zeigt die Ergebnisse.
+
+\begin{figure}
+    \centering
+    \csvreader[no head,tabular=|l||r|r|r||r|r|r|,
+    table head=\hline,late after line=\\\hline]{tbl/exp_phase_4.csv}
+    {1=\model,2=\s,3=\t,4=\sr,5=\d,6=\result,7=\ihatelatex}
+    {\model & \s & \t & \sr & \d & \result & \ihatelatex}
+    \caption{Ergebnisse zur Fine-Tuning}
+    \label{tab:exp4}
+\end{figure}
+
 
 \section{Kategorisierung der Aktionsklassen}
 
-+ pca und clustering in vier gruppen
-+ Vergleich auf subsets (SOCC-HAR-8, -16, -24, -32)
+\begin{tcolorbox}[title=Todo]
+    \begin{itemize}
+        \item Idee: pca und clustering in vier gruppen
+        \item Vergleich der Evaluation auf subsets (SOCC-HAR-8, -16, -24, -32)
+        \item Optional: SOCC-HAR-NET, SOCC-HAR-DB Klassen
+    \end{itemize}
+\end{tcolorbox}
 
 Da ein Großteil der in \autoref{subsec:metriken} vorgestellten Metriken pro Klasse erhoben werden, kann eine genauere Analyse über die Komplexität zur Klassifizierung einer einzelnen Klasse gemacht werden.
 Wie einfach oder schwer eine Klasse zu lernen ist, soll pro Modell und Modell-übergreifend veranschaulicht werden.
 
-\section{Vergleich mit Klassen aus SoccerNet, SoccerDB}
-
-+ sinnvoll?
-+ SOCC-HAR-NET
-+ SOCC-HAR-DB
+\subsection*{Vergleich mit Klassen aus SoccerNet, SoccerDB}
 
 \section{Grenzen und Hypothesen}
-
 
 \begin{tcolorbox}[title=Todo]
     Desweiteren sind bis auf AUROC alle Metriken durch einen Score-Grenzwert definiert, der angibt ab welcher Sicherheit ein Label für einen Score-Wert übernommen wird.
