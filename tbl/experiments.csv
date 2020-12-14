@@ -1,6 +1,0 @@
-Iteration,SlowFast,R2+1D,ip-CSN,X3D,# Klassen,# Training-Samples,Anteil Background,Hardware,Trainable Groups
-S,"-50 (4x16, 8x8, 16x8)","-34 (32f, 64f)","-152 (32f, 64f)",-,4,600,?,NVIDIA TESLA P100 PCIe (16 GB),fc(+res4)
-M,"-50-16x8, -101-16x8","-34-64f, -152-64f",-152-32f,?,7,700,enough for localization?,V100? TPU? FP16?,fc+res4(+res3)
-L,-nl?,?,fp16?,?,11,?,?,?,?
-XL,?,?,?,?,25,?,?,?,?
-

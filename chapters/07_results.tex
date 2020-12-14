@@ -2,33 +2,54 @@
 \label{ch:results}
 
 In diesem Kapitel werden die Ergebnisse der in \autoref{subsec:experimente} beschriebenen Experimente vorgestellt.
-Zunächst wird in \autoref{sec:hyperparameter-optimierung} für jedes Modell eine optimierte Wahl an Hyperparametern gesucht und ein erster Eindruck der Eignung für das Problem gewonnen.
-In \autoref{sec:adjust-overfitting} wird das jeweils beste Modell einer Gruppe weiter optimiert, indem reaktiv auf Phänome, wie Overfitting reagiert wird.
-Anschließend werden in \autoref{sec:qualitative-analyse} eine Qualitative Analyse bzgl\. der häufigsten Daten- und Klassifikationsfehler durchgeführt und in \autoref{sec:abgrenzung-einfacher-und-schwerer-events} die Metriken pro Klasse verglichen.
+Zunächst wird beschrieben wie die Modelle, die mit teils verschieden langer Clips trainiert wurden, einheitlich verglichen werden können.
+Anschließend werden die Ergebnisse aller vier Phasen vorgestellt.
+Die Evaluation endet mit einer Kategorisierung der Klassen in vier Schwierigkeitsgrade und einer Einschätzung welchen Grenzen das Training unterlag.
+
+\section{Vergleichbarkeit der Ergbnisse}
+
+In den folgenden Abschnitten werden die Rechenergebnisse verschiedener Modelle verglichen.
+Die Modelle unterscheiden sich, wie schon in \autoref{tab:coverage} gezeigt, durch verschiedene Hyperparameter, die zu verschiedenen Werten der Clip-Abdeckung $\Delta$ führen.
+Während des Trainings werden im Trainings- und Validierungsset Samples generiert, die genau der Länge $\Delta$ entsprechen.
+Das Test-Set umfasst wiederum stets die gleichen Samples mit einer Clip-Abdeckung von $\Delta=10$.
+Die Test-Samples sind damit immer etwas oder sogar deutlich länger als Trainings- und Validierungssamples.
+
+Während der Evaluation wird ein Clip vom Testsets in fünf Chunks segmentiert, die sich gleichmäßig über die komplette Clip-Länge verteilen und potentiell überschneiden.
+Die Chunks werden einzeln inferiert und der endgültigen Score pro Clip ergibt sich aus einer Aggregation (consensus function) pro Klasse über allen Chunks.
+Als Aggregation wurden in diesem Zusammenhang das Maximum und der Durchschnitt pro Klasse ermittelt.
+\autoref{fig:consensus} zeigt einen exemplarischen Vergleich, der in diesem Zusammenhang repräsentativ für alle durchgeführten Experimente ist:
+
+\begin{figure}[htbp!]
+    \centering
+    \includegraphics[width=0.7\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{img/07_consensus.eps}
+    \caption{Vergleich von Max- und Avg-Aggregation am Test-Set (ir-CSN mit $\gamma_\tau = 2$) }
+    \label{fig:consensus}
+\end{figure}
+
+Die Avg-Aggregation weist in allen Fällen eine knapp höhere Precision und Accuracy auf, während die Max-Aggregation einen deutlich höheren Recall, eine leicht höhere AUROC und Balanced Accuracy und in den meisten Fällen einen leicht höheren F1-Score.
+Die Ergebnisse lassen sich zum Teil dadurch erklären, dass die Scores durch die Mittelung der Avg-Aggregation immer niedriger sind als die Scores in der Max-Aggregation, wodurch die Anzahl aller Positives insgesamt abnimmt.
+Die Avg-Aggregation ist also deutlich sensibler gegenüber False Positives.
+
+Dennoch wird die Avg-Aggregation als primäre Aggregation für den weiteren Verlauf festgelegt.
+Zum einen, da die Metriken im Schnitt einen besseren Kompromiss darstellen.
+Zum anderen, da sie die Realität logisch abbildet:
+Enthält ein Clip von 10 Sekunden zwei Aktionen -- die eine Aktion ganz zu Beginn und die andere Aktion kurz vorm Ende, ist die erste Aktion nicht im letzten Chunk und die zweite Aktion nicht im ersten Chunk sichtbar.
+Die Max-Aggregation kann derartige Zustände erkennen, da die Maxima sich auf die lokalen Stellen im Clip beziehen, während die Lokalität bei der Avg-Aggregation verwässert und ein hohes Maximum leicht durch weitere niedrige Scores überstimmt werden kann.
 
 \begin{tcolorbox}[title=Todo]
     \begin{itemize}
-        \item Wert für $\gls{tld:Theta}_\text{train}$ nachtragen!
-        \item Parallel Koordinaten Plot zu 7.1
-        \item 7.2: Optimierung pro Modell (Anzahl Epochen, Weight Decay, Tiefere Modelle)
-        \item 7.3: Basieredn auf letzter oder bester Epoche?
-        \item 7.3: Beispiele in den Anhang (\zB Statistik mit 10 \% der Daten gleich-verteilter Samples: Anteil Luftperspektive zu Anteil falsch klassifiziert)
-        \item 7.4: Plot aus 1. Testphase x=Events, y=Punkte pro Run mit Metrik (Accuracy)
-        \item 7.4: Clustering out of scope?
-        \item Section zu Grenzen und Hypothesen?
-        \item Links zu Binder
+        \item Grafik: besser als Ausschläge (Acc ist 5 \% besser in Avg als in Max..)
+        \item ermittel Abfall der Metriken im Vergleich (val und test): Ist der Abfall insbesondere bei kleinen $\Delta$ größer?
     \end{itemize}
-
-    Desweiteren sind bis auf AUROC alle Metriken durch einen Score-Grenzwert definiert, der angibt ab welcher Sicherheit ein Label für einen Score-Wert übernommen wird.
-    Initial liegt der Grenzwert bei 50 \%.
-    Wenn der Label-Score eines Samples über 50 \% liegt, wird es \ua mit diesem Label klassifiziert.
-    Es kann entweder ein globaler Score-Grenzwert für alle Labels oder individuelle Grenzwerte pro Label gesetzt werden.
-    Um einen geeigneten globalen Score-Wert zu finden werden vorab verschiedene Grenzwerte (an Balanced Accuracy) ausprobiert, der für alle weiteren Metriken verwendet wird.
-
 \end{tcolorbox}
 
-\section{Hyperparameter Optimierung / Temporal Feature Aggregation}
-\label{sec:hyperparameter-optimierung}
+\section{Evaluation der Experimente}
+
+jeweils epochen und $\gls{tld:Theta}_\text{train}$
+
+\subsubsection{Initialisierung und Hyperparameter Optimierung}
+
++Parallel coordinate $\gls{tld:Theta}_\text{train} = 100$ für Phase 1 (200 Phase 2)
 
 Um eine zeitliche Clip-Abdeckung von 3 bis 6 Sekunden pro Sample zu ermöglichen werden verschiedene Aggregationen getestet.
 Alle Modelle nutzen eine dynamisches Avg-\pool-Layer zwischen dem letzten \conv- und dem ersten \fc-Layer, das die Verarbeitung von Tensoren variabler Länge $T$ zulässt.
@@ -51,27 +72,9 @@ Anschließend wird basierend auf dem besten Ergebnis testweise $\gamma_s$ erhöh
 
 Die Experimente werden mit $\gls{tld:Theta}_\text{train} = 100$ Samples pro Klasse (inklusive 100 Background-Samples) durchgeführt.
 
-\subsection{Beobachtungen}
+\subsubsection{Verifikation}
 
-% todo:
-
-\subsection{Wahl geeigneter Konfigurationen}
-\label{subsec:wahl-geeigneter-konfigurationen}
-
-% todo:
-
-\section{Reaktive Optimierung}
-\label{sec:adjust-overfitting}
-
-In dieser zweiten Phase werden die in \autoref{subsec:wahl-geeigneter-konfigurationen} gewählten Modelle mit bis zu $\gls{tld:Theta}_\text{train} = 250$ Samples pro Klasse nachtrainiert.
-Dabei kommt eine neue Version des in Phase 1 verwendeten Datensets zum Einsatz, indem nach Abschluss von Phase 1 einige Datenfehler korrigiert wurden.
-
-Anschließend wird reaktiv auf die Ergebnisse des Trainings reagiert.
-
-% todo:
-
-\section{Qualitative Analyse}
-\label{sec:qualitative-analyse}
++protokoll, beispiele, häufige fehler (Datenfehler, Klassifikationsfehler), basis: beste ep
 
 In diesem Kapitel werden diejenigen Samples, die den größen Loss innerhalb eines Trainings vorweisen, genauer analysiert.
 Grundlage ist eine Analyse der Experimente im Nachgang der Initialisierungsphase, sowie der in \autoref{subsec:wahl-geeigneter-konfigurationen} ausgewählten Experimenten im Nachgang der ersten Testphase.
@@ -90,23 +93,39 @@ Der Nutzer kann das Sample als Datenfehler in Form einer Transaktion beheben ode
 Als Klassifikationsfehler markierte Samples werden automatisch geloggt und im Cloud-Speicher abgelegt.
 Die Analyse kann abgebrochen werden, sobald mindestens $25$ Klassifikationsfehler erfasst wurden.
 
-\subsection{Datenfehler}
+\subsubsection{Fine-Tuning und Benchmark}
 
-% todo:
+anpassung pro modell, reaktiv auf Phänome, wie Overfitting, Optimierung pro Modell (Anzahl Epochen, Weight Decay, Tiefere Modelle)
 
-\subsection{Klassifikationsfehler}
+In dieser zweiten Phase werden die in \autoref{subsec:wahl-geeigneter-konfigurationen} gewählten Modelle mit bis zu $\gls{tld:Theta}_\text{train} = 250$ Samples pro Klasse nachtrainiert.
+Dabei kommt eine neue Version des in Phase 1 verwendeten Datensets zum Einsatz, indem nach Abschluss von Phase 1 einige Datenfehler korrigiert wurden.
 
-% todo:
+Anschließend wird reaktiv auf die Ergebnisse des Trainings reagiert.
 
-\section{Abgrenzung einfacher und schwerer Events}
-\label{sec:abgrenzung-einfacher-und-schwerer-events}
+\section{Kategorisierung der Aktionsklassen}
+
++ pca und clustering in vier gruppen
++ Vergleich auf subsets (SOCC-HAR-8, -16, -24, -32)
 
 Da ein Großteil der in \autoref{subsec:metriken} vorgestellten Metriken pro Klasse erhoben werden, kann eine genauere Analyse über die Komplexität zur Klassifizierung einer einzelnen Klasse gemacht werden.
 Wie einfach oder schwer eine Klasse zu lernen ist, soll pro Modell und Modell-übergreifend veranschaulicht werden.
 
-%(z.B. Tor oder Einwurf ist leichter als Abseits)
+\section{Vergleich mit Klassen aus SoccerNet, SoccerDB}
 
-% todo
++ sinnvoll?
++ SOCC-HAR-NET
++ SOCC-HAR-DB
+
+\section{Grenzen und Hypothesen}
+
+
+\begin{tcolorbox}[title=Todo]
+    Desweiteren sind bis auf AUROC alle Metriken durch einen Score-Grenzwert definiert, der angibt ab welcher Sicherheit ein Label für einen Score-Wert übernommen wird.
+    Initial liegt der Grenzwert bei 50 \%.
+    Wenn der Label-Score eines Samples über 50 \% liegt, wird es \ua mit diesem Label klassifiziert.
+    Es kann entweder ein globaler Score-Grenzwert für alle Labels oder individuelle Grenzwerte pro Label gesetzt werden.
+    Um einen geeigneten globalen Score-Wert zu finden werden vorab verschiedene Grenzwerte (an Balanced Accuracy) ausprobiert, der für alle weiteren Metriken verwendet wird.
+\end{tcolorbox}
 
 % \section{Grenzen und Hypothesen}
 

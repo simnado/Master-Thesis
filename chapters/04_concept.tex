@@ -171,7 +171,8 @@ Da die Konfiguration der Pre-Trainings aus \autoref{tab:coverage} die untere Gre
 Technisch gesehen wird somit durch den Einsatz eines dünneren Samplings \bzw dem Ausnutzen des dynamischen Avg-Pooling-Layers eine Temporal Feature Aggregation umgesetzt.
 
 Der alternative Einsatz von \glspl{tsn} im Kontext dieser Arbeit wird als weniger geeignet eingeschätzt, da die Untersegmente eines Samples verschiedene Klassen beinhalten können.
-Dieser Fall kann am Beispiel einer Wiederholung veranschaulicht werden: Ein längerer Clip wird in drei Untersegmente geteilt, wovon eins eine Auswechslung und die anderen beiden eine Torwiederholung zeigen.
+Dieser Fall kann am Beispiel einer Wiederholung veranschaulicht werden:
+Ein längerer Clip wird in drei Untersegmente geteilt, wovon eins eine Auswechslung und die anderen beiden eine Torwiederholung zeigen.
 Im TSN würde der Clip als Tor klassifiziert werden, da diese Aktionen im Durchschnitt über alle drei Snippets öfter vertreten ist.
 Da der Fehler über alle Snippets zurückpropagiert wird, würde das Netz während des Trainngs so einen fehlerhaften Zusammenhang zwischen Tor und Auswechslung lernen.
 \gls{tsn} ist also nur einsetzbar, wenn die Clips über seine komplette Länge nicht mit anderen Klassen interferiert.
@@ -183,12 +184,10 @@ Kommt es dabei zu Overfitting, werden weitere Hyperprameter durch Regularisierun
 Findet kein Overfitting statt, werden \ggf tiefere Varianten mit zusätzlichen Layern getestet um noch bessere Ergebnisse zu erlangen.
 
 Problematisch ist die Tatsache, dass die Modelle in den Experimenten verschieden lange Videos verarbeiten und sich die Trainings- und Validierungssets dadurch unterscheiden.
-Zwar bleibt die Anzahl der Samples gleich, da ein Clip pro Sekunde gesamplet wird.
+Zwar bleibt die Anzahl der Samples gleich, da immer ein Clip pro Sekunde gesamplet wird.
 Die Labels pro Sample können jedoch bei verschiedener Länge abweichen.
 Um trotzdem vergleichbare Ergebnisse zu erheben, werden zur Evaluation im Testset immer Samples mit einer Clip-Abdeckung von $\Delta=10$ Sekunden verwendet.
 Die Länge liegt bewusst über der definierten Obergrenze und orientiert sich an der Clip-Länge anderer \gls{har}-Datasets wie Kinetics.
-Während der Evaluation wird ein Clip des Testsets in fünf Chunks segmentiert, die sich gleichverteilt über die komplette Clip-Länge verteilen und je nach Konfiguration potentiell überschneiden.
-Die Chunks werden einzeln inferiert und der endgültigen Score pro Clip ergibt sich aus den Maximalscore pro Klasse über aller Chunks.
 
 %\subsubsection*{Vergleichbarkeit mit SoccerNet}
 
