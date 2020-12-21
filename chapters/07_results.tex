@@ -9,19 +9,76 @@ Die Evaluation endet mit einer Kategorisierung der Klassen in vier Schwierigkeit
 \section{Vergleichbarkeit der Ergbnisse}
 
 In den folgenden Abschnitten werden die Rechenergebnisse verschiedener Modelle verglichen.
-Die Modelle unterscheiden sich, wie schon in \autoref{tab:coverage} gezeigt, durch verschiedene Hyperparameter, die zu verschiedenen Werten der Clip-Abdeckung $\Delta$ führen.
-Während des Trainings werden im Trainings- und Validierungsset Samples generiert, die genau der Länge $\Delta$ entsprechen.
-Das Test-Set umfasst wiederum stets die gleichen Samples mit einer Clip-Abdeckung von $\Delta=10$.
-Die Test-Samples sind damit immer etwas oder sogar deutlich länger als Trainings- und Validierungssamples.
+Die Modelle unterscheiden sich, wie schon in \autoref{tab:coverage} gezeigt, durch verschiedene Hyperparameter, die zu verschiedenen Werten der Clip-Dauer $\Delta$ führen.
+Während des Trainings werden im Trainings- und Validierungsset Samples generiert, deren Länge $\Delta_\text{fit} = \frac{T}{\tau}$ von der Wahl der Hyperparameter $\gamma_\tau$ und $\delta_t$ abhängt.
+Um vergleichbare Ergebnisse bei verschiedenen Hyperparametern zu gewährleisten, umfasst das Test-Set hingegen die immer gleichen Samples mit einer festen Clip-Dauer von $\Delta_\text{test}=6$, die sich an der maximalen Länge einer Spielaktion in \gls{sbod} (siehe \autoref{subsec:hyperparameter}) orientiert.
 
-Während der Evaluation wird ein Clip vom Testsets in fünf Chunks segmentiert, die sich gleichmäßig über die komplette Clip-Länge verteilen und potentiell überschneiden.
-Die Chunks werden einzeln inferiert und der endgültigen Score pro Clip ergibt sich aus einer Aggregation (consensus function) pro Klasse über allen Chunks.
-Als Aggregation wurden in diesem Zusammenhang das Maximum und der Durchschnitt pro Klasse ermittelt.
-\autoref{fig:consensus} zeigt einen exemplarischen Vergleich, der in diesem Zusammenhang repräsentativ für alle durchgeführten Experimente ist:
+Die Wahl von $\gamma_\tau$ wird während der Evaluation in jedem Fall übernommen, da sie grundlegende Eigenschaften (wie die Geschwindigkeit) der Samples abbildet, auf die das vortrainierte Modell bereits zugeschnitten ist.
+Die Test-Samples sind aber immer länger als die Trainings- und Validierungssamples mit $\Delta_\text{fit} < \Delta_\text{test}$.
+Um diese Hürde zu überwinden, werden drei verschiedene Methoden verglichen, den Input des zu evaluierende Modells abzuändern:
+
+\begin{description}
+    \item[Avg-Consensus]
+    Ein Test-Clip wird in mehrere zeitliche Crops segmentiert, die sich gleichmäßig über den gesamten Zeithorizont des Test-Clips verteilen und sich potentiell überschneiden.
+    Die Crops werden einzeln inferiert und der endgültigen Score des Clips ergibt sich aus einer Aggregation (consensus function) über alle Crops.
+    Als Aggregation wird in diesem Zusammenhang der Durchschnitt pro Klasse ermittelt.
+    \item[Max-Consensus]
+    Analoge Verarbeitung zu Avg-Consensus, wobei als Aggregation das Maximum pro Klasse berechnet wird.
+    \item[Avg-Pooling]
+    Der zeitliche Dimension $T$ des Test-Clip wird auf die nötige Anzahl erhöht, um die Test-Dauer zu erreichen.
+    Alle trainierten Modelle verfügen über ein dynamischen Avg-\pool-Layer, das die Feature-Maps rechtzeitig wieder auf eine fixe Dimension für die hinteren \fc-Layer projeziert.
+    Das Modell aggregiert die Informationen somit intern.
+\end{description}
+
+Während des Training werden stets 5-dimensionale Input-Batches $x_\text{fit} \in (B \times C \times T \times S^2)$ verwenden.
+Bei der Evaluation wird nun eine weitere Dimension benötigt, um die verschiedenen Crops abzubilden mit $x_\text{test} \in (B \times E \times C \times T \times S^2)$.
+Dabei stell $E$ die Anzahl der zeitlichen Crops dar.
+
+Für ein vortrainiertes Modell mit maximaler Batchgröße $B_\text{fit}$ und Clip-Dauer $\Delta_\text{fit}$, lassen sich unter der Annahmen, dass das Produkt aller Dimension gleich bleibt, die maximalen Dimensionen für $x_\text{test}$ eindeutig ermitteln.
+\autoref{eq:eval-dims-consensus} zeigt die Dimension für Avg- und Max-Consensus.
+
+\begin{equation}
+    \label{eq:eval-dims-consensus}
+    \begin{split}
+    E_\text{test}           & = \lceil  \frac{\Delta_\text{test}}{\Delta_\text{fit}}  \rceil \\
+    T_\text{test}           & = T_{\text{fit}} \\
+    B_\text{test}           & = \lfloor \frac{B_\text{fit}}{E_\text{test}} \rfloor
+    \end{split}
+\end{equation}
+
+Alternativ werden im Falle des Avg-Pooling die Dimensionen wie in \autoref{eq:eval-dims-pool} gewählt.
+
+\begin{equation}
+    \label{eq:eval-dims-pool}
+    \begin{split}
+    E_\text{test}           & = 1 \\
+    T_\text{test}           & = \lceil T_\text{fit} \frac{\Delta_\text{test}}{\Delta_\text{fit}} \rceil \\
+    B_\text{test}           & = \lfloor \frac{T_\text{test} }{B_\text{fit} T_\text{fit}} \rfloor
+    \end{split}
+\end{equation}
+
+\subsection{Initialisierungsphase und Vergleich temporärer Aggregation}
+\label{subsec:initialisierungsphase}
+
+In der ersten Phase der Experimente werden pro Modell vortrainierte (basierend auf Kinetics-400) und öffentlich zugängliche Gewichte in die Architektur geladen.
+Das jeweils letzte \fc-Klassifikationslayer wird durch ein neues mit 32 Output-Klassen ausgetauscht und einzeln für einen Zyklus (siehe \autoref{subsec:trainingsschleife}) mit etwa $\Theta_\text{train} = 100$ Samples pro Klasse nachtrainiert.
+\Dh alle übrigen Layer des Modells bleiben unverändert.
+Erst in einer späteren Iteration werden alle Layer in einem zweiten Zyklus nachtrainiert.
+
+Für alle der drei Backbones wird nach Abschluss des zweiten Zyklus evaluiert welches der oben genannten Aggregationsverfahren für die Test-Samples am besten geeignet ist.
+Pro Backbone wird das Test-Set pro Verfahren getestet.
+\autoref{fig:consensus} zeigt verschieden Metriken für jede der Aggregationen, sowie für das Validierungsset:
 
 \begin{figure}[htbp!]
     \centering
-    \includegraphics[width=0.7\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{img/07_consensus.eps}
+    \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{img/07_consensus_radar.eps}
+    \end{subfigure}%
+    \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{img/07_consensus.eps}
+    \end{subfigure}
     \caption{Vergleich von Max- und Avg-Aggregation am Test-Set (ir-CSN mit $\gamma_\tau = 2$) }
     \label{fig:consensus}
 \end{figure}
@@ -36,34 +93,32 @@ Zum anderen, da sie die Realität logisch abbildet:
 Enthält ein Clip von 10 Sekunden zwei Aktionen -- die eine Aktion ganz zu Beginn und die andere Aktion kurz vorm Ende, ist die erste Aktion nicht im letzten Chunk und die zweite Aktion nicht im ersten Chunk sichtbar.
 Die Max-Aggregation kann derartige Zustände erkennen, da die Maxima sich auf die lokalen Stellen im Clip beziehen, während die Lokalität bei der Avg-Aggregation verwässert und ein hohes Maximum leicht durch weitere niedrige Scores überstimmt werden kann.
 
-\begin{tcolorbox}[title=Todo]
-    \begin{itemize}
-        \item Grafik: besser als Ausschläge (Acc ist 5 \% besser in Avg als in Max..)
-        \item ermittel Abfall der Metriken im Vergleich (val und test): Ist der Abfall insbesondere bei kleinen $\Delta$ größer?
-    \end{itemize}
-\end{tcolorbox}
-
 \section{Evaluation der Experimente}
+
+Mit der zuvor festgelegten, einheitlichen Evaluationsmethode werden nun die Evaluationsergebnisse der einzelnen Experimente vorgestellt.
+Diese bestehen zunächst aus einer Hyperparameter-Optimierung pro Modell, so wie einem semi-automatischen Verifikationsschritt, einem anschließenden Training auf einem teilweise bereinigten Datenset und einem weiteren Fine-Tuning.
 
 \begin{tcolorbox}[title=Todo]
     \begin{itemize}
         \item jeweils epochen und $\gls{tld:Theta}_\text{train}$ nennen
-        \item Parallel coordinates
+        \item Grid-Search!! Wiederholen mit 100 Sampels, 5 Epochen, bessere Grid Auswahl
     \end{itemize}
 \end{tcolorbox}
 
+\subsubsection{Hyperparameter Optimierung}
 
-\subsubsection{Initialisierung und Hyperparameter Optimierung}
+Spielaktionen können unter Berufung auf \gls{sbod} zwischen bis zu 6 Sekunden dauern.
+Die vortrainierten Modelle bilden in ihrer ursprünglichen Form jedoch maximal 2.56 Sekunden ab.
+Im Zuge der zweiten Experimentphase werden verschiedene Hyperparameter mithilfe einer gierigen Grid-Suche getestet.
 
-Um eine zeitliche Clip-Abdeckung von 3 bis 6 Sekunden pro Sample zu ermöglichen werden zu diesem Zweck in der zweiten Phase verschiedene Hyperparameter getestet.
 Alle Modelle nutzen eine dynamisches Avg-\pool-Layer zwischen dem letzten \conv- und dem ersten \fc-Layer, das die Verarbeitung von Tensoren variabler Länge $T$ zulässt.
-Um eine geeignete Methode zu finden, wird der Einfluss von Avg-Pooling und Subsampling auf den jeweils gleichen Daten pro Modell verglichen.
-Zudem werden der Einfluss verschiedener Auflösungen verglichen.
+Um eine geeignete Methode zu finden, wird der Einfluss von Avg-Pooling und von Subsampling auf den jeweils gleichen Daten pro Modell verglichen.
 
-\autoref{tab:pre} zeigt die Ergebnisse, indem pro Modell ausgehend von das Basiskonfiguration zunächst die Clip-Abdeckung und Anschließend die Auflösung erhöht wird.
-Die Abdeckung wird durch die Erhöhung von $\gamma_t$, die Erhöhung von $\gamma_\tau$ oder der Erhöhung beider Parameter vergrößert.
-Anschließend wird basierend auf dem besten Ergebnis testweise $\gamma_s$ erhöht.
-Die Experimente in \autoref{tab:pre} wurden dazu mit $\gls{tld:Theta}_\text{train} = 100$ Samples pro Klasse (inklusive 100 Background-Samples) durchgeführt.
+Die Grid-Suche betrachtet Punkte für verschiedene $\gamma_t$ und $\gamma_\tau$.
+Beginnend mit einer Startkonfiguration (Baseline-Modell), werden iterativ beide Parameter einzeln erhöht, sodass sich die in beiden Fällen die gleiche Clip-Dauer ergibt.
+Die Konfigurationen werden verglichen und die erfolgreichere wird wieder zum Startpunkt für die nächste Iteration.
+Die Suche endet sobald, es keine Verbesserungen mehr gibt oder ein Training aufgrund von Hardwarebeschränkungen nicht mehr möglich ist.
+Mit den genannten Einschränkung ist die Suche deutlich schneller, aber auch unvollständiger als eine gewöhnliche Grid-Suche.
 
 \begin{figure}
     \centering
@@ -74,6 +129,27 @@ Die Experimente in \autoref{tab:pre} wurden dazu mit $\gls{tld:Theta}_\text{trai
     \caption{Ergebnisse zur Hyperparameter-Optimierung}
     \label{tab:pre}
 \end{figure}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{.33\textwidth}
+        \centering
+        \includegraphics[width=0.99\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{img/07_grid_r2plus1d.eps}
+    \end{subfigure}%
+    \begin{subfigure}{.33\textwidth}
+        \centering
+        \includegraphics[width=0.99\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{img/07_grid_slowfast.eps}
+    \end{subfigure}
+    \begin{subfigure}{.33\textwidth}
+        \centering
+        \includegraphics[width=0.99\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{img/07_grid_csn.eps}
+    \end{subfigure}
+    \caption{Grid-Suche für optimale Hyperparameter}
+    \label{fig:exp-hparams}
+\end{figure}
+
+\autoref{tab:pre} und \autoref{fig:exp-hparams} zeigt die Ergebnisse, indem pro Modell ausgehend von das Baseline-Konfiguration die Clip-Dauer erhöht wird.
+Die Experimente in \autoref{tab:pre} wurden dazu mit $\gls{tld:Theta}_\text{train} = 100$ Samples pro Klasse (inklusive 100 Background-Samples) zu je 5 Epochen durchgeführt.
 
 \subsubsection{Verifikation}
 
@@ -108,6 +184,8 @@ Die Analyse kann abgebrochen werden, sobald mindestens $25$ Klassifikationsfehle
 
 \begin{tcolorbox}[title=Todo]
     \begin{itemize}
+        \item Zudem werden der Einfluss verschiedener Auflösungen verglichen.
+        \item Label Smooting
         \item anpassung pro modell: reaktiv auf Phänome, wie Overfitting, Optimierung pro Modell (Anzahl Epochen, Weight Decay, Tiefere Modelle)?
     \end{itemize}
 \end{tcolorbox}

@@ -21,3 +21,5 @@ src/package-lock.json
 *.ist
 *.tdn
 *.idea
+.DS_Store/
+
