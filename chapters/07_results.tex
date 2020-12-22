@@ -218,6 +218,7 @@ Alle weiteren Experimente beziehen sich somit auf die korrigierte Datenbank.
 \begin{tcolorbox}[title=WIP]
     \begin{itemize}
         \item Tabelle: Label Smooting, res,Anzahl Epochen, Weight Decay
+        \item Mit mehr Background trainieren um Precision zu erhöhen!
     \end{itemize}
 \end{tcolorbox}
 
@@ -269,19 +270,55 @@ Dazu zählt das Training mit einer erhöhten Auflösung $S$, der Einsatz von Lab
     \label{fig:class-metrics}
 \end{figure}
 
-Die bisherigen Ergebnisse haben jeweils die durchscnittlichen Metriken (macro) über alle Klassen betrachtet.
-In diesem Abschnitt soll jede Klasse einzeln evaluiert werden.
-Dazu wurden die bereits verwendeten Metriken pro Klasse erhoben.
-Wie in \autoref{fig:class-metrics} zu sehen ist, gibt es starke Abweichungen innerhalb der verschiedenen Klassen.
-Während Aktionen wie \code{corner}, \code{footShot} oder \code{throwIn} sehr durchgehend gute Ergebnisse vorweisen, wurden andere Klassen wie \code{offside} oder \code{handball} praktisch gar nicht zu klassifizieren erlernt.
+Die bisherigen Rechenergebnissen wurden jeweils die durchschnittlichen Metriken (macro) über alle Klassen betrachtet.
+In diesem Abschnitt wird das Top-Modell hingegen an jeder Klasse einzeln evaluiert.
+Dazu werden die bereits verwendeten Metriken pro Klasse erhoben.
+Wie \autoref{fig:class-metrics} zu entnehmen ist, gibt es starke Abweichungen innerhalb der verschiedenen Klassen.
+Während Aktionen wie \code{corner}, \code{footShot} oder \code{throwIn} durchgehend hohe Metriken vorweisen, können andere Klassen wie \code{offside} oder \code{handball} praktisch gar nicht klassifizieren werden.
+Zwischen diesen Extrema ist es schwierig eine klare Rangordnung von leicht zu schwierig herzustellen.
+Das wird insbesondere deutlich wenn man die Metriken Precision und Recall in \autoref{fig:precision-recall} betrachtet.
 
-Um ein genaueres Bild über die Schwierigkeit der einzelnen Klassen zu erlangen, werden die Klassen in 3-4 Grupper geclustert:
+\begin{figure}
+    \centering
+    \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_precision_recall_by_class.eps}
+    \caption{Vergleich von Precision und Recall pro Klasse}
+    \label{fig:precision-recall}
+\end{figure}
 
-%todo
-Da ein Großteil der in \autoref{subsec:metriken} vorgestellten Metriken pro Klasse erhoben werden, kann eine genauere Analyse über die Komplexität zur Klassifizierung einer einzelnen Klasse gemacht werden.
-Wie einfach oder schwer eine Klasse zu lernen ist, soll pro Modell und Modell-übergreifend veranschaulicht werden.
+Dabei fällt auch auf, dass vor die Klassen im unteren Bereich mit einer niedrigen Precision viele False Positives verursachen, obwohl sie zum Teil einen hohen Recall haben.
+Auffällig ist auch, dass Aktionen, die sich im laufenden Spiel ereignen (\code{foul}, \code{cross}, \code{footShot}, \code{save}) einen besonders hohen Recall haben, während Aktionen die oft mit Spielunterbrechungen und Nahaufnahmen einhergehen (\code{substitution}, \code{goal}, \code{injury}) einen sehr niedrigen Recall aufweisen.
 
-\subsection*{Vergleich mit Klassen aus SoccerNet, SoccerDB}
+Man sieht also, dass keine pauschale Aussage über die Schwierigkeit der Aktionsklassen gemacht werden kann.
+Dennoch lässt sich anhand der erfassten Metriken eine grobe Ordnung erstellen, auch wenn sie allgemein nicht repräsentativ ist.
+Hierzu werden alle Metriken pro Klasse zu einer zweidimensionalen Matrix $M \in (N \times 5)$ gesammelt und im Zuge einer \gls{pca} auf einen eindimensionalen Vektor projiziert.
+Die erste Komponente der \gls{pca} $c_0 \in (5 \times 1)$ deckt mit 80 \% hinreichend viel Varianz und projiziert die Metriken auf einen Vektor:
+
+\begin{equation}
+    \label{eq:pca}
+    \text{pca}_0 = M \cdot c_0
+\end{equation}
+
+Die resultierende Rangordnung ist ebenfalls in \autoref{fig:class-metrics} (rechts) abgebildet.
+
+\subsection{Evaluation auf Teilmengen}
+\label{subsec:evaluation-auf-teilmengen}
+
+Abschließend soll der Einfluss schwächerer Klassen auf das Gesamtergebnis gemessen werden.
+Dazu werden die Aktionsklassen absteigend nach der PCA-basierten Rangordnung sortiert und in vier Teilmengen gegliedert, die sich jeweils aus den oberen 8, 16, 24 und 32 Klassen zusammensetzen.
+In \autoref{tab:eval_subset} sind die Ergebnisse (macro) auf Berechnungsgrundlage der in der jeweiligen Teilmenge enthaltenen Klassen aufgeführt.
+Zusätzlich wurden zwei weitere Untermengen mit den gleichen Aktionsklassen aus den Datensets SoccerNet und SoccerDB abgeleitet.
+Die Ergebnisse sind keinesfalls direkt vergleichbar mit den publizierten Datensets, da die Datengrundlage eine andere ist.
+Es soll dem Leser jedoch eine grobe Einordnung ermöglichen.
+
+\begin{figure}
+    \centering
+    \csvreader[no head,tabular=|l||r|r|r|,
+    table head=\hline,late after line=\\\hline]{tbl/eval_subsets.csv}
+    {1=\dataset,2=\ba,3=\fbeta,4=\auroc}
+    {\dataset & \ba & \fbeta & \auroc}
+    \caption{Evaluation auf Teilmengen von Aktionsklassen}
+    \label{tab:eval_subset}
+\end{figure}
 
 \section{Grenzen und Hypothesen}
 
