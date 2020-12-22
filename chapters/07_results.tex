@@ -80,7 +80,7 @@ Die Metriken werden im Verhältnis zu den Ergebnissen des Validierungssets aufge
     \end{subfigure}%
     \begin{subfigure}{.33\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth, keepaspectratio, interpolate]{img/07_consensus_R2plus1D.eps}
+        \includegraphics[width=0.9\textwidth, keepaspectratio, interpolate]{img/07_consensus_SlowFast.eps}
     \end{subfigure}%
     \begin{subfigure}{.33\textwidth}
         \centering
@@ -242,11 +242,42 @@ Dazu zählt das Training mit einer erhöhten Auflösung $S$, der Einsatz von Lab
     \begin{itemize}
         \item Abweichung pro Metrik erheben: Klasse zu macro -> Durchschnitt
         \item Idee: pca und clustering in vier gruppen
-        \item Vergleich der Evaluation auf subsets (SOCC-HAR-8, -16, -24, -32)
+        \item Vergleich der Evaluation auf subsets (SOCC-HAR-8, -16, -24, -32): Jeweils ROC Curve
         \item Optional: SOCC-HAR-NET, SOCC-HAR-DB Klassen
     \end{itemize}
 \end{tcolorbox}
 
+\begin{figure}
+    \centering
+    \begin{subfigure}{.24\textwidth}
+        \centering
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_balanced_accuracy_by_class_test_202012-2218-2841.eps}
+    \end{subfigure}%
+    \begin{subfigure}{.24\textwidth}
+        \centering
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_f1_by_class_test_202012-2218-2841.eps}
+    \end{subfigure}
+    \begin{subfigure}{.24\textwidth}
+        \centering
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_auroc_by_class_test_202012-2218-2842.eps}
+    \end{subfigure}
+    \begin{subfigure}{.24\textwidth}
+        \centering
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_PCA_by_class_test_202012-2218-2843.eps}
+    \end{subfigure}
+    \caption{Metriken pro Klasse}
+    \label{fig:class-metrics}
+\end{figure}
+
+Die bisherigen Ergebnisse haben jeweils die durchscnittlichen Metriken (macro) über alle Klassen betrachtet.
+In diesem Abschnitt soll jede Klasse einzeln evaluiert werden.
+Dazu wurden die bereits verwendeten Metriken pro Klasse erhoben.
+Wie in \autoref{fig:class-metrics} zu sehen ist, gibt es starke Abweichungen innerhalb der verschiedenen Klassen.
+Während Aktionen wie \code{corner}, \code{footShot} oder \code{throwIn} sehr durchgehend gute Ergebnisse vorweisen, wurden andere Klassen wie \code{offside} oder \code{handball} praktisch gar nicht zu klassifizieren erlernt.
+
+Um ein genaueres Bild über die Schwierigkeit der einzelnen Klassen zu erlangen, werden die Klassen in 3-4 Grupper geclustert:
+
+%todo
 Da ein Großteil der in \autoref{subsec:metriken} vorgestellten Metriken pro Klasse erhoben werden, kann eine genauere Analyse über die Komplexität zur Klassifizierung einer einzelnen Klasse gemacht werden.
 Wie einfach oder schwer eine Klasse zu lernen ist, soll pro Modell und Modell-übergreifend veranschaulicht werden.
 
