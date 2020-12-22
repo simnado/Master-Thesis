@@ -76,15 +76,15 @@ Die Metriken werden im Verhältnis zu den Ergebnissen des Validierungssets aufge
     \centering
     \begin{subfigure}{.33\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth, keepaspectratio, interpolate]{img/07_consensus_r2plus1d.eps}
+        \includegraphics[width=0.9\textwidth, keepaspectratio, interpolate]{img/07_consensus_R2plus1D.eps}
     \end{subfigure}%
     \begin{subfigure}{.33\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth, keepaspectratio, interpolate]{img/07_consensus_radar.eps}
+        \includegraphics[width=0.9\textwidth, keepaspectratio, interpolate]{img/07_consensus_R2plus1D.eps}
     \end{subfigure}%
     \begin{subfigure}{.33\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth, keepaspectratio, interpolate]{img/07_consensus.eps}
+        \includegraphics[width=0.9\textwidth, keepaspectratio, interpolate]{img/07_consensus_R2plus1D.eps}
     \end{subfigure}
     \caption{Vergleich von Aggregationsmethoden}
     \label{fig:consensus}
@@ -135,60 +135,61 @@ Im Zuge der zweiten Experimentphase werden verschiedene Hyperparameter mithilfe 
 Alle Modelle nutzen eine dynamisches Avg-\pool-Layer zwischen dem letzten \conv- und dem ersten \fc-Layer, das die Verarbeitung von Tensoren variabler Länge $T$ zulässt.
 Um eine geeignete Methode zu finden, wird der Einfluss von Avg-Pooling und von Subsampling auf den jeweils gleichen Daten pro Modell verglichen.
 
-Die Grid-Suche betrachtet Punkte für verschiedene $\gamma_t$ und $\gamma_\tau$.
-Beginnend mit einer Startkonfiguration (Baseline-Modell), werden iterativ beide Parameter einzeln erhöht, sodass sich die in beiden Fällen die gleiche Clip-Dauer ergibt.
+Die Grid-Suche betrachtet Punkte für verschiedene Werte von $T$ und $\tau$.
+Beginnend mit dem Baseline-Modell aus der ersten Phase, werden iterativ mehrere Parameterkombination ausprobiert, sodass sich die Clip-Dauer um einen festen Faktor erhöht.
 Die Konfigurationen werden verglichen und die erfolgreichere wird wieder zum Startpunkt für die nächste Iteration.
-Die Suche endet sobald, es keine Verbesserungen mehr gibt oder ein Training aufgrund von Hardwarebeschränkungen nicht mehr möglich ist.
+Die Suche endet sobald, es keine Verbesserungen mehr stattfindet oder das Training aufgrund von Hardwarebeschränkungen nicht mehr möglich ist.
 Mit den genannten Einschränkung ist die Suche deutlich schneller, aber auch unvollständiger als eine gewöhnliche Grid-Suche.
 
 \begin{figure}
     \centering
     \begin{subfigure}{.33\textwidth}
         \centering
-        \includegraphics[width=0.99\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{img/07_grid_r2plus1d.eps}
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_grid_r2plus1d.eps}
     \end{subfigure}%
     \begin{subfigure}{.33\textwidth}
         \centering
-        \includegraphics[width=0.99\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{img/07_grid_slowfast.eps}
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_grid_slowfast.eps}
     \end{subfigure}
     \begin{subfigure}{.33\textwidth}
         \centering
-        \includegraphics[width=0.99\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{img/07_grid_csn.eps}
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_grid_csn.eps}
     \end{subfigure}
     \caption{Grid-Suche für optimale Hyperparameter}
     \label{fig:exp-hparams}
 \end{figure}
 
-\autoref{fig:exp-hparams} zeigt die Ergebnisse, indem pro Modell ausgehend von das Baseline-Konfiguration die Clip-Dauer erhöht wird.
-Die Experimente in \autoref{tab:pre} wurden dazu mit $\gls{tld:Theta}_\text{train} = 100$ Samples pro Klasse (inklusive 100 Background-Samples) zu je 4 Epochen durchgeführt.
-Das jeweils beste Modell wird nach Abschluss der Suche erneut für 10 Epochen trainiert und wird zum neuen Baseline-Modell der nächsten Phase.
-\autoref{tab:pre} zeigt die Ergebnisse.
+\autoref{fig:exp-hparams} zeigt die Ergebnisse, indem pro Modell ausgehend vom Baseline-Modell die Clip-Dauer erhöht wird.
+Die Iterationen sind hier durch Linien dargestellt, die je Modelle einer festen Clip-Dauer trainieren.
+Aufgrund der Vielzahl zusätzlicher Experimente wurden die Laufzeit bei diesen Experimenten durch $\gls{tld:Theta}_\text{train} = 100$ und auf 3 Epochen begrenzt.
+
+Als Startpunkt wird das Baseline-Modell der vorherigen Phase gewählt.
+Da das Baseline-Modell nach der ersten Phase bereits neue Feature gelernt hat, werden zu Beginn neue Lernraten gesucht, die für alle Trainings der Grid-Suche gelten.
+Das jeweils beste Modell wird nach Abschluss der Suche erneut für 10 Epochen mit $\gls{tld:Theta}_\text{train} = 200$ trainiert (analog zu Phase 1).
+\autoref{tab:phase2} vergleicht die Ergebnisse der ersten zwei Phasen.
 
 \begin{figure}
     \centering
-    \csvreader[no head,tabular=|l|r|r|r|r||r|r|r|,
+    \csvreader[no head,tabular=|l|r|r|r||r|r|r|,
     table head=\hline,late after line=\\\hline]{tbl/exp_phase_2.csv}
     {1=\model,2=\s,3=\t,4=\sr,5=\d,6=\result,7=\ihatelatex,8=\reallyshittylatex}
-    {\model & \s & \t & \sr & \d & \result & \ihatelatex & \reallyshittylatex}
-    \caption{Ergebnisse zur Hyperparameter-Optimierung}
+    {\model & \t & \sr & \d & \result & \ihatelatex & \reallyshittylatex}
+    \caption{Ergebnisse aus Phase 2}
     \label{tab:phase2}
 \end{figure}
 
-\subsection{Verifikation}
+Die Ergebnisse zeigen, dass ir-CSN das Problem am besten löst und in allen Metriken die besten Ergebnisse hat.
+Daher wird der Fokus im weiteren Verlauf ausschließlich auf dieses eine Modell eingeschränkt.
 
-\begin{tcolorbox}[title=Todo]
-    \begin{itemize}
-        \item beispiele im Anhang?,
-        \item häufige fehler (Datenfehler, Klassifikationsfehler),
-    \end{itemize}
-\end{tcolorbox}
+\subsection{Verifikation}
+\label{subsec:verifikation}
 
 In der dritten Phase werden die Fehler vergangener Experimente genauer analysiert.
 Grundlage sind die drei besten Modelle aus der ersten Phase.
 Im Zuge der Analyse werden zum einen Auffälligkeiten im Fehlerreport analysiert.
 Zusätzlich werden jeweils 50 der Samples mit den größten Fehlerwerten innerhalb eines Experiments verifiziert.
 
-Durch die statistische Analyse des Report konnten insgesamt vier fehlerhafte Videos erkannt werden, da sie auffällig hohe Fehlerwerte verursachten (mit einem z-Score > 3).
+Durch die statistische Analyse des Report konnten insgesamt vier fehlerhafte Videos erkannt werden, da sie auffällig hohe Fehlerwerte verursachten (mit einem z-Score über 3).
 Zudem wurde für zwei weitere Videos, die nach dem gleichen Kriterium aufgefallen sind, das manuelle Aligning nachjustiert.
 
 Bei der Verifikation einzelner Samples wurden pro Modell 50 Samples (im Verhältnis 3:1:1 je Datenset) mit den höchsten Fehlerwerten manuell verifiziert.
@@ -197,10 +198,8 @@ Die Transaktionen bestehen zu 72.6 \% aus Zeitfensteranpassungen.
 22.8 \% sind Löschungen von nicht sichtbaren Aktionen und 4.5 \% sind hinzugefügte Aktionen.
 Die häufigsten Klassen für Zeitfensteranpassungen sind \code{save} (32), \code{footShot} (30), \code{cross} (14) und \code{card} (10).
 Besonders auffällig ist, dass \zB \code{save}- oder \code{card}-Aktionen in den Stammdaten, teils mehrere Sekunden, zu früh auftreten.
-
 Nach Durchsicht der Daten werden die 267 Transaktionen in die Datenbank übernommen.
-Alle weiteren Experiemnte beziehen sich somit auf die korrigierte Datenbank.
-\autoref{tab:phase3} zeigt die Unterschiede in den Rechenergebnissen aller Top-Modelle, die mit den rohen \bzw mit den verifizierten Daten trainiert wurden.
+Alle weiteren Experimente beziehen sich somit auf die korrigierte Datenbank.
 
 \begin{figure}
     \centering
@@ -212,32 +211,32 @@ Alle weiteren Experiemnte beziehen sich somit auf die korrigierte Datenbank.
     \label{tab:phase3}
 \end{figure}
 
-\subsubsection{Fine-Tuning und Benchmark}
+\autoref{tab:phase3} zeigt die Unterschiede in den Rechenergebnissen aller Top-Modelle, die mit den rohen \bzw mit den verifizierten Daten trainiert wurden.
 
-\begin{tcolorbox}[title=Todo]
+\subsection{Fine-Tuning}
+
+\begin{tcolorbox}[title=WIP]
     \begin{itemize}
-        \item Zudem werden der Einfluss verschiedener Auflösungen verglichen.
-        \item Label Smooting
-        \item anpassung pro modell: reaktiv auf Phänome, wie Overfitting, Optimierung pro Modell (Anzahl Epochen, Weight Decay, Tiefere Modelle)?
+        \item Tabelle: Label Smooting, res,Anzahl Epochen, Weight Decay
     \end{itemize}
 \end{tcolorbox}
 
-In der vierten Phase werden die besten Modelle aus Phase 2 mit bis zu $\gls{tld:Theta}_\text{train} = 250$ Samples pro Klasse auf Grundlage der verifizierten Datenbank aus Phase 3 nachtrainiert.
-Anschließend wird reaktiv auf die Ergebnisse des Trainings reagiert.
+In der vierten Phase wird das neue Baseline-Modell aus Phase 3 mit zusätzlichen Techniken weiter optimiert.
+Dazu zählt das Training mit einer erhöhten Auflösung $S$, der Einsatz von Label Smoothing \cite{Szegedy15} und die Justierung weitere Hyperparameter wie Weight Decay.
 \autoref{tab:exp4} zeigt die Ergebnisse.
 
 \begin{figure}
     \centering
-    \csvreader[no head,tabular=|l||r|r|r||r|r|r|,
+    \csvreader[no head,tabular=|l|r||r|r|r||r|r|r|,
     table head=\hline,late after line=\\\hline]{tbl/exp_phase_4.csv}
-    {1=\model,2=\s,3=\t,4=\sr,5=\d,6=\result,7=\ihatelatex}
-    {\model & \s & \t & \sr & \d & \result & \ihatelatex}
-    \caption{Ergebnisse zur Fine-Tuning}
+    {1=\model,2=\wdecay,3=\s,4=\thet,5=\auroc,6=\ba,7=\fbeta,8=\epo}
+    {\model & \s & \epo & \thet & \wdecay & \ba & \fbeta & \auroc}
+    \caption{Ergebnisse aus Phase 4}
     \label{tab:exp4}
 \end{figure}
 
-
 \section{Kategorisierung der Aktionsklassen}
+\label{sec:kategorisierung-der-aktionsklassen}
 
 \begin{tcolorbox}[title=Todo]
     \begin{itemize}
