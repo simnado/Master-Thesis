@@ -1,9 +1,9 @@
 Halbzeit,Subset,R2+1D,SlowFast,CSN,Fix,verified samples
-69260@1,val,4.6,3.0,-,invalid,
-16131@2,test,3.9,3.2,4.2,+1 sec,
-69269@2,test,2.5,3.1,2.1,invalid,
-jgBo52DT@2,train,2.36,3.00,3.06,invalid (5 sec missing),1
-9736@2,train,-0.43,3.42,1.76,+1 sec,
-266467@2,train,3.22,2.96,2.88,ok,
+69260@1,val,4.6,3.0,-,invalid,8
+16131@2,test,3.9,3.2,4.2,+1 sec,16
+69269@2,test,2.5,3.1,2.1,invalid,-
+jgBo52DT@2,train,2.36,3.00,3.06,invalid (5 sec missing),3
+9736@2,train,-0.43,3.42,1.76,+1 sec,-
+266467@2,train,3.22,2.96,2.88,ok,7
 ,,,,,,
-69332@2,train,,,,stille Bilder,
+69332@2,train,0.58,-0.89,-0.24,stille Bilder,-

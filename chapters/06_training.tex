@@ -194,6 +194,22 @@ Wird ein Fehler entdeckt kann dieser auf dreierlei Weisen behoben werden:
     \item[Verdeckte Aktion] Eine Aktion, die stattgefunden hat, ist im Kamerabild nicht zu sehen und muss aus der Datenbank gelöscht werden.
 \end{description}
 
-Das Relabel-Tool speichert die Änderungen nicht direkt in der JSON-Datenbank, sondern in einer zusätzlichen Datenstruktur, die ausschließlich die Datenbank-Transaktionen speichert, die für ein Update notwendig sind.
+Das Relabel-Tool speichert die Änderungen nicht direkt in der JSON-Datenbank, sondern in einer zusätzlichen Datenstruktur, die ausschließlich die Datenbank-Transaktionen enthält, die für ein Update notwendig sind.
 Zur Laufzeit wird die JSON-Datenbank in den Arbeitsspeicher geladen und kann dort optional mit Hilfe der Transaktionsdatei angepasst werden.
 Um die Transaktionen endgültig zu speichern kann die angepasste Datenbank mit einer neuen Versionsnummer wieder auf dem Dateisystem persistiert werden.
+
+Die Verifikationn folgt einem definiertem Protokoll:
+Sind alle Experimente einer Phase abgeschlossen, wird zunächst eine neue Transaktionsdatei erstellt.
+Für jedes der Experimente wird das Relabel-Tool mit den persistierten Score- und Loss-Werte des des Fehlerreports initialisiert.
+Das Relabel-Tool erhält ebenfalls Zugriff auf die bestehende JSON-Datenbank.
+Die Samples werden absteigend nach Loss-Wert sortiert und dem Nutzer interaktiv präsentiert.
+Der Nutzer kann die einzelnen Annotationen des Samples ändern oder löschen oder eine neue Annotation hinzufügen.
+Jede dieser drei Operationen lässt sich in Form einer Transaktion in einer \gls{csv}-Datei speichern.
+Nach der Verifikation eines Experiments werden die Transaktionen separat gespeichert, dann auf die Datenbank angewendet und dann die Datenbank in einer neuen Version gespeichert.
+Die geänderten Annotationen werden zudem als verifiziert in der Datenbank markiert, sodass der Nutzer die gleichen Fehler nicht mehrmals im Relabel-Tool vorgeschlagen bekommt.
+
+Eine weitere Funktion des Fehlerreports besteht darin nach Auffälligkeiten in den Daten zu suchen:
+Es kann der durchschnittliche Fehler pro Video ermittelt werden und Ausreißer können mit einem z-Test identifiziert werden.
+Diese Ausreißer sind \zB Videos mit vielen Kodierungsfehlern oder einer nicht konstanten Abspielgeschwindigkeit, die im Rahmen dieser Arbeit nicht zum Einsatz kommen sollten, da sie die Qualität des Datensets im Allgemeinen beeinträchtigen.
+Falls die Qualität dieser Videos inakzeptabel ist, werden sie manuell aus der Datenbank entfernt.
+

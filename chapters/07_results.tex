@@ -57,37 +57,44 @@ Alternativ werden im Falle des Avg-Pooling die Dimensionen wie in \autoref{eq:ev
     \end{split}
 \end{equation}
 
-\subsection{Initialisierungsphase und Vergleich temporärer Aggregation}
+\subsection{Vergleich temporärer Aggregation}
 \label{subsec:initialisierungsphase}
 
 In der ersten Phase der Experimente werden pro Modell vortrainierte (basierend auf Kinetics-400) und öffentlich zugängliche Gewichte in die Architektur geladen.
 Das jeweils letzte \fc-Klassifikationslayer wird durch ein neues mit 32 Output-Klassen ausgetauscht und einzeln für einen Zyklus (siehe \autoref{subsec:trainingsschleife}) mit etwa $\Theta_\text{train} = 100$ Samples pro Klasse nachtrainiert.
 \Dh alle übrigen Layer des Modells bleiben unverändert.
 Erst in einer späteren Iteration werden alle Layer in einem zweiten Zyklus nachtrainiert.
+Diese Instanzen werden nachfolgend als Baseline-Modelle bezeichnet.
 
-Für alle der drei Backbones wird nach Abschluss des zweiten Zyklus evaluiert welches der oben genannten Aggregationsverfahren für die Test-Samples am besten geeignet ist.
+Für alle der drei Baseline wird nach Abschluss des zweiten Zyklus evaluiert welches der oben genannten Aggregationsverfahren für die Test-Samples am besten geeignet ist.
 Pro Backbone wird das Test-Set pro Verfahren getestet.
-\autoref{fig:consensus} zeigt verschieden Metriken für jede der Aggregationen, sowie für das Validierungsset:
+\autoref{fig:consensus} zeigt verschieden Metriken für jede der Aggregationen.
+Die Metriken werden im Verhältnis zu den Ergebnissen des Validierungssets aufgetragen.
+\Dh eine Metrik von 1 entspricht dem gleichen absoluten Wert der Metriken im Validierungsset, eine Metrik von 0.5 entspricht einem halb so hohen Wert.
 
 \begin{figure}[htbp!]
     \centering
-    \begin{subfigure}{.5\textwidth}
+    \begin{subfigure}{.33\textwidth}
         \centering
-        \includegraphics[width=0.8\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{img/07_consensus_radar.eps}
+        \includegraphics[width=0.9\textwidth, keepaspectratio, interpolate]{img/07_consensus_r2plus1d.eps}
     \end{subfigure}%
-    \begin{subfigure}{.5\textwidth}
+    \begin{subfigure}{.33\textwidth}
         \centering
-        \includegraphics[width=0.8\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{img/07_consensus.eps}
+        \includegraphics[width=0.9\textwidth, keepaspectratio, interpolate]{img/07_consensus_radar.eps}
+    \end{subfigure}%
+    \begin{subfigure}{.33\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth, keepaspectratio, interpolate]{img/07_consensus.eps}
     \end{subfigure}
-    \caption{Vergleich von Max- und Avg-Aggregation am Test-Set (ir-CSN mit $\gamma_\tau = 2$) }
+    \caption{Vergleich von Aggregationsmethoden}
     \label{fig:consensus}
 \end{figure}
 
-Die Avg-Aggregation weist in allen Fällen eine knapp höhere Precision und Accuracy auf, während die Max-Aggregation einen deutlich höheren Recall, eine leicht höhere AUROC und Balanced Accuracy und in den meisten Fällen einen leicht höheren F1-Score.
+Die Avg-Aggregation weist in den meisten Fällen eine knapp höhere Precision und Accuracy auf, während die Max-Aggregation einen deutlich höheren Recall, eine leicht höhere AUROC und Balanced Accuracy und in den meisten Fällen einen leicht höheren F1-Score.
 Die Ergebnisse lassen sich zum Teil dadurch erklären, dass die Scores durch die Mittelung der Avg-Aggregation immer niedriger sind als die Scores in der Max-Aggregation, wodurch die Anzahl aller Positives insgesamt abnimmt.
 Die Avg-Aggregation ist also deutlich sensibler gegenüber False Positives.
 
-Dennoch wird die Avg-Aggregation als primäre Aggregation für den weiteren Verlauf festgelegt.
+Dennoch wird die Max-Consensus-Aggregation als primäre Aggregation für den weiteren Verlauf festgelegt.
 Zum einen, da die Metriken im Schnitt einen besseren Kompromiss darstellen.
 Zum anderen, da sie die Realität logisch abbildet:
 Enthält ein Clip von 10 Sekunden zwei Aktionen -- die eine Aktion ganz zu Beginn und die andere Aktion kurz vorm Ende, ist die erste Aktion nicht im letzten Chunk und die zweite Aktion nicht im ersten Chunk sichtbar.
@@ -96,16 +103,30 @@ Die Max-Aggregation kann derartige Zustände erkennen, da die Maxima sich auf di
 \section{Evaluation der Experimente}
 
 Mit der zuvor festgelegten, einheitlichen Evaluationsmethode werden nun die Evaluationsergebnisse der einzelnen Experimente vorgestellt.
-Diese bestehen zunächst aus einer Hyperparameter-Optimierung pro Modell, so wie einem semi-automatischen Verifikationsschritt, einem anschließenden Training auf einem teilweise bereinigten Datenset und einem weiteren Fine-Tuning.
+Diese bestehen zunächst aus den Baseline-Modellen der ersten Phase, einer Hyperparameter-Optimierung in der zweiten, so wie einem semi-automatischen Verifikationsschritt, mit anschließenden Training auf einem teilweise bereinigten Datenset in der dritten und einem weiteren Fine-Tuning in der vierten Phase.
 
-\begin{tcolorbox}[title=Todo]
-    \begin{itemize}
-        \item jeweils epochen und $\gls{tld:Theta}_\text{train}$ nennen
-        \item Grid-Search!! Wiederholen mit 100 Sampels, 5 Epochen, bessere Grid Auswahl
-    \end{itemize}
-\end{tcolorbox}
+\subsection{Ergebnisse der Baseline Modelle}
 
-\subsubsection{Hyperparameter Optimierung}
+Als Baseline-Modelle wurden R2+1D-34, ir-CSN-152 und zwei Varianten von SlowFast-50 getestet und mit $\gls{tld:Theta}_\text{train} = 200$ für 10 Epochen trainiert.
+Beide SlowFast-Varianten wurden zunächst ohne Hinzunahme von Non-Local-Blöcken trainiert.
+In \autoref{tab:phase1} sind die Ergebnisse zu sehen, wobei alle Hyperparameter aus den ursprünglichen Publikationen zu übernommen wurden.
+
+\begin{figure}
+    \centering
+    \csvreader[no head,tabular=|l||r|r||r|r|r|,
+    table head=\hline,late after line=\\\hline]{tbl/exp_phase_1.csv}
+    {1=\model,2=\auroc,3=\ba,4=\fbeta,5=\lr,6=\bs}
+    {\model & \lr & \bs & \ba & \fbeta & \auroc}
+    \caption{Ergebnisse aus Phase 1}
+    \label{tab:phase1}
+\end{figure}
+
+Überraschend ist, dass die SlowFast-Variante mit $\alpha = 8$ (SlowFast-50-4x16) bessere Ergebnisse erzielt als die Variante mit $\alpha = 4$ (SlowFast-50-8x8).
+Im ersteren erhält der Slow-Pathway schließlich nur halb so viele Frames, wie im letzteren und kann sich damit noch mehr auf räumliche Features fokussieren.
+Da die Ergebnisse für SlowFast-50-4x16 hochweg besser ausfallen, wird diese Variante im weiteren Verlauf als SlowFast-Baseline-Modell verwendet.
+
+\subsection{Hyperparameter Optimierung}
+\label{subsec:hyperparameter-optimierung}
 
 Spielaktionen können unter Berufung auf \gls{sbod} zwischen bis zu 6 Sekunden dauern.
 Die vortrainierten Modelle bilden in ihrer ursprünglichen Form jedoch maximal 2.56 Sekunden ab.
@@ -119,16 +140,6 @@ Beginnend mit einer Startkonfiguration (Baseline-Modell), werden iterativ beide 
 Die Konfigurationen werden verglichen und die erfolgreichere wird wieder zum Startpunkt für die nächste Iteration.
 Die Suche endet sobald, es keine Verbesserungen mehr gibt oder ein Training aufgrund von Hardwarebeschränkungen nicht mehr möglich ist.
 Mit den genannten Einschränkung ist die Suche deutlich schneller, aber auch unvollständiger als eine gewöhnliche Grid-Suche.
-
-\begin{figure}
-    \centering
-    \csvreader[no head,tabular=|l|r|r|r|r||r|r|r|,
-    table head=\hline,late after line=\\\hline]{tbl/pre-eval.csv}
-    {1=\model,2=\s,3=\t,4=\sr,5=\d,6=\result,7=\ihatelatex,8=\reallyshittylatex}
-    {\model & \s & \t & \sr & \d & \result & \ihatelatex & \reallyshittylatex}
-    \caption{Ergebnisse zur Hyperparameter-Optimierung}
-    \label{tab:pre}
-\end{figure}
 
 \begin{figure}
     \centering
@@ -148,37 +159,58 @@ Mit den genannten Einschränkung ist die Suche deutlich schneller, aber auch unv
     \label{fig:exp-hparams}
 \end{figure}
 
-\autoref{tab:pre} und \autoref{fig:exp-hparams} zeigt die Ergebnisse, indem pro Modell ausgehend von das Baseline-Konfiguration die Clip-Dauer erhöht wird.
-Die Experimente in \autoref{tab:pre} wurden dazu mit $\gls{tld:Theta}_\text{train} = 100$ Samples pro Klasse (inklusive 100 Background-Samples) zu je 5 Epochen durchgeführt.
+\autoref{fig:exp-hparams} zeigt die Ergebnisse, indem pro Modell ausgehend von das Baseline-Konfiguration die Clip-Dauer erhöht wird.
+Die Experimente in \autoref{tab:pre} wurden dazu mit $\gls{tld:Theta}_\text{train} = 100$ Samples pro Klasse (inklusive 100 Background-Samples) zu je 4 Epochen durchgeführt.
+Das jeweils beste Modell wird nach Abschluss der Suche erneut für 10 Epochen trainiert und wird zum neuen Baseline-Modell der nächsten Phase.
+\autoref{tab:pre} zeigt die Ergebnisse.
 
-\subsubsection{Verifikation}
+\begin{figure}
+    \centering
+    \csvreader[no head,tabular=|l|r|r|r|r||r|r|r|,
+    table head=\hline,late after line=\\\hline]{tbl/exp_phase_2.csv}
+    {1=\model,2=\s,3=\t,4=\sr,5=\d,6=\result,7=\ihatelatex,8=\reallyshittylatex}
+    {\model & \s & \t & \sr & \d & \result & \ihatelatex & \reallyshittylatex}
+    \caption{Ergebnisse zur Hyperparameter-Optimierung}
+    \label{tab:phase2}
+\end{figure}
+
+\subsection{Verifikation}
 
 \begin{tcolorbox}[title=Todo]
     \begin{itemize}
-        \item protokoll: Abbruchbedingung sinnvoll?
         \item beispiele im Anhang?,
         \item häufige fehler (Datenfehler, Klassifikationsfehler),
-        \item basis: beste ep
-        \item Anzahl = 25 ?
     \end{itemize}
 \end{tcolorbox}
 
+In der dritten Phase werden die Fehler vergangener Experimente genauer analysiert.
+Grundlage sind die drei besten Modelle aus der ersten Phase.
+Im Zuge der Analyse werden zum einen Auffälligkeiten im Fehlerreport analysiert.
+Zusätzlich werden jeweils 50 der Samples mit den größten Fehlerwerten innerhalb eines Experiments verifiziert.
 
-In der dritten Phase werden diejenigen Samples, die den größen Loss innerhalb eines Trainings vorweisen, genauer analysiert.
-Grundlage ist eine Analyse der Experimente aus Phase 2.
-In Zuge der Analyse werden zum einen Datenfehler (wie in \autoref{sec:nachgang} beschrieben) behoben.
-Zusätzlich werden manuell Informationen über die $25$ größten Fehler (abhängig vom Loss im Fehlerreport) innerhalb eines Experiments erhoben.
+Durch die statistische Analyse des Report konnten insgesamt vier fehlerhafte Videos erkannt werden, da sie auffällig hohe Fehlerwerte verursachten (mit einem z-Score > 3).
+Zudem wurde für zwei weitere Videos, die nach dem gleichen Kriterium aufgefallen sind, das manuelle Aligning nachjustiert.
 
-Die Analyse folgt einem definiertem Protokoll:
-Sind alle Experimente einer Phase abgeschlossen, wird zunächst eine neue Transaktionsdatei erstellt.
-Für jedes der genannten Durchläufe (der jeweiligen Phase) wird das Relabel-Tool mit den persistierten Score- und Loss-Werte des je letzten Epoche initialisiert.
-Das Relabel-Tool erhält ebenfalls Zugriff auf die Datenbankinstanz, die sich aus der persistierten JSON-Datenbank und den in dieser Phase bereits durchgeführten Transaktionen zusammensetzt.
-So kann das Relabel-Tool \ua erkennen, das der selbe Fehler schon in einem vorherigen Experiment behoben wurde.
+Bei der Verifikation einzelner Samples wurden pro Modell 50 Samples (im Verhältnis 3:1:1 je Datenset) mit den höchsten Fehlerwerten manuell verifiziert.
+Dies entspricht 150 Samples, bei denen insgesamt 267 Transaktionen mit Korrekturvorschlägen gespeichert wurden.
+Die Transaktionen bestehen zu 72.6 \% aus Zeitfensteranpassungen.
+22.8 \% sind Löschungen von nicht sichtbaren Aktionen und 4.5 \% sind hinzugefügte Aktionen.
+Die häufigsten Klassen für Zeitfensteranpassungen sind \code{save} (32), \code{footShot} (30), \code{cross} (14) und \code{card} (10).
+Besonders auffällig ist, dass \zB \code{save}- oder \code{card}-Aktionen in den Stammdaten, teils mehrere Sekunden, zu früh auftreten.
 
-Die Samples werden absteigend nach Loss-Wert sortiert und dem Nutzer iterativ präsentiert.
-Der Nutzer kann das Sample als Datenfehler in Form einer Transaktion beheben oder als Klassifikationsfehler markieren.
-Als Klassifikationsfehler markierte Samples werden automatisch geloggt und im Cloud-Speicher abgelegt.
-Die Analyse kann abgebrochen werden, sobald mindestens $25$ Klassifikationsfehler erfasst wurden.
+Nach Durchsicht der Daten werden die 267 Transaktionen in die Datenbank übernommen.
+Alle weiteren Experiemnte beziehen sich somit auf die korrigierte Datenbank.
+\autoref{tab:phase3} zeigt die Unterschiede in den Rechenergebnissen aller Top-Modelle, die mit den rohen \bzw mit den verifizierten Daten trainiert wurden.
+
+\begin{figure}
+    \centering
+    \csvreader[no head,tabular=|l|c||r|r|r|,
+    table head=\hline,late after line=\\\hline]{tbl/exp_phase_3.csv}
+    {1=\model,2=\auroc,3=\ba,4=\fbeta,5=\verified}
+    {\model & \verified & \ba & \fbeta & \auroc}
+    \caption{Ergebnisse aus Phase 3}
+    \label{tab:phase3}
+\end{figure}
 
 \subsubsection{Fine-Tuning und Benchmark}
 
