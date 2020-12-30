@@ -1,31 +1,55 @@
-\chapter{Zusammenfassung}
+\chapter{Rekapitulation}
 \label{ch:zusammenfassung}
 
-Zum Ende dieser Arbeit wird noch einmal der Umfang und die Ergebnisse rekapituliert.
-Darüber hinaus wird ein Ausblick gegeben, wie sich die Ergebnisse durch weitere Schritte verbessern ließen und eine Einschätzung ob die angewandten Methoden dieser Arbeit das Ziel erreichen konnten.
+In diesem letzten Kapitel wird zunächst das Vorgehen und die Erkenntnisse der Arbeit rekapituliert.
+Anschließend werden offene Probleme genannt und ein Ausblick für deren Lösung in Ausblick gestellt.
+Darüber hinaus werden weiterführende Forschungsfrage ausgeworfen.
 
 \begin{tcolorbox}[title=WIP]
  \begin{itemize}
-  \item Ergebnisse in Rekapitulation einbauen
-  \item Fazit
-  \item Ausblick: Schneller durch mehr CPU-Power, Decoding ist primärer Bremser!
+  \item Zusammenfassung: Vorgehen, Ergebnisse, Erkenntnisse (Forschungsfrage beantworten, Was zu beweisen war)
+  \item Ausblick: distanzierte Bewertung im Kontext der Problemstellung (Schneller durch mehr CPU-Power, Decoding ist primärer Bremser!), tiefere Modelle
+  \item Forschungsbedarf: Weiterführung, Anschlussstudien
  \end{itemize}
  \end{tcolorbox}
 
-\section{Rekapitulation}
+\section{Zusammenfassung}
 \label{sec:rekapitulation}
 
-Um Video Understand im Fußball-Sektor gibt es bis dato kein umfangreiches Datenset mit mehr als zehn Klassen.
-Im Zuge dieser Arbeit wurde ein mächtigeres Datenset mit insgesamt 32 Spielaktionsklassen auf Basis öffentlich zugänglicher Daten erstellt.
-Durch die Verfügbarkeit dieses neuen Datensets, konnte moderne Deep Learning Modelle zu Multi-Label Action Recognition trainiert werden, deren Ergebnisse nicht hinter den Ergebnissen vorangegangener Datensets zurückbleiben.
+Zur \gls{har} gibt es im Fußball-Sektor bis dato kein umfangreiches Datenset mit mehr als zehn Aktionsklassen.
+Deshalb wurde im Zuge dieser Arbeit zunächst ein mächtigeres Multi-Label-Datenset mit insgesamt 32 Klassen auf Basis öffentlich zugänglicher Daten erstellt.
+Das Datenset selbst besteht aus Markierungen, die sich auf ein Intervall innerhalb eines ungeschnittenes Video beziehen.
 
-Im Zuge des Training wurden Modelle aus den Kategorien 3D-Convolution und faktorisierter 3D-Convolution getestet und herausgearbeitet welche Samplingstrategie für die jeweilige Kategorie am besten geeignet ist.
-Darüber hinaus konnte auf Basis der Rechenergebnisse eine umfassende Analyse der Aktionsklassen durchgeführt werden, die Spielaktionen bestimmte Schwierigkeitsgrade zugeteilt.
+Um zu prüfen ob alle neuartigen Klassen mit Methoden des Deep-Learnings lernbar sind, wurden drei Baseline-Modelle aus drei unterschiedlichen Oberkategorien auf Eignung getestet:
+SlowFast als reines, R2+1D als Block-faktorisiertes und ir-CSN als Gruppen-faktorisiertes 3D-Convolution-\gls{dnn}.
+Für jedes Baseline-Modell wurden optimale Hyperparameter gesucht, wobei alle Modelle bessere Ergebnisse erzielen, wenn sie auf Clips mit einer längeren Dauer trainiert werden.
+Die zusätzliche Länge kann durch zusätzliche Frames oder durch ein dünneres Sampling erfolgen, wobei ersteres den größeren Erfolg verspricht.
+In einem Benchmark wurden die besten Konfigurationen der Baseline-Modelle übernommen und anhand von xxx-sekündigen Samples eines separaten Testsets verglichen, wobei ir-CSN mit XXX am besten abschnitt.
 
-%todo: was ist jetzt am besten? wie gut genau und was ist leicht und was ist schwer?
+Weitere Verbesserungen des CSN-Modells konnten erzielt werden, indem Samples mit auffällig hohen Fehlerwerten manuell verifiziert wurden.
+Durch die manuellen Korrekturen konnte eine Verbesserung von XXX erzielt werden.
+Eine weitere Steigerung wurde durch das Sampling mit einer höheren Auflösung, zusätzlicher Samples und Label Smoothing erreicht.
+
+Darüber hinaus wurde auf Basis der Rechenergebnisse eine Analyse über die Schwierigkeit der 32 Aktionsklassen durchgeführt, wobei auffiel, einige Aktionen praktisch gar keine Wiedererkennung erfahren.
+Diese Aktionen wurden in Form eines Sub-Datensets mit nur 24 der ursprünglichen 32 Klassen entfernt und die Experimente wurden mit dem neuen Datenset wiederholt, was die höchste Performance-Steigerung brachte.
+
+\section{Weiterführende Erkenntnisse}
+\label{sec:weiterfuhrende-erkenntnisse}
+
+Mit Hinblick auf die Forschungsfrage wird mit SOCC-HAR-24 ein neues Datenset vorgestellt, welches 14 zusätzliche Klassen beinhaltet, die, wie anhand der Experimente belegt wurde, durch aktuelle Deep-Learning-Modelle erlernbar sind.
+
+Die Experimente legen weiterhin nah, dass bei einer \gls{har} mit Fußballvideos der Dynamik eine höhere Rolle zukommt als es bei generischen Datensets der Fall ist.
+Die höhere Genauigkeit von SlowFast-4x16 gegenüber SlowFast-8x8, sowie das Hyperparameter-Tuning stützen diese Hypothese.
+
+Die Analyse der Aktionsklassen belegt, dass bestiommte Aktionen (die \zB oft in Kombination mit Nahaufnahmen auftreten) vergleichsweise schlecht abschneiden, während andere durchweg besser abschneiden.
 
 \section{Ausblick}
 \label{sec:ausblick}
+
+Im Rahmen dieser Arbeit war es nicht mehr möglich einen abschließenden Test der mit SOCC-HAR-32 trainierten Modelle, auf den Daten von SoccerNet und SoccerDB durchzuführen.
+
+
+Das belegt zwar, dass die Daten in SOCC-HAR-32 nicht frei von Fehlern sind, bedeutet im Umkehrschuss jedoch auch, dass
 
 Die Rechenergebnisse dieser Arbeit stellen eine solide Baseline zukünftiger Arbeiten dar, die durch zusätzlichen Aufwand noch viel Verbesserungspotential hat.
 Offensichtlich lassen sich noch bessere Ergebnisse erziehen, wenn das vorgestellte Baseline-Modell von Grund auf mit den neuen Datenset trainiert würde, was aus Hardware-Beschränkungen im Rahmen dieser Arbeit nicht möglich war.
@@ -43,7 +67,14 @@ Zusätzlich kann auf der selben Datengrundlage (mit gleichen Spielen) ein Datens
 Mit solchen Daten kann \ggf ein Modell zum Tracking von Spielern oder sogar der Projizierung von Spielern auf Spielfeldkoordinaten erstellt werden und mit dem hier vorgestellten Modell zur Aktionserkennung verknüpft werden.
 So wäre eine vollständige Erfassung Spieler-bezogenen Statistiken auf Basis von Spielaktionen und Spielerpositionen möglich, die das Fußball-Scouting nachhaltig prägen könnte.
 
-\section{Fazit}
+schlecht:
+Zur Laufzeit müssen diese ungeschnittenen Videos in kleinere Clips einer fester Länge segmentiert werden.
+Anhand der zugrundeliegenden Stammdaten, wurde eine Minimaldauer von 3 und eine Maximaldauer von 6 Sekunden für diese Segmentierung festgelegt.
+Die Segmentierung des Trainings- und Validierungssets folgt
+
+* Datenset Format anders: Superset von Soccernet, SoccerDB
+
+\section{Forschungsbedarf}
 \label{sec:fazit}
 
 Abschließend lassen sich die Fragestellungen aus \autoref{sec:forschungsfrage} beide mit \emph{Ja} beantworten.

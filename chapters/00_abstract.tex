@@ -1,26 +1,28 @@
-\newcommand{\primarymetric}{66,1 \%}
+\newcommand{\primarymetric}{66,1}
+\newcommand{\secondarymetric}{72,8}
 
 \begin{prefacesection}{Abstract}
-    Die Erkennung von Aktionen in Videos (auch \gls{har}) ist Gegenstand aktueller Forschung im Bereich Video Understanding.
+    Die Erkennung von Aktionen in Videos, auch \gls{har} genannt, ist Gegenstand aktueller Forschung im Bereich Video Understanding.
     Großspurige Datensets beschränken sich meist auf allgemeine, Domänen-übergreifende Klassen, die eindeutig voneinander abgrenzbar sind und nicht in Kombination auftreten.
-    Hingegen finden im Bereich von Feldsportarten, wie Fußball, oft viele, visuell ähnliche Aktionen in kürzester Zeit statt.
+    Hingegen finden im Bereich von Feldsportarten, wie Fußball, oft viele, visuell ähnliche Aktionen in kürzester Zeit oder sogar zeitgleich statt.
     Bestehende Datensets dieser Domäne bilden bislang nur einen Bruchteil der Spielaktionen aus der realen Welt ab.
-    Hier knüpft die vorliegende Arbeit an, in der ein Multi-Label-Datenset mit insgesamt 32 verschiedenen Spielaktionen, basierend auf TV-Aufzeichnungen von Fußballspielen, neu generiert wird.
-    In anschließenden Benchmarks kommen verschiedene \gls{dnn}-Architekturen (wie R2+1D, SlowFast, ir-CSN) als Video-Classifier zum Einsatz, die anhand des neuen Datensets mit Methoden des Transfer-Learnings und ohne weitere Zwischenschritte (\emph{Ende-zu-Ende}) trainiert werden.
-    Die Ergebnisse zeigen, dass aktuelle Modelle des Deep-Learnings bereits in der Lage sind, diese Aktionen ausreichend gut zu erkennen (mit einer Balanced Accuracy von \primarymetric).
-    Zum anderen können Spielaktionen in verschiedene Schwierigkeitsgrade kategorisiert werden, deren Erkennung maßgeblich abhängt von der Auflösung und der Geschwindigkeit der Videos.
+    Hier knüpft die vorliegende Arbeit an, in der ein Multi-Label-Datenset mit insgesamt 32 verschiedenen Aktionsklassen, basierend auf TV-Aufzeichnungen von Fußballspielen, neu generiert wird.
+    In anschließenden Benchmarks kommen verschiedene Deep-Learning-Architekturen (R2+1D, SlowFast, ir-CSN) als Video-Klassifizierer zum Einsatz, die anhand des neuen Datensets mit Methoden des Transfer-Learnings und ohne weitere Zwischenschritte (\emph{Ende-zu-Ende}) trainiert werden.
+    Die Ergebnisse zeigen, dass aktuelle Modelle des Deep-Learnings bereits in der Lage sind, einen Großteil der 32 Klassen hinreichend gut zu erkennen.
+    Im Vergleich erreicht ir-CSN hierbei die besten Ergebnisse -- mit einer Balanced Accuracy von \primarymetric \% (\secondarymetric \% bei 24 Klassen).
 
-    \begin{tcolorbox}[title=Todo]
-        Ergebnisse und Eigenschaften des Datensets, Englisch nochmal übersetzen
+    \begin{tcolorbox}[title=WIP]
+        Weitere Key-Finding: Auflösung und der Geschwindigkeit der Videos erwähnen, BA updaten
     \end{tcolorbox}
 
 
-    Action Recognition is the key problem of Video Understanding and has not been explored as far as the two-dimensional variant of Object Recognition.
-    However, recently there have been frequent new breakthroughs that replace existing models.
-    Videos of field sports, such as soccer, are particularly demanding in this area, since possible game actions have a high intra-class variance and low inter-class similarity.
-    Existing data sets only represent a fraction of game actions of the real world and are hardly relevant in the field of soccer scouting.
-    This is where the work at hand follows, the aim of which is to train a central multi-label video classifier for recognizing game actions with a data set specially generated for this purpose.
-    This data set offers a spectrum of 32 different classes, \dots
-    The results should benefit from the training of a large number of classes as well as the use of factorized 3D convolution.
+    The recognition of actions in videos (also Human Action Recognition (HAR)) is the subject of current research in the field of video understanding.
+    Large-scale data sets are mostly limited to general, cross-domain classes that are clearly distinguishable from one another and do not occur in combination.
+    On the other hand, in the domain of field sports, such as soccer, visually similar actions often take place in a very short time or even at the same time.
+    Existing datasets of this domain so far represent only a fraction of the actions from the real world.
+    This is where the thesis starts by creating a multi-label dataset with a total of 32 different action classes included, based on TV recordings of soccer matches.
+    In the subsequent benchmarks, various deep learning architectures (R2+1D, SlowFast, ir-CSN) are used as video classifiers, which are trained end-to-end on the new dataset with methods of transfer learning and without further intermediate steps.
+    The results show that current Deep Learnings models are already able to recognize a large part of the 32 classes sufficiently well.
+    In comparison, ir-CSN achieved the best results - with a balanced accuracy of \primarymetric \% (\secondarymetric \% in 24 classes).
 
 \end{prefacesection}
