@@ -259,7 +259,7 @@ Nach jeder Faltung kommt eine ReLu Aktivierung, die zu einer höheren Nichtlinea
 InceptionV1 nutzt unter Ausnahme des Stamm-Blocks (\stem-Layer), ausschließlich Inception-Blöcke, sowie zusätzliche \pool-Layer in insgesamt 22 Schichten.
 Durch den Einsatz der Inception-Blöcke fällt der Fußabdruck mit rund 5 Millionen Parametern vergleichsweise klein aus.
 Eine Erweiterung des Vorgängers mit deutlich größerem Fußabdruck ist InceptionV3~\cite{Szegedy15}.
-Dabei wurden die $(3 \times 3)$-Faltungen durch eine effizientere Kombination asymmetrischer $(1 \times 3)$- und $(3 \times 1)$-Convolutions abgelöst.
+Dabei wurden die $(3 \times 3)$-Faltungen durch eine effizientere Kombination asymmetrischer $(1 \times 3)$- und $(3 \times 1)$-Faltungen abgelöst.
 Auch die größeren Kernel im \stem-Block werden weiter zerlegt in mehrere $(3 \times 3)$-Faltungen.
 In InceptionV4 (2016)~\cite{Szegedy16} wurden noch weitere Inception-Blöcke verwendet, wobei in diesem Modell eine einheitliche Anzahl an Kernels in allen Inception-Blöcken verwendet wird.
 
@@ -267,9 +267,9 @@ In InceptionV4 (2016)~\cite{Szegedy16} wurden noch weitere Inception-Blöcke ver
 \label{subsec:residual-learning}
 
 Parallel zur Erscheinung von InceptionV1 wurde auch ResNet-50~\cite{He15} und das damit einhergehende Residual Learning vorgestellt.
-Residual Learning ist eine Technik zur Vermeidung von Overfitting in Neuronalen Netzen.
+Residual Learning ist eine Technik zur Vermeidung von Überanpassung (Overfitting) in Neuronalen Netzen.
 Overfitting ist die Folge davon, dass das Netz zu viele Freiheitsgrade hat und so Details der vielen Beispieldaten auswendig lernt, anstatt abstrakte Muster darin zu erkennen.
-Dieser Effekt war zuvor bei einem nicht ausgewogenen Verhältnis von Tiefe des Netzes zur Anzahl an Trainingsdatensätzen, unvermeidbar.
+Dieser Effekt war zuvor bei einem nicht ausgewogenen Verhältnis von Tiefe des Netzes zur Anzahl an Trainingsdatensätzen, unvermeidbar~\cite{Gugger20}.
 
 \begin{figure}[hb!]
     \centering
@@ -279,16 +279,16 @@ Dieser Effekt war zuvor bei einem nicht ausgewogenen Verhältnis von Tiefe des N
 \end{figure}
 
 Beim Residual Learning werden gewöhnliche Knoten eines Layers in \res-Layer integriert.
-Dabei wird eine zusätzliche Verbindung (Skip Connections) eingeführt, die den Inputs und Output des Layers mithilfe einer punktweisen Multiplikation verknüpft (siehe \autoref{fig:residual}).
+Dabei wird eine zusätzliche Verbindung (Skip Connection) eingeführt, die den Input und Output des Layers mithilfe einer punktweisen Multiplikation verknüpft (siehe \autoref{fig:residual}).
 Optional wird das eigentliche \conv-Layer von zwei punktweisen $(1 \times 1)$-\conv-Layern umgeben, um die Informationen zusätzlich zu verdichten.
 Diese Verdichtungen werden auch als Bottlenecks bezeichnet.
-\res-Blöcke werden klassisch in vier \res-Layer (\res1 bis \res4) gegliedert.
+\res-Blöcke werden klassisch in vier \res-Layern (\res1 bis \res4) gruppiert.
 
 Sofern die Möglichkeit des Overfittings besteht, ist das Netz nun in der Lage ein Identitätsmapping (Input $\to$ Input) zu lernen, indem es alle Gewichte eines Blocks auf null setzt.
 So können überflüssige Blöcke implizit während des Trainings deaktiviert werden und das Netz kann selbst entscheiden wie viele Layer es benötigt.
-
 Zudem wurde in ResNet-50 erstmalig eine Batch Normalisierung~\cite{Ioffe15} genutzt, was wiederum zu einem schnelleren und stabileren Training führt~\cite{Gugger20}.
 
+\subsubsection*{DenseNet}
 
 Eine alternative Weiterentwicklung zu ResNet ist DenseNet (2018)~\cite{Huang18}, welches zusätzliche Verbindungen zwischen Layern, die nicht direkt aufeinander folgen, herstellt.
 Dadurch gibt es zusätzliche Verbindungen und Gewichte.
@@ -296,34 +296,21 @@ Im Gegenzug braucht es aber eine deutlich geringere Anzahl an Layern und dünner
 
 In einem sogenannten Dense-Block geht der Input aller vorherigen Feature Maps innerhalb des Blocks ein.
 So können Features aus früheren Layern wiederverwendet werden und es müssen weniger zusätzliche (und im gewissen Maße redundanten) Features erzeugt werden.
-Im Gegensatz zu ResNet werden die eingehenden Features vergangener Layer allerdings nicht mit punktweiser Multiplikation verknüpft, sondern mit Channel-wise Concatenation, \dh die Input-Features früherer Layer mit den eigentlichen Input-Tensoren konkateniert.
+Im Gegensatz zu ResNet werden die eingehenden Features vergangener Layer allerdings nicht mit punktweiser Multiplikation verknüpft, sondern mit \sog Channel-wise Concatenation.
+\Dh die Input-Features früherer Layer werden mit den eigentlichen Input-Tensoren konkateniert.
 Da die Feature-Maps hierfür jeweils die gleiche Auflösung haben müssen, wird das Netz in mehrere Dense-Blöcke eingeteilt.
 Innerhalb der Blöcke wird die Auflösung nicht verändert und alle Layer sind miteinander verbunden.
 Zwischen den Dense-Blöcken werden Transition-Layer (\ua mit \pool-Layern) eingebaut, sodass die Auflösung im Hinblick auf die Gesamtarchitektur dennoch reduziert werden kann.
 
-\subsection{Depthwise Separable Convolution}
+\subsection{Channel-wise Separable Convolution}
 \label{subsec:group-conv}
 
-Mit Hinblick auf mobile Plattformen war der Einsatz von \gls{cnn} aufgrund zu vieler Rechenoperationen lange nicht denkbar.
-Erst durch den Einsatz von Depthwise Separable Convolution in Architekturen, wie Xception (2016)~\cite{Chollet17} oder MobileNet (2017)~\cite{Howard17}, konnte der Einsatz ermöglicht werden.
-Das Ziel hierbei war annähernd vergleichbare Ergebnisse bei weniger Parametern und Rechenoperationen zu ermöglichen.
+Als letzte Untergruppe seien (Kanal-)separierbare Faltungen (Depthwise \bzw Channel-wise separable convolution) erwähnt.
+Mit dem Einsatz in Architekturen, wie Xception (2016)~\cite{Chollet17} oder MobileNet (2017)~\cite{Howard17}, konnte \ua dank weniger Parametern und Rechenoperationen der Einsatz auf mobile Geräten ermöglicht werden.
 
-\begin{figure}[h!]
-    \centering
-    \bigimage{img/02_depth_wise}{0.6\textwidth}
-    \caption{Vergleich: Channel-Interaktion in Group Convolution (Quelle:~\cite{Tran19})}
-    \label{fig:depthwise}
-\end{figure}
-
-Depthwise Separable Convolution bestehen aus Group Convolution und punktweiser Faltung.
-Bei einer Group Convolution werden alle Kanäle einer Feature-Map gruppenweise den Kernels der nächsten Schicht zugewiesen.
-\autoref{fig:depthwise} zeigt die verschiedenen Formen von Group Convolution:
-In \emph{a)} erhält jeder Kernel Zugriff auf jeden Kanal der Feature-Map, sowie es in allen vorherigen \gls{cnn}-Architekturen gängig ist.
-\emph{b)} zeigt ein Beispiel, in dem jeder Kernel Zugriff auf zwei Kanäle des Vorgänger-Layers erhält.
-Man spricht von Group Convolutions, weil die Zuordnung gruppenweise erfolgt und es keine direkte Interaktion zwischen den Gruppen gibt.
-Der Extremfall einer Group Convolution wird in \emph{c)} gezeigt, bei der jede Gruppe aus nur einem Kanal besteht.
-In diesem Fall gibt es gar keine direkte Interaktion zwischen den Kanälen.
-Da es in \emph{b} und \emph{c} keine direkte Interaktion zwischen Kanälen unterschiedlicher Gruppen gibt, folgt auf die Group Convolution die punktweise Faltung, die alle Kanäle pro Pixel (mit einem $(1 \times 1)$-Filter) kombiniert und die Dimension der neuen Feature-Map reduziert.
+Separierbare Faltungen bestehen aus einer Faltung pro Kanal und einer Kanal-übergreifenden, punktweisen Faltung.
+\Dh jeder Kernel erhält nur Zugriff auf je einen Kanal der vorherigen Feature-Map, sodass die Faltung keine direkte Interaktion zwischen den Kanälen abbildet.
+Um dennoch Interaktion abzubilden, folgt auf die Kanal-weise Faltung immer eine punktweise Faltung~\cite{Howard17}.
 
 \section{Recurrent Neural Networks}
 \label{subsec:recurrent-neural-networks}
@@ -340,7 +327,7 @@ Topologisch unterscheiden sie sich durch Zyklen innerhalb des Netzwerks (siehe \
     \label{fig:rnn}
 \end{figure}
 
-In seiner Reinform speichert ein \glspl{rnn} zu jedem Zeitpunkt $t_i$ für den Input $x_{t_i}$ zusätzlich ein Hidden State $h_{t_i}$, der als zusätzlicher Input im nächsten Zeitpunkt $t_{i+1}$ genutzt wird.
+In seiner Reinform speichert ein \gls{rnn} zu jedem Zeitpunkt $t_i$ für den Input $x_{t_i}$ zusätzlich ein Hidden State $h_{t_i}$, der als zusätzlicher Input im nächsten Zeitpunkt $t_{i+1}$ genutzt wird.
 Jeder Block hat also eine Rückkopplung zu seinem vorherigen Zustand.
 Diese Architektur leidet allerdings besonders am \gls{vanish-gradient}.
 Ab einer gewissen Tiefe wird der Einfluss des Fehlers, welcher während der Backpropagation ermittelt wird, verschwindend (vanishingly) gering und das Netz kann im schlimmsten Fall nicht weiter optimiert werden~\cite{Pointer19}.
@@ -352,11 +339,11 @@ Die LSTM-Architektur~\cite{Hochreiter97} erweitert die gewöhnliche \gls{rnn}-Ar
 Wie viel vergessen wird, ist somit Teil des Trainings, womit es ein längeres Kurzzeitgedächtnis hat als ein reines \gls{rnn}.
 Das wird möglich durch den Einsatz verschiedener sogenannter Gates:
 Das Input-Gate entscheidet darüber, wie stark der Hidden state (aus dem vorherigen Zeitschritt) in Abhängigkeit von neuem Input geändert wird und der Forget-Gate entscheidet, wie viel alte Information vergessen wird.
-Zuletzt entscheidet der Output-Gate darüber welche Informationen an das nächste Layer weitergegeben werden.
+Zuletzt entscheidet der Output-Gate darüber welche Informationen an das nächste Layer weitergegeben werden~\cite{goodfellow16, Pointer19}.
 
 \subsection*{Gated Recurrent Units (GRU)}
 
 GRUs~\cite{Cho14} sind eine alternative, schlankere Variante zu LSTMs, wobei Output- und Forget-Gate in eine Einheit (Reset-Gate) überführt werden.
 Somit gibt es weniger Parameter und Rechenoperationen.
-Auch wenn diese Generation vom RNNs deutlich jünger ist, lässt sich nicht abschließend beurteilen, welche Gruppe die besseren Ergebnisse liefert.
+Auch wenn diese Generation vom RNNs deutlich jünger ist, lässt sich nicht abschließend beurteilen, welche Gruppe die besseren Ergebnisse liefert~\cite{Pointer19}.
 
