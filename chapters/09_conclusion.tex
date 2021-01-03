@@ -21,7 +21,7 @@ Deshalb wurde im Zuge dieser Arbeit zunächst ein mächtigeres Multi-Label-Daten
 Das Datenset selbst besteht aus Markierungen, die sich auf ein Intervall innerhalb eines ungeschnittenes Video beziehen.
 
 Um zu prüfen ob alle neuartigen Klassen mit Methoden des Deep-Learnings lernbar sind, wurden drei Baseline-Modelle aus drei unterschiedlichen Oberkategorien auf Eignung getestet:
-SlowFast als reines, R2+1D als Block-faktorisiertes und ir-CSN als Gruppen-faktorisiertes 3D-Convolution-\gls{dnn}.
+SlowFast als reines, R2+1D als Block-faktorisiertes und ir-CSN als Gruppen-faktorisiertes 3D-\gls{cnn}.
 Für jedes Baseline-Modell wurden optimale Hyperparameter gesucht, wobei alle Modelle bessere Ergebnisse erzielen, wenn sie auf \glspl{clip} mit einer längeren Dauer trainiert werden.
 Die zusätzliche Länge kann durch zusätzliche Frames oder durch ein dünneres Sampling erfolgen, wobei ersteres den größeren Erfolg verspricht.
 In einem Benchmark wurden die besten Konfigurationen der Baseline-Modelle übernommen und anhand von xxx-sekündigen Samples eines separaten Testsets verglichen, wobei ir-CSN mit XXX am besten abschnitt.

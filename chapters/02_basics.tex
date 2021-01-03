@@ -200,10 +200,10 @@ Daher werden die wichtigsten Konzepte und Modelle beider Oberkategorien zum allg
 \label{sec:cnn}
 
 \glspl{cnn} sind Neuronale Netze, die auf die Verarbeitung von Bildern zugeschnitten sind.
-Dabei werden lokale (rechteckige) Ausschnitte innerhalb des Bildes mit einem \gls{moving-window}-Ansatz von links nach rechts und von oben nach unten verarbeitet.
+Dabei werden lokale (rechteckige) Ausschnitte innerhalb des Bildes mit einem Moving-Window-Ansatz (siehe~\cite{Burkov19}) von links nach rechts und von oben nach unten verarbeitet.
 Eine Faltungsmatrix (\gls{kernel}), dessen Werte ebenfalls optimierbare Parameter des Gesamtmodells sind, fährt über das Bild und berechnet pro Pixel das innere Produkt des Kernels mit der umliegenden Nachbarschaft des Pixels.
 In einem \conv-Layer (in \autoref{fig:cnn} rosa) werden mehrere Kernel initialisiert, um neue Bilder zu erzeugen.
-Das Ergebnis jeder Operation ist die Ähnlichkeit zwischen dem Kernel und dem Input-Signal.
+Das Ergebnis jeder Faltung (Convolution) ist die Ähnlichkeit zwischen dem Kernel und dem Input-Signal.
 Stapelt man mehrere \conv-Layer hintereinander, kann man beobachten, dass in den vorderen Schichten Low-Level-Features, wie Ecken, Kanten und farbliche Übergänge gelernt werden, die in tieferen Schichten zu High-Level-Features, wie geometrischen Formen und Mustern kombiniert werden~\cite{Burkov19}.
 
 \begin{figure}[hb!]
@@ -222,29 +222,26 @@ Häufig werden \conv- mit sogenannten \pool-Layern kombiniert (\gls{pooling}), d
 In diesen Schichten werden die Informationen in den Feature-Maps weiter komprimiert, allerdings ohne zusätzliche Parameter einzuführen.
 Einfache Operatoren, wie der Durchschnitt (Average Pooling) oder das Maximum (Max Pooling) werden auf Teilbereiche der Bilder angewandt.
 Dabei werden die Kanäle einzeln verarbeitet und nur die räumliche Dimension wird komprimiert.
-Wichtige Hyperparamter für Faltung und Pooling sind zum einen die Dimension des Kernels und die räumliche Schrittweite (Stride) einer Faltung, sowie das Padding~\cite{Burkov19}.
 
-Yann Lecun stellte 1998 die Grundlagen mit seinem LeNet-5 vor~\cite{Lecun98} -- einem \gls{cnn} bestehend aus zwei \conv- und drei \fc-Layern, das Bilder in $S^2=32 \times 32$ Pixeln verarbeiten konnte.
-Aufgrund der damalig enormen Rechenlast (zur Optimierung von 60K Parametern) blieb der große Erfolg vorerst aus.
-Erst 2012 wurde der Ansatz mit dem Einsatz neuartiger \glspl{gpu} wieder aufgegriffen:
-AlexNet~\cite{Krizhevsky12} ist geprägt durch eine tiefere Architektur von 8 Layern und die erstmalige Verwendung vom \gls{relu} als Aktivierungsfunktion (siehe \autoref{eq:relu}) und dem Einsatz Max- statt Avg-Pooling.
+Yann Lecun stellte 1998 die Grundlagen mit LeNet-5~\cite{Lecun98} vor -- einem \gls{cnn} bestehend aus zwei \conv- und drei \fc-Layern, das Bilder mit $S^2=32 \times 32$ Pixeln klassifizieren kann.
+2012 wurde der Ansatz mit AlexNet~\cite{Krizhevsky12} überholt.
+AlexNet ist geprägt durch eine tiefere Architektur von 8 Layern, die erstmalige Verwendung der \gls{relu}-Aktivierungsfunktion~\cite{jarrett09} und dem Einsatz von Max- statt Avg-Pooling.
 Bilder können hier in einer Auflösung von $S^2=224 \times 224$ verarbeitet werden.
-Die nächste effizientere Weiterentwicklung war schließlich VGG-16~\cite{Simonyan15}.
-Die großen Kernel der vorderen Layer wurden durch die Abfolge mehrerer kleinerer $(3 \times 3)$-Kernel ersetzt, sodass das rezeptive Feld dennoch gleich bleibt (zwei $(3 \times 3)$-Convolutions entsprechen einer $(5 \times 5)$-Convolution).
-Zudem ist das Netz mit 16 Layern und 138 Millionen Parametern deutlich tiefer und kann wesentlich mehr Informationen abbilden.
+Eine effizientere Weiterentwicklung dessen war VGG-16~\cite{Simonyan15} mit 16 Layern.
+Die großen Kernel der vorderen Layer wurden durch die Abfolge mehrerer kleinerer $(3 \times 3)$-Kernel ersetzt, sodass das rezeptive Feld dennoch gleich bleibt.
 
-\begin{equation}
-    \label{eq:relu}
-    relu(x) = \begin{cases}
-                    0, & \text{if } x < 0\\
-                    x, & \text{else}
-    \end{cases}
-\end{equation}
+%\begin{equation}
+%    \label{eq:relu}
+%    relu(x) = \begin{cases}
+%                    0, & \text{if } x < 0\\
+%                    x, & \text{else}
+%    \end{cases}
+%\end{equation}
 
 \subsection{Inception-Blöcke}
 \label{subsec:inception-bloecke}
 
-Eine deutlich schlankere Alternative zu VGG-16 wurde 2014 mit InceptionV1 (auch GoogLeNet)~\cite{Szegedy14} veröffentlicht.
+Eine deutlich schlankere Alternative zu VGG-16 wurde 2014 mit InceptionV1 (GoogLeNet)~\cite{Szegedy14} veröffentlicht.
 Der Einsatz von sogenannten Inception-Blöcken war der entscheidende Durchbruch.
 Inception-Blöcke ersetzen die gewöhnlichen \conv-Layer durch vier parallele Stränge, die am Ende wieder zusammengeführt werden (siehe \autoref{fig:inception}).
 
@@ -255,17 +252,15 @@ Inception-Blöcke ersetzen die gewöhnlichen \conv-Layer durch vier parallele St
     \label{fig:inception}
 \end{figure}
 
-Jeder Strang beinhaltet eine punktweise Convolution (Pointwise Convolution), wobei mit einem $(1 \times 1)$-Kernel, die Korrelation eines Pixels entlang aller Feature-Maps abbildet und die Anzahl der Feature-Maps dadurch reduziert wird.
+Jeder Strang beinhaltet eine punktweise Faltung (Pointwise Convolution), wobei mit einem $(1 \times 1)$-Kernel, die Korrelation eines Pixels entlang aller Feature-Maps abbildet und die Anzahl der Feature-Maps dadurch reduziert wird.
 Zudem können Filter verschiedener Größe parallel genutzt werden um die Anwesenheit von großen und kleinen Mustern gleichzeitig lokalisieren zu können.
-Nach jeder Convolution kommt eine ReLu Aktivierung, die zu einer höheren Nichtlinearität führt~\cite{Pointer19}.
+Nach jeder Faltung kommt eine ReLu Aktivierung, die zu einer höheren Nichtlinearität führt~\cite{Pointer19}.
 
-InceptionV1 nutzt nach einem Stamm-Block (\stem-Layer), bestehend aus drei gewöhnlichen \conv-Layern, ausschließlich Inception-Blöcke, sowie zusätzliche \pool-Layer in insgesamt 22 Schichten.
+InceptionV1 nutzt unter Ausnahme des Stamm-Blocks (\stem-Layer), ausschließlich Inception-Blöcke, sowie zusätzliche \pool-Layer in insgesamt 22 Schichten.
 Durch den Einsatz der Inception-Blöcke fällt der Fußabdruck mit rund 5 Millionen Parametern vergleichsweise klein aus.
-
 Eine Erweiterung des Vorgängers mit deutlich größerem Fußabdruck ist InceptionV3~\cite{Szegedy15}.
-Dabei wurden die $(3 \times 3)$-Convolutions durch eine effizientere Kombination asymmetrischer $(1 \times 3)$- und $(3 \times 1)$-Convolutions abgelöst.
-Auch die größeren Kernel im \stem-Block wurden weiter zerlegt in mehrere $(3 \times 3)$-Convolutions.
-
+Dabei wurden die $(3 \times 3)$-Faltungen durch eine effizientere Kombination asymmetrischer $(1 \times 3)$- und $(3 \times 1)$-Convolutions abgelöst.
+Auch die größeren Kernel im \stem-Block werden weiter zerlegt in mehrere $(3 \times 3)$-Faltungen.
 In InceptionV4 (2016)~\cite{Szegedy16} wurden noch weitere Inception-Blöcke verwendet, wobei in diesem Modell eine einheitliche Anzahl an Kernels in allen Inception-Blöcken verwendet wird.
 
 \subsection{Residual Learning}
@@ -320,7 +315,7 @@ Das Ziel hierbei war annähernd vergleichbare Ergebnisse bei weniger Parametern 
     \label{fig:depthwise}
 \end{figure}
 
-Depthwise Separable Convolution bestehen aus Group Convolution und punktweiser Convolution.
+Depthwise Separable Convolution bestehen aus Group Convolution und punktweiser Faltung.
 Bei einer Group Convolution werden alle Kanäle einer Feature-Map gruppenweise den Kernels der nächsten Schicht zugewiesen.
 \autoref{fig:depthwise} zeigt die verschiedenen Formen von Group Convolution:
 In \emph{a)} erhält jeder Kernel Zugriff auf jeden Kanal der Feature-Map, sowie es in allen vorherigen \gls{cnn}-Architekturen gängig ist.
@@ -328,7 +323,7 @@ In \emph{a)} erhält jeder Kernel Zugriff auf jeden Kanal der Feature-Map, sowie
 Man spricht von Group Convolutions, weil die Zuordnung gruppenweise erfolgt und es keine direkte Interaktion zwischen den Gruppen gibt.
 Der Extremfall einer Group Convolution wird in \emph{c)} gezeigt, bei der jede Gruppe aus nur einem Kanal besteht.
 In diesem Fall gibt es gar keine direkte Interaktion zwischen den Kanälen.
-Da es in \emph{b} und \emph{c} keine direkte Interaktion zwischen Kanälen unterschiedlicher Gruppen gibt, folgt auf die Group Convolution die punktweise Convolution, die alle Kanäle pro Pixel (mit einem $(1 \times 1)$-Filter) kombiniert und die Dimension der neuen Feature-Map reduziert.
+Da es in \emph{b} und \emph{c} keine direkte Interaktion zwischen Kanälen unterschiedlicher Gruppen gibt, folgt auf die Group Convolution die punktweise Faltung, die alle Kanäle pro Pixel (mit einem $(1 \times 1)$-Filter) kombiniert und die Dimension der neuen Feature-Map reduziert.
 
 \section{Recurrent Neural Networks}
 \label{subsec:recurrent-neural-networks}

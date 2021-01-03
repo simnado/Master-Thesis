@@ -162,7 +162,7 @@ Im Vergleich zum Conv Pooling wird jedoch kein Temporal Pooling genutzt, sondern
 
 Die zwei Ströme aus dem Vorgängermodell (spatial-, temporal stream) werden transformiert zu zwei neuen Strömen:
 Zunächst findet nach dem fünften \conv-Layer eine Fusion statt.
-Als Input werden die Feature-Maps beider Streams abwechselnd zu einer neuen Feature-Map gestapelt und mittels 3D-Convolution gefolgt von 3D-Pooling fusioniert.
+Als Input werden die Feature-Maps beider Streams abwechselnd zu einer neuen Feature-Map gestapelt und mittels 3D-Faltung gefolgt von 3D-Pooling fusioniert.
 Das Ergebnis ist der sogenannte Spatiotemporal Stream, der den alten Spatial Stream ersetzt.
 Parallel findet im weiter fortlaufenden Temporal Stream ebenfalls ein 3D-Pooling statt, sodass beide Streams die gleiche Auflösung aufweisen.
 Später wird der alter Temporal Stream nach dem letzten \fc-Layer erneut mit dem Spatiotemporal Stream fusioniert.
@@ -228,13 +228,13 @@ Als CNN-Backbone wird auch hier auf InceptionV1 gesetzt.
 \subsection{3D-Convolution}
 \label{subsec:3d-conv}
 
-Die nächste große Generation an der \gls{har}-Modelle war die erstmalig in~\cite{Ji13} vorgestellte 3D-Convolution.
+Die nächste große Generation der \gls{har}-Modelle war die erstmalig in~\cite{Ji13} vorgestellte 3D-Faltung (3D-Convolution).
 
-3D-Convolution funktioniert analog zur 2D-Convolution aus \autoref{sec:cnn}:
+Die 3D-Faltung funktioniert analog zur 2D-Faltung aus \autoref{sec:cnn}:
 Statt eines $(C \times S_x \times S_y)$-Inputs, erhält das Netz einen $(C \times T \times S_x \times S_y)$-Input.
 Alle \conv-Layer haben nun dreidimensionale Kernel und auch \pool-Layer operieren in der Regel dreidimensional.
 
-3D-Convolution ist ein Slow-Fusion-Ansatz, da alle Dimensionen im gleichen Tempo hierarchisiert werden.
+3D-Faltung ist ein Slow-Fusion-Ansatz, da alle Dimensionen im gleichen Tempo hierarchisiert werden.
 Im Gegensatz zu den vorherigen Slow- und Early-Fusion werden zeitliche Informationen aber nicht mehr gemittelt.
 Die Reihenfolge bleibt also erhalten.
 Außerdem werden sie, anders als bei Late Fusion, stets im gleichen Tempo erhoben und kombiniert.
@@ -298,7 +298,7 @@ Die Besonderheit ist hierbei die Hinzunahme eines neuartigen modularen Block-Typ
     \label{fig:t3d}
 \end{figure}
 
-Bei der gewöhnlichen 3D-Convolution wird stets eine lokale Nachbarschaft des jeweiligen Pixels betrachtet, welches im Mittelpunkt der Faltung steht.
+Bei der gewöhnlichen 3D-Faltung wird stets eine lokale Nachbarschaft des jeweiligen Pixels betrachtet, welches im Mittelpunkt der Faltung steht.
 Die in dieser Arbeit neuen TTLs (Temporal Transition Layer) erfassen zeitgleich Bewegungen verschiedener Dauer.
 Kurze Bewegungen werden durch einen Kernel mit einer vergleichsweise geringen zeitlichen Dimension (flache Kernel) eingefangen und lange Bewegungen mit einem deutlich tieferen Kernel.
 In jedem TTL operieren drei verschiedene Kernel, deren Output zu einer neuen Feature-Map konkateniert und gepoolt wird.
@@ -309,7 +309,7 @@ Die Gesamtarchitektur, sowie die eingesetzten TTLs sind in \autoref{fig:t3d} abg
 \subsubsection*{Non-Local Networks}
 
 Die in~\cite{Wang18} vorgestellten Non-Local Networks haben eine ähnliche Absicht, wie die TTLs in T3D.
-Analog zu TTLs wurden Non-Local-Blöcke entwickelt, die direkte Verbindungen zwischen entfernten Pixeln ohne zusätzliche Convolution abbilden können.
+Analog zu TTLs wurden Non-Local-Blöcke entwickelt, die direkte Verbindungen zwischen entfernten Pixeln ohne zusätzliche Faltung abbilden können.
 Sie transformieren die Feature-Maps eines 3D-ConvNets in jedem Pixelwert $i$ wie in \autoref{eq:non-local}:
 
 \begin{equation}
@@ -325,10 +325,10 @@ Sie transformieren die Feature-Maps eines 3D-ConvNets in jedem Pixelwert $i$ wie
 
 Die Funktion $f_p$ ist eine paarweise Funktion, die die Ähnlichkeit zweier Pixel ausdrückt und entspricht hier der Embedded-Gaussian-Funktion.
 $g(x)$ verknüpft jedes Pixel mit der Gewichtsmatrix $W_g$, die für die jeweilige Aufgabe optimiert werden muss.
-$W_\theta$ und $W_\phi$ ergeben sich wiederum aus der punktweisen $1 \times 1 \times 1$-Convolution eines Pixels.
+$W_\theta$ und $W_\phi$ ergeben sich wiederum aus der punktweisen $1 \times 1 \times 1$-Faltung eines Pixels.
 
 Non-local-Blöcke können nicht-lokale Beziehungen direkt abbilden, indem die Interaktion zwischen allen Pixeln des Input-Volumes berechnet werden.
-Das hat zur Folge, dass insbesondere schnelle Bewegungen besser eingefangen werden können als es durch reine 3D-Convolution möglich ist.
+Das hat zur Folge, dass insbesondere schnelle Bewegungen besser eingefangen werden können als es durch reine 3D-Faltung möglich ist.
 Verglichen mit den verschieden tiefen Filtern in TTLs, müssen hier keine diskreten Grenzen (für die zeitliche Dimension der TTL-Kernel) gezogen werden.
 Die Blöcke haben vielmehr die Mächtigkeit Bewegungen jedmöglicher Dauer implizit abzubilden.
 
@@ -344,7 +344,7 @@ Die beiden Strömen sind wie folgt konzipiert:
 \begin{description}
     \item[Slow pathway] (langsamer Strang) fokussiert sich auf räumliche Features, indem ein \gls{clip} mit einer niedrigen Framerate gesamplet wird.
     Aufgrund der niedrigen Framerate können nur weniger redundante Informationen gesammelt werden.
-    Dies wird zusätzlich gehemmt, indem die Hälfte der Residual-Blöcke nur mit 2D-Convolution operieren.
+    Dies wird zusätzlich gehemmt, indem die Hälfte der Residual-Blöcke nur mit 2D-Faltungen operieren.
     \item[Fast pathway] (schneller Strang) generiert räumliche Features, indem ein \gls{clip} mit einer höheren Framerate gesamplet wird und wenige Kanäle zur Verfügung stehen.
     So wird ihm die Möglichkeit genommen sich räumliches zu fokussieren.
     Stattdessen muss er sich implizit auf die Dynamik zwischen den Frames fokussieren.
@@ -380,29 +380,29 @@ Getestet wurden verschiedene Varianten mit $\gls{tld:gamma-tau} = 8$ und $\gls{t
 \subsection{Factorized Convolution}
 \label{subsec:factorized-convolution}
 
-Spätestens mit der Veröffentlichung von I3D galt 3D-Convolution als der neue State of the art.
+Spätestens mit der Veröffentlichung von I3D galt 3D-Faltung als der neue State of the art.
 Aufgrund der Vielzahl an Parametern waren diese Modelle allerdings noch immer für viele Bereiche zu groß und zu schwer zu trainieren.
-Infolgedessen wurden viele Ansätze publiziert, die versuchten die Idee von dreidimensionaler Convolution zu approximieren und dabei annähernd gute Ergebnisse mit weniger Parametern und Rechenoperationen zu ermöglichen.
-Man spricht in diesem Zusammenhang von einer Faktorisierung der gewöhnlichen 3D-Convolution, die durch Architekturänderungen, die Einführung neuartiger Block-Typen oder durch die Anwendung von Group Convolution erfolgt.
+Infolgedessen wurden viele Ansätze publiziert, die versuchten die Idee von dreidimensionaler Faltung zu approximieren und dabei annähernd gute Ergebnisse mit weniger Parametern und Rechenoperationen zu ermöglichen.
+Man spricht in diesem Zusammenhang von einer Faktorisierung der gewöhnlichen 3D-Faltung, die durch Architekturänderungen, die Einführung neuartiger Block-Typen oder durch die Anwendung von Group Convolution erfolgt.
 
 \subsubsection{Faktorisierte Architektur}
 
-In~\cite{Sun15} wird mit FstCN (Factorized spatio-temporal convolutional network) versucht 3D-Convolution in räumliche 2D-Convolutions gefolgt von einer 2D-Convolutions über die Zeit- und Kanaldimension, zu ersetzen.
+In~\cite{Sun15} wird mit FstCN (Factorized spatio-temporal convolutional network) versucht 3D-Faltung in räumliche 2D-Faltung gefolgt von einer 2D-Faltung über die Zeit- und Kanaldimension, zu ersetzen.
 Die Frames werden zunächst einzeln verarbeitet, sodass man ${T}$ 3D-Feature-Maps $(C \times S_x \times S_y)$ erhält.
-Nach der normalen 2D-Convolution wird ein 4D-Tensor $(T \times C \times S_x \times S_y)$ aus allen Feature-Maps generiert und so transformiert, dass eine Feature-Map $(S_x * S_y \times T \times C)$ entsteht.
+Nach der normalen 2D-Faltung wird ein 4D-Tensor $(T \times C \times S_x \times S_y)$ aus allen Feature-Maps generiert und so transformiert, dass eine Feature-Map $(S_x * S_y \times T \times C)$ entsteht.
 Es entsteht also ein Volume, welches in seinem Querschnitt ein Bild pro Pixel enthält.
 Die Pixelwerte ergeben sich aus dem jeweiligen Kanal der Feature-Map und dem Frame-Index.
-Diese Bilder werden nun analog mit 2D-Convolution weiter verarbeitet.
+Diese Bilder werden nun analog mit 2D-Faltung weiter verarbeitet.
 
-Zu beachten ist, dass die komplette 3D-Convolution-Architektur durch Matrixtransformationen und 2D-Convolution faktorisiert wird.
+Zu beachten ist, dass die komplette Architektur durch Matrixtransformationen und 2D-Faltung faktorisiert wird.
 Dieser Teil findet allerdings erst in den hinteren Layern des Netzes statt, womit es weiter zu den Late Fusion Modellen zählt.
 Die Architektur hat zudem den Nachteil, dass Bewegungen nur über den gesamten Zeitkontext des \glspl{clip} erfasst werden können.
 Kurze Bewegung oder Kombinationen von kurzen Bewegungen sind somit schwieriger abzubilden.
 
-\subsubsection{Faktorisierte Convolution-Blöcke}
+\subsubsection{Faktorisierte \conv-Blöcke}
 
 
-Statt 3D-Convolution, wie bei FstCN einmalig durch eine globale Architekturänderung zu faktorisieren, wurden in späteren Publikationen Ansätze entwickelt, die eine blockweise Faktorisierung an zahlreichen Stellen der Gesamtarchitektur einbinden.
+Statt 3D-Faltung, wie bei FstCN, einmalig durch eine globale Architekturänderung zu faktorisieren, wurden in späteren Publikationen Ansätze entwickelt, die eine blockweise Faktorisierung an zahlreichen Stellen der Gesamtarchitektur einbinden.
 
 Das erste relevante Modell dieser Kategorie ist P3D (Pseudo-3D Residual Net)~\cite{Qiu17}, deren Grundlage ein 3D-ResNet-Backbone ist.
 In dem Netz wird jeder einzelne \res-Block faktorisiert, indem die bestehenden 3D-Kernel $(T \times S_x \times S_y)$ durch die Abfolge eines räumlichen $(1 \times S_x \times S_y)$- und eines zeitlichen $(T \times 1 \times 1)$-Kernels ersetzt wird.
@@ -423,7 +423,7 @@ Das Netz ist damit deutlich einfacher zu optimieren und kann komplexere Funktion
 
 In~\cite{Tran18} wurden die Erfolge von P3D erneut aufgegriffen und im Zuge des Modells R2+1D verbessert.
 Auch hier werden die \res-Blöcke jeweils durch 2D- gefolgt von 1D-\conv-Layern ersetzt.
-Im Vordergrund steht hierbei allerdings die direkte Vergleichbarkeit mit 3D-Convolution indem, verglichen mit einem 3D-ResNet, die gleiche Zahl an Parametern verwendet wird.
+Im Vordergrund steht hierbei allerdings die direkte Vergleichbarkeit mit 3D-Faltung indem, verglichen mit einem 3D-ResNet, die gleiche Zahl an Parametern verwendet wird.
 
 Topologisch unterscheidet sich R2+1D von P3D durch den konsequenten Einsatz eines \res-Blocktypen, der dem Typ A aus \autoref{fig:p3d} entspricht.
 Zusätzlich werden keine Bottlenecks verwendet und das Netz kann mit einer variablen Input-Länge aufgerufen werden, indem vor dem ersten \fc-Layer ein dynamisches Avg-\pool-Layer eingeführt wird, dass die Dimension der Feature-Map auf eine feste Tiefe reduziert (analog zu SlowFast) .
@@ -434,13 +434,13 @@ Die in \autoref{subsec:group-conv} bereits vorgestellte Group Convolution stellt
 
 In~\cite{Tran19} wurden CSNs (Channel-Separated Convolutional Networks) vorgestellt.
 CSNs basieren ebenfalls auf einem 3D-ResNet, benutzen jedoch Group Convolution.
-Für eine 4-dimensionale Feature-Map, ersetzt die Faktorisierung nun die normale 3D-Convolution durch eine punktweise Convolution mit Kernel $(1, 1, 1)$ über alle Feature-Maps und eine Group Convolution mit Kernel $(3, 3, 3)$ pro Kanal.
+Für eine 4-dimensionale Feature-Map, ersetzt die Faktorisierung nun die normale 3D-Faltung durch eine punktweise Faltung mit Kernel $(1, 1, 1)$ über alle Feature-Maps und eine Group Convolution mit Kernel $(3, 3, 3)$ pro Kanal.
 Erstere sorgt für Interaktion zwischen den Kanälen innerhalb eines Pixels.
 Letztere berechnet für einen einzelnen Index der Feature-Map die zeit-räumlichen Features.
 
 Präsentiert wurden in diesem Zuge zwei verschiedene Modelle:
 \begin{description}
-    \item[interaction-preserved (ip-CSN)] Die $3 \times 3 \times 3$-\conv-Layer werden durch punktweise Convolution, gefolgt von Depthwise Convolution ersetzt.
+    \item[interaction-preserved (ip-CSN)] Die $3 \times 3 \times 3$-\conv-Layer werden durch punktweise Faltung, gefolgt von Depthwise Convolution ersetzt.
     \item[interaction-reduced (ir-CSN)]  Die $3 \times 3 \times 3$-\conv-Layer werden nur durch Depthwise Convolution ersetzt.
     Alleine durch die Bottleneck-Blöcke der ResNet-Architektur kann noch Kanal-Interaktion hergestellt werden.
 \end{description}
@@ -497,7 +497,7 @@ So wird das ohnehin speicherintensive Training noch schwieriger.
 
 Eine weitere Möglichkeit, die aber ebenfalls nur im geringen Maße praktikabel ist, ist ein vorgelagertes Subsampling der \glspl{clip} (\cite{Ng15}).
 Einige Modelle, wie X3D, nutzen ohnehin ein dünnes Sampling und nicht jeden Frame.
-Werden die Frames allerdings zu dünn gesamplet, kann insbesondere bei 3D-Convolution-Modellen die Performance einbrechen, da konsekutive Frames zu unterschiedlich sind und die Kernel keine Zusammenhänge mehr herstellen können.
+Werden die Frames allerdings zu dünn gesamplet, kann insbesondere bei 3D-\glspl{cnn} die Performance einbrechen, da konsekutive Frames zu unterschiedlich sind und die Kernel keine Zusammenhänge mehr herstellen können.
 
 Benötigt der Classifier einen deutlich längeren Zeitkontext, als das trainierte Modell abbildet, sind weder das dynamische Avg-Pooling noch Subsampling ausreichend.
 Stattdessen kann auf spezielle Long-term Aggregation Frameworks zurückgegriffen werden.
