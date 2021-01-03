@@ -1,15 +1,15 @@
 \chapter{Deep-Learning-basierte Action Recognition}
 \label{ch:sota}
 
-Dieses Kapitel widmet sich dem aktuellen Forschungsstand im Bereich Action Recognition.
-Der Hauptforschungsstrang im Bereich Action Recognition beschäftigt sich mit Modellen, die anhand von Datensets optimiert werden, die ein breites Spektrum an Anwendungsdomänen abdecken, als Sportarten, wie Fußball.
+Dieses Kapitel widmet sich dem aktuellen Forschungsstand im Bereich \gls{har}.
+Der Hauptforschungsstrang im Bereich \gls{har} beschäftigt sich mit Modellen, die anhand von Datensets optimiert werden, die ein breites Spektrum an Anwendungsdomänen abdecken, als Sportarten, wie Fußball.
 So soll sichergestellt werden, dass die Modelle besonders gut abstrahieren und sich in speziellen Domänen (hier Fußball) leicht nachtrainieren lassen (\gls{transfer-learning})~\cite{Burkov19}.
 Daher werden im Folgenden Modelle mit allgemeingültiger Anwendbarkeit rekapituliert, die in einem späteren Schritt mit Daten aus der Fußballdomäne weiter abgestimmt werden.
 
 \gls{har} gilt als der Kernproblem aufbauenden Probleme von Action Detection bis Video Understanding~\cite{Jiang19,Xia20}.
-Auf diverse Möglichkeiten die \gls{har} in eine Temporal Action Detection zu integrieren, sowie auf bereits verfügbare Datensets wird gegen Ende des Kapitels eingegangen.
+Auf diverse Möglichkeiten die \gls{har} in eine zeitliche Action Detection zu integrieren, sowie auf bereits verfügbare Datensets wird gegen Ende des Kapitels eingegangen.
 
-\section{Deep Learning Modelle zur Action Recognition}
+\section{Deep-Learning-Modelle zur Action Recognition}
 \label{sec:deep-learning-modelle-zur-action-recognition}
 
 Der Schlüssel zu einer guten \gls{har} ist die Erlernbarkeit von Bewegung (Motion).
@@ -79,7 +79,7 @@ Der wesentliche Unterschied zur Early Fusion in~\cite{Karpathy14} ist die getren
 Motiviert ist diese Entscheidung durch die Two-Stream-Hypothese aus~\cite{Goodale92}, die besagt, dass der visuelle Kortex des menschlichen Gehirns Bewegung ebenfalls in zwei Strömen erfasst:
 dem dorsalen Strom für die Erfassung von Bewegung und dem ventralen Strom für die Erkennung von Objekten.
 
-Trotz langanhaltender Popularität ist der Einsatz von Optischem Fluss in Zusammenspiel mit Deep Learning problematisch~\cite{Zhu17}:
+Trotz langanhaltender Popularität ist der Einsatz von Optischem Fluss in Zusammenspiel mit Deep-Learning problematisch~\cite{Zhu17}:
 Zum einen müssen die Differenz-Bilder vorab berechnet werden.
 Das führt zu zusätzlichem Zeit- und Speicheraufwand, der mit der Anzahl von Frames skaliert und im Kontext dieser Arbeit nicht unerheblich ist.
 Eine Echtzeit-Inferenz längerer \glspl{clip} ist mit gewöhnlicher Server-Hardware schon nicht möglich.
@@ -108,8 +108,8 @@ Zudem kann die Erzeugung des Optischen Flusses während des Trainings an die spe
 \label{subsec:late-fusion}
 
 In Late-Fusion-Modellen werden die Frames eines \glspl{clip} zunächst nur einzeln in einem 2D-CNN-Backbone zu Frame-Features verarbeitet.
-Dies entspricht im ersten Schritt einer Feature-Extraction, die nur Erscheinungen abdeckt.
-Erst in einem zweiten Schritt wird die Dynamik anhand der Frame-Features erfasst (Feature Aggregation).
+Dies entspricht im ersten Schritt einer Feature-Extraktion, die nur Erscheinungen abdeckt.
+Erst in einem zweiten Schritt wird die Dynamik anhand der Frame-Features erfasst und aggregiert.
 Ein entscheidender Nachteil dieser Ansätze ist, dass in den vorderen Layern sehr viele redundante Informationen erhoben werden.
 Ein weiterer Nachteil besteht darin, dass dynamische Features im Verhältnis deutlich unterrepräsentiert sind~\cite{Karpathy14}.
 Die Feature-Aggregation erfolgt über Konkatenieren, Pooling oder den Einsatz eines \glspl{rnn}.
@@ -139,7 +139,7 @@ Die Klassifikation findet letztlich auf Basis hervorstechender Regionen innerhal
 
 Ein technischer Vorteil dieser Architektur ist allerdings, dass sie mit beliebig vielen Frames funktioniert, da das \pool-Layer einen variablen tiefen Input verarbeiten kann.
 Das macht das Modell vergleichsweise leichtgewichtig, denn die Zahl der Parameter ist unabhängig von der Zahl der Frames.
-Da die Feature-Extraction viele redundante Informationen für konsekutive Frames berechnet, reicht in diesem Verfahren auch eine niedrigere Subsamplingrate von 6 \gls{fps}.
+Da die Feature-Extraktion viele redundante Informationen für konsekutive Frames berechnet, reicht in diesem Verfahren auch eine niedrigere Subsamplingrate von 6 \gls{fps}.
 
 
 Um den Fortschritt des seinerzeit populären Two-Stream-Modells mit Conv Pooling zu verbinden, stellte~\cite{Feichtenhofer16} 2016 die sogenannte Two Stream Fusion vor.
@@ -167,7 +167,7 @@ Ein Nachteil dieser Architektur ist wiederum, dass Bewegung auf zweierlei Mittel
 Durch den Einsatz von Optischem Fluss in mehreren Kanälen und durch die neuartigen Fusion-Layer.
 Das Lernen redundanter Informationen kann die Performance so letztlich ausbremsen.
 
-Ein weiterer Ansatz ist die Klassifikation basierend auf einem Feature-Extractor wie in~\cite{Girdhar17}.
+Ein weiterer Ansatz ist die Klassifikation basierend auf einem Feature-Extraktor wie in~\cite{Girdhar17}.
 Das Modell ActionVLAD gilt als eine Erweiterung des Conv Pooling, wobei Features nicht aus dünn gesampleten Frames, sondern aus allen Frames des \glspl{clip} extrahiert werden.
 Die Aggregation findet ebenfalls nach dem letzten \conv-Layer eines VGG-16-Backbones statt.
 
@@ -176,7 +176,7 @@ Die aggregierten Features werden auf ein Vokabular von Action Words (in 64 Clust
 Diese Cluster repräsentieren die typischen (Sub-)Aktionen aus denen sich die eigentlichen Klassen herausbilden~\cite{Ghosh18}.
 Jeder Frame wird schließlich auf ein Cluster projiziert, sodass sich für den gesamten \gls{clip} ein Feature-Vektor mit je der Anzahl an Treffern pro Cluster ergibt.
 Dieser Feature-Vektor wird mithilfe eines weiteren Klassifizierers dann auf die finale Klasse projiziert.
-Alle Parameters, darunter die Action Words, sowie die Feature Extractors werden während des Trainings des eigentlichen Klassifizierers mitgelernt.
+Alle Parameters, darunter die Action Words, sowie die Feature-Extractors werden während des Trainings des eigentlichen Klassifizierers mitgelernt.
 
 \begin{figure}[h!]
     \centering
@@ -241,7 +241,7 @@ Zur Klassifikation wurde anschließend eine \gls{svm} eingesetzt, wobei auch ein
 Das Netz basiert auf keinem vorhergegangenen Backbone, hat eine Tiefe von insgesamt 10 Schichten (davon 8 3D-\conv-Layer) und verarbeitet \glspl{clip} mit einer Auflösung von $S=112$ Pixeln.
 
 In jedem Layer wird ein $3 \times 3 \times 3$-Kernel, gefolgt von einem $2 \times 2 \times 2$-\pool-Layer verwendet.
-Entscheidende Vorteile sind eine generische Feature-Extraction und die kompakte Repräsentation.
+Entscheidende Vorteile sind eine generische Feature-Extraktion und die kompakte Repräsentation.
 Es werden sowohl räumliche als auch zeitliche Features kombiniert.
 
 Aufgrund dieser hohen Abstraktion kann C3D häufig bei einfachen Klassifikationen auch ohne zusätzliches Training eingesetzt werden.
@@ -496,7 +496,7 @@ Benötigt der Classifier einen deutlich längeren Zeitkontext, als das trainiert
 Stattdessen kann auf spezielle Long-term Aggregation Frameworks zurückgegriffen werden.
 
 Ein besonders populäres Framework ist das TSN (Temporal Segments Network)~\cite{Wang16}~\cite{Wang19}.
-Es bettet das eigentliche Action-Recognition-Modell in einen spezielles Trainingssetup (siehe \autoref{fig:tsn}) ein.
+Es bettet das eigentliche \gls{har}-Modell in einen spezielles Trainingssetup (siehe \autoref{fig:tsn}) ein.
 TSN unterteilt den \gls{clip} zunächst in Unter-Segmente (genannt Snippets).
 Innerhalb dieser Snippets wird jeweils ein Intervall zufallsbasiert bestimmt, dessen Länge in das entsprechend vortrainierte \gls{har}-Modell passt.
 Diese Snippets werden nun wie gewohnt inferiert, sodass man den Feature-Vektor des letzten \fc-Layers erhält.
@@ -528,11 +528,11 @@ Das flache Modell wird in 75 \% der Fälle genutzt, sodass unnötige Operationen
 Als RNN wird eine GRU benutzt.
 Trainiert wurde mit 32 Snippets zu je 8 Frames, was einen Kontext von über 10 Sekunden ermöglicht.
 
-\section{Temporal Action Detection}
+\section{Zeitliche Action Detection}
 \label{sec:temporal-action-detection}
 
-Zuletzt soll ein kurzer Einblick zur Umsetzung einer Temporal Action Detection gegeben werden.
-Da diese Arbeit den Fokus auf Action Recognition legt werden die Konzepte nur oberflächlich angerissen.
+Zuletzt soll ein kurzer Einblick zur Umsetzung einer zeitlichen Action Detection gegeben werden.
+Da diese Arbeit den Fokus auf eine \gls{har} legt, werden die Konzepte nur oberflächlich angerissen.
 
 Im Allgemeinen können drei Kategorien unterschieden werden~\cite{Buch17}:
 Eine zweischrittige Verarbeitung aus \gls{har}-Classifier und nachgelagerter Intervallgenerierung, eine zweischrittige Verarbeitung aus vorgelagerter Generierung von Intervallen und der anschließenden Klassifizierung pro Segment, sowie der Ende-zu-Ende-Verarbeitung in einem Netz.
@@ -560,23 +560,23 @@ Die Proposals ergeben sich aus der Aktivierung eines $T$-elementigen Outputs, wo
 Der Sportsektor zählt wohl zu den anspruchsvollsten Domänen im Bereich \gls{har}~\cite{Sozykin17}.
 Dennoch können durch Techniken des Transfer-Learnings, bestehende Low-Level-Features, auf die hier betrachtete Aufgabe übertragen werden -- selbst wenn diese mithilfe generischer Datensets aus übergreifenden Domänen generiert wurden.
 Da bisher kein Datenset existiert, das Spielaktionen im gesuchten Umfang bereitstellt, müssen neue Daten erhoben werden, die sich an den Best Practices bestehender Datensets orientieren.
-Dazu werden die gängigen Datensets im Bereich Action Recognition und Temporal Action Detection kurz vorgestellt:
+Dazu werden die gängigen Datensets im Bereich \gls{har} kurz vorgestellt:
 
 \begin{description}
     \item[UCF101]~\cite{Soomro12} Einfaches \gls{har}-Datenset mit ungeschnittenen Videos und einfachen Labels aus 101 Klassen (davon 25 aus dem Sportbereich).
     Die Videos sind hierarchisch nach Labeln in Ordnern sortiert.
-    \item[THUMOS14]~\cite{THUMOS14} Erweitert einen Teil aus UCF101 um Intervallmarkierungen zur Temporal Action Detection.
+    \item[THUMOS14]~\cite{THUMOS14} Erweitert einen Teil aus UCF101 um Intervallmarkierungen zur zeitlichen Action Detection.
     Betroffen sind 21 der 101 Klassen.
     Die \gls{annotationen} werden in Textdateien pro Klasse gespeichert.
     Jeder Eintrag besteht aus dem Videonamen, Start- und Endpunkt der Aktion.
     \item[Sports1M]~\cite{Karpathy14} Auto-Generiertes Datenset aus 1 Mio YouTube Videos zu Sportaktionen.
-    \item[ActivityNet]~\cite{Caba15} Datenset zur Temporal Action Detection, beinhaltet 200 Klassen zu 20,000 Videos.
+    \item[ActivityNet]~\cite{Caba15} Datenset zur zeitlichen Action Detection, beinhaltet 200 Klassen zu 20,000 Videos.
     Die Markierungen werden strukturiert in einer JSON-Datei gespeichert.
     \item[Kinetics-400]~\cite{Kay17} Manuell annotiertes Datenset aus 650,000 \glspl{clip} aus 400 Klassen.
     Erweiterung mit 600 und 700 Klassen existieren ebenfalls.
 \end{description}
 
-Im Bereich Fußball wurden mit SoccAct-4~\cite{Ballan09} und SSID~\cite{Jiang16} erstmalig Datensets veröffentlicht, die im Kontext von Deep Learning aufgrund ihrer Größe jedoch keine Relevanz erreichten.
+Im Bereich Fußball wurden mit SoccAct-4~\cite{Ballan09} und SSID~\cite{Jiang16} erstmalig Datensets veröffentlicht, die im Kontext von Deep-Learning aufgrund ihrer Größe jedoch keine Relevanz erreichten.
 
 Erst mit SoccerNet~\cite{Giancola18} wird ein Large-scale-Datenset für Fußball-Aktionen erzeugt.
 Die Aktionen beschränken sich auf Tore, Karten und Auswechslungen, die sekundengenau innerhalb eines Spiels erhoben wurden.
@@ -593,7 +593,7 @@ Außerdem wird zusätzliches Videomaterial aus asiatischen Fußballligen verwend
     \label{tab:dataset}
 \end{figure}
 
-In \autoref{tab:dataset} werden die einschlägigen Datensets zur Action Recognition verglichen:
+In \autoref{tab:dataset} werden die einschlägigen \gls{har}-Datensets verglichen:
 
 Das Baseline-Modell in SoccerNet segmentiert vorab die ungekürzten Videos in 60-Sekunden-\glspl{clip}.
 Jeder \gls{clip} wird mit den Aktionen, die innerhalb des \glspl{clip} stattfinden, gelabelt.
@@ -603,7 +603,7 @@ Diese werden als \emph{Background} gelabelt.
 Die eigentliche Verarbeitung besteht aus einem mehrstufiges Modell aus folgenden drei Zwischenschritten:
 
 \begin{itemize}
-    \item Feature-Extraction mit 2D-ResNet für Frames alle 0.5 sek
+    \item Feature-Extraktion mit 2D-ResNet für Frames alle 0.5 sek
     \item Konkatenation der Features und PCA zur Komprimierung auf 120 Einträge
     \item Klassifizierung der komprimierten Features mit ActionVLAD
 \end{itemize}

@@ -1,53 +1,64 @@
 @startuml
 
 
-concise "Temporal Action Detection" as AD
+concise "zeitliche Action Detection" as AD
 robust "Action Recognition" as AR
-concise "Feature Aggregation" as FA
-concise "Feature Extraction" as FE
+concise "Feature-Aggregation" as FA
+concise "Feature-Extraktion" as FE
 
-@-16
-FE is Chunk0
-FA is Clip0
-AR is Background
-AD is {hidden}
+
 
 
 @0
-FE is Chunk1
-FA is Clip1
-AR is Goal
-AD is Goal
-
-@16
-FE is Chunk2
-
-@32
-FE is Chunk3
-
-@48
-FE is Chunk4
-
-@64
-FE is Chunk5
-FA is Clip2
-AR is Goal
-
-@80
-FE is Chunk6
-
-@96
-FE is Chunk7
-
-@112
-FE is Chunk8
-
-@128
-FE is Chunk9
-FA is Clip3
+FE is Chunk
+FA is Clip
 AR is Background
 AD is {hidden}
 
+
+@16
+FE is Chunk
+
+@32
+FE is Chunk
+
+@48
+FE is Chunk
+
+@64
+AD is Goal
+FE is Chunk
+FA is Clip
+AR is Goal
+
+@80
+FE is Chunk
+
+@96
+FE is Chunk
+
+@112
+FE is Chunk
+
+@128
+FE is Chunk
+FA is Clip
+
 @144
-FE is Chunk10
+FE is Chunk
+
+@160
+FE is Chunk
+
+@176
+FE is Chunk
+
+@192
+FE is Chunk
+FA is Clip
+AR is Background
+AD is {hidden}
+
+
+
 @enduml

@@ -54,7 +54,18 @@ Alle Fragen sollen unter Anwendung des aktuellen Forschungsstands (Januar 2020) 
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=\textwidth, height=0.9\textwidth, keepaspectratio, interpolate, trim=120 25 100 25, clip]{img/01_cover3.pdf}
+
+    \begin{tikzpicture}
+    \node [anchor=west] (water) at (1,1) {\Large Water};
+    \begin{scope}[xshift=0cm]
+        \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=\textwidth, height=0.9\textwidth, keepaspectratio, interpolate, trim=120 25 100 25, clip]{img/01_cover3.pdf}};
+        \begin{scope}[x={(image.south east)},y={(image.north west)}]
+            \draw [-stealth, line width=5pt, cyan] (water) -- ++(0.4,0.0);
+        \end{scope}
+    \end{scope}
+    \end{tikzpicture}%
+
+    %\includegraphics[width=\textwidth, height=0.9\textwidth, keepaspectratio, interpolate, trim=120 25 100 25, clip]{img/01_cover3.pdf}
     \caption{Übersicht: Aktionserkennung in Video-Clips }
     \label{fig:cover}
 \end{figure}

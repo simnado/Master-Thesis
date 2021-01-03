@@ -8,7 +8,7 @@ Darüber hinaus werden weiterführende Forschungsfrage ausgeworfen.
 \begin{tcolorbox}[title=WIP]
  \begin{itemize}
   \item Zusammenfassung: Vorgehen, Ergebnisse, Erkenntnisse (Forschungsfrage beantworten, Was zu beweisen war)
-  \item Ausblick: distanzierte Bewertung im Kontext der Problemstellung (Schneller durch mehr CPU-Power, Decoding ist primärer Bremser!), tiefere Modelle
+  \item Ausblick: distanzierte Bewertung im Kontext der Problemstellung (Schneller durch mehr CPU-Power, Decoding ist primärer Bremser!), tiefere Modelle, action spotting
   \item Forschungsbedarf: Weiterführung, Anschlussstudien
  \end{itemize}
  \end{tcolorbox}
@@ -61,7 +61,7 @@ Mehrschrittige Modell, die aufgrund des erhöhten Entwicklungsaufwand im Vorfeld
 So könnten \zB vorab Kamerawechsel erkannt werden und \glspl{clip} ausschließlich so gesamplet werden, dass sie kontinuierliche Bewegung ohne Kameraschnitte zeigen.
 Alternative kann die Information eines Kamerawechsels, wie auch weitere separat erhobene Informationen wie Ballposition oder Spielerkoordinaten in das Baseline-Modell einfließen.
 
-Im Anschluss an die Action Recognition kann die hier nur naiv umgesetzte Temporal Action Detection durch den Einsatz eines mächtigeren Modells aus \autoref{sec:temporal-action-detection} ersetzt werden, die mit genaueren \gls{annotationen} eines abgewandelten Datensets trainiert werden können.
+Im Anschluss an die \gls{har} kann die hier nur naiv umgesetzte zeitliche Action Detection durch den Einsatz eines mächtigeren Modells aus \autoref{sec:temporal-action-detection} ersetzt werden, die mit genaueren \gls{annotationen} eines abgewandelten Datensets trainiert werden können.
 
 Zusätzlich kann auf der selben Datengrundlage (mit gleichen Spielen) ein Datenset mit Spielerkoordinaten und Identifiern erstellt werden.
 Mit solchen Daten kann \ggf ein Modell zum Tracking von Spielern oder sogar der Projizierung von Spielern auf Spielfeldkoordinaten erstellt werden und mit dem hier vorgestellten Modell zur Aktionserkennung verknüpft werden.
@@ -83,6 +83,6 @@ Als besonders anspruchsvoll gelten hierbei \dots
 
 % todo: zweite frage
 
-Auch der produktive Einsatz der Action Recognition in eine Anwendung zur Temporal Action Detection war möglich.
+Auch der produktive Einsatz der \gls{har} in eine Anwendung zur zeitlichen Action Detection war möglich.
 Aufgrund zu ungenauer Intervallgrenzen in dem neu erhobenen Datenset, konnte der Erfolg der Detection nicht quantifiziert werden.
 Jedoch werden die Ergebnisse (subjektiv) für anwendbar befunden.

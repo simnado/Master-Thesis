@@ -10,13 +10,13 @@ Dazu werden vorab einige Entscheidungen und Anforderung an die zu entwickelnden 
 Der Prozess bis zur fertigen Inbetriebnahme schließt folgende drei Schritte ein, die in dieser Reihenfolge abgeschlossen werden müssen:
 
 \begin{description}
-    \item[Data Engineering] Die Daten müssen erhoben und mit dem Deep Learning Modell in Einklang gebracht werden.
+    \item[Data Engineering] Die Daten müssen erhoben und mit dem Deep-Learning Modell in Einklang gebracht werden.
     Aus rohen Videos und strukturierten \gls{annotationen} werden Samples in ein einheitliches \gls{ml}-Datenset überführt.
     \item[Training] Es muss ein einheitlicher Trainingsablauf definiert werden, um die Ergebnisse einzelner Experimente vergleichen zu können.
     Dabei werden Metriken zur Evaluation der Modelle und zur Analyse von Konflikten erhoben.
     \item[Verifikation] Mithilfe des trainierten Klassifizierers werden Samples manuell verifiziert.
     Die Ground-Truth-Labels jener Samples, deren Fehler während des Trainings auffällig hoch sind, werden manuell verifiziert um so die Datenqualität zu verbessern.
-    \item[Inferenz] Das trainierte Modell muss in eine Temporal Action Detection integriert werden, sodass ungeschnittene Videos ganzer Spiele verarbeitet werden können.
+    \item[Inferenz] Das trainierte Modell muss in eine zeitliche Action Detection integriert werden, sodass ungeschnittene Videos ganzer Spiele verarbeitet werden können.
     Schließlich muss der Classifier in eine Nutzerschnittstelle integriert und bereitgestellt werden.
     Die Integration soll technisch ermöglicht werden, ist allerdings nicht mehr Bestandteil dieser Arbeit.
 \end{description}
@@ -65,7 +65,7 @@ Ist das Original-Zeitfenster größer als die Mindestdauer, bleibt das Intervall
 
 \subsubsection*{Aktionskatalog}
 
-Die Auswahl erlernbarer Aktionsklassen zur Action Recognition wird eingeschränkt durch die Verfügbarkeit des Providers.
+Die Auswahl erlernbarer Aktionsklassen zur \gls{har} wird eingeschränkt durch die Verfügbarkeit des Providers.
 Eine übersichtliche Auflistung aller erfassten Aktionen ist online\footnote{https://github.com/statsbomb/open-data/raw/master/doc/Open\%20Data\%20Events\%20v4.0.0.pdf (Stand: 08.10.2020)} zu finden.
 Darüber hinaus unterliegt die Auswahl einiger selbstauferlegter Kriterien:
 
@@ -75,7 +75,7 @@ Darüber hinaus unterliegt die Auswahl einiger selbstauferlegter Kriterien:
     \item[Mindestanzahl an Beispielen] Aktionen müssen mit einer Mindestanzahl an \gls{annotationen} repräsentiert sein, damit sie in neuartigen Situationen sicher wiedererkannt werden können.
     Die untere Grenze wird bei 50 Beispielen festgesetzt und schließt somit Klassen wie \code{Own Goal Against} aus.
     \item[Maximalanzahl an Beispielen] Einige Aktionen wie \code{Pass} und \code{Carry} sind dermaßen überrepräsentiert, dass sich praktische jeder dieser Aktionen mit mindestens einer weiteren Aktion zeitlich überlagert.
-    Zudem erschwert es die abschließende Temporal Action Detection wenn mehrere gleiche Aktionen direkt hintereinander stattfinden:
+    Zudem erschwert es die abschließende zeitliche Action Detection wenn mehrere gleiche Aktionen direkt hintereinander stattfinden:
     Wird \zB ein direkter Pass gespielt, erfolgt die Ballannahme gleichzeitig mit der Ballabgabe und es gibt keinen zeitlichen Puffer zwischen beiden \code{Pass}-Aktionen.
     Die hier verwendete Methodik kann solche Abfolgen von direkt folgender gleicher Aktionen also gar nicht auseinander halten und müsste sie als eine lange Aktion behandeln.
     \item[Objektive Regeln] Die Aktionen müssen durch ein eindeutiges Regelwerk definiert sein.
@@ -102,12 +102,12 @@ Diese Videos sind nicht pro Halbzeit zugeschnitten und potenziell fehlerbehaftet
 
 Neben der passenden Datengrundlage werden im nächsten Schritt geeignete \gls{har}-Modelle und die zu optimierenden Hyperparameter ausgewählt.
 Anforderungen an ein passendes \gls{har}-Modell ist primär eine hohe Accuracy.
-Zudem muss der Modell-Code, sowie vortrainierte Gewichte öffentlich-zugänglich sein und die Architektur sollte eine schnelle Inferenz ermöglichen, da das Modell zur Temporal Action Detection mehrmals für jede Aktion angewandt werden muss.
+Zudem muss der Modell-Code, sowie vortrainierte Gewichte öffentlich-zugänglich sein und die Architektur sollte eine schnelle Inferenz ermöglichen, da das Modell zur zeitlichen Action Detection mehrmals für jede Aktion angewandt werden muss.
 Der letzte Punkt schließt Modelle, die auf die Berechnung von Optischen Fluss angewiesen sind, kategorisch aus.
 Die Performance betreffend liefern die Modelle SlowFast, X3D, ir-CSN, NL-I3D, Hidden-Two-Stream und R2+1D die besten Ergebnisse.
 Aus der Gruppe der 3D-ConvNets wird auf NL-I3D verzichtet, da es unter den Ergebnissen von SlowFast bleibt, welches ebenfalls mit Non-Local-Blöcken kombiniert werden kann.
 Zudem wird ein vollwertiges 3D-ConvNet wie I3D als zu groß erachtet, als dass die passende Hardware für das Training bereitgestellt werden kann.
-Außerdem wird das Hidden Two Stream Modell ausgeschlossen, da es zum einen vergleichsweise schwache Ergebnisse liefert und zum anderen das einzige Modell in dieser Liste ist, welches nur eine in C++ geschriebene Implementierung mit dem Deep Learning Framework Caffe~\cite{Jia14} bereitstellt.
+Außerdem wird das Hidden Two Stream Modell ausgeschlossen, da es zum einen vergleichsweise schwache Ergebnisse liefert und zum anderen das einzige Modell in dieser Liste ist, welches nur eine in C++ geschriebene Implementierung mit dem Deep-Learning-Framework Caffe~\cite{Jia14} bereitstellt.
 Alle weiteren Modelle sind in dem Python-Framework PyTorch~\cite{Paszke19} verfügbar und eine gesonderte Test- und Entwicklungsumgebung würde zu zusätzlichem Implementationsaufwand führen, der in diesem Fall als nicht gerechtfertigt angesehen wird.
 Aus der Gruppe der Group-Convolution-Modelle wird ir-CSN gewählt, da es eine höhere Accuracy aufweist als X3D.
 
@@ -139,7 +139,7 @@ Während in SoccerNet alle Spielaktionen als Events behandelt werden und nur mit
 In \gls{sbod} haben Spielaktionen (ausgenommen die Klasse \emph{TACTICAL\_SHIFT}) eine Kontextlänge von 0 bis 75 Sekunden.
 Allerdings dauern 94,2 \% der Aktionen weniger lang als 3 Sekunden und 99,4 \% weniger als 6 Sekunden.
 
-Im Zuge dieser Arbeit soll $\Delta$ zum einen groß genug gewählt werden, um alle Aktionsklassen lernbar zu machen, zum anderen aber dennoch möglichst klein, um eine zusätzliche Long-term Feature Aggregation (siehe \autoref{sec:long-term-aggregation-frameworks}) zu vermeiden und den Aufwand so zu begrenzen.
+Im Zuge dieser Arbeit soll $\Delta$ zum einen groß genug gewählt werden, um alle Aktionsklassen lernbar zu machen, zum anderen aber dennoch möglichst klein, um eine zusätzliche Long-term Feature-Aggregation (siehe \autoref{sec:long-term-aggregation-frameworks}) zu vermeiden und den Aufwand so zu begrenzen.
 Daher werden 3 und 6 Sekunden als untere und oberen Grenzen für $\Delta$ festgesetzt.
 
 \section{Überschneidungen von Aktionen}
@@ -236,7 +236,7 @@ Am Ende der ersten Phase wird schließlich die Entscheidung für eines der drei 
 
 In der zweiten Phase werden verschiedene Konfigurationen von Hyperparametern und damit verbundenen Werte für den Zeitkontext getestet.
 Da die Konfiguration der Pre-Trainings aus \autoref{tab:coverage} die untere Grenze von 3 Sekunden alle nicht erreichen, werden für jedes Modell die Hyperparameter $T$ und $\tau$ optimiert und somit auch ein längerer Kontext ermöglicht.
-Technisch gesehen wird somit durch den Einsatz eines dünneren Samplings (mit steigendem $\tau$) \bzw dem Ausnutzen des dynamischen Avg-Pooling-Layers (mit steigendem $T$) eine Temporal Feature Aggregation umgesetzt.
+Technisch gesehen wird somit durch den Einsatz eines dünneren Samplings (mit steigendem $\tau$) \bzw dem Ausnutzen des dynamischen Avg-Pooling-Layers (mit steigendem $T$) eine Temporal Feature-Aggregation umgesetzt.
 Einige ausgewählte Kombinationen der Hyperarameter werden im Zuge einer Grid-Suche mit vergleichsweise wenig Trainingsdaten getestet.
 Die beste Konfiguration wird schließlich mit zusätzlichen Daten weiter trainiert.
 

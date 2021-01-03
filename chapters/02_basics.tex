@@ -2,14 +2,12 @@
 \label{ch:basics}
 
 In diesem Kapitel werden alle notwendigen Fachbegriffe und Abkürzungen eingeführt, die für das Verständnis der fachlichen Einordnung dieser Arbeit erforderlich sind.
-Dabei wird auf den Begriff der Aktion im Sportkontext eingegangen, sowie auf verwandte Problemstellungen und auf die historische Entwicklung des Forschungsfeldes, die schließlich zum Deep Learning führt.
-Um Mehrdeutigkeiten und unklare Definitionen zu vermeiden, werden in diesem Kapitel Begriffe, Definitionen und Netzwerkarchitekturen eingeführt, die für den weiteren Verlauf grundlegend sind.
-
+Dabei wird auf den Begriff der Aktion im Sportkontext eingegangen, sowie auf verwandte Problemstellungen und auf die historische Entwicklung des Forschungsfeldes, die schließlich zum Deep-Learning führt.
 
 \section{Aktionen und Aktivitäten}
 \label{sec:aktionen-und-aktivitaeten}
 
-Um eine Action Recognition zu verstehen, muss zunächst erklärt werden, was eine Aktion ist und welche Art von Ereignissen im Fußball unter diesen Begriff fallen.
+Um eine \gls{har} zu verstehen, muss zunächst erklärt werden, was eine Aktion ist und welche Art von Ereignissen im Fußball unter diesen Begriff fallen.
 Nach Donald Davidson ist eine Aktion durch vier Kriterien gekennzeichnet~\cite{Chen14} (Original nach~\cite{Davidson63}):
 
 \inquotes{There are four aspects to define action in the philosophy of action [...]:
@@ -18,7 +16,7 @@ second, action requires an intention;
 third, action requires a bodily movement guided by an agent or agents;
 and fourth, action leads to side-effects.}
 
-Die vier Faktoren haben nach Davidson zusammengefasst folgende Eigenschaften:
+Eine Aktion hat danach folgende Eigenschaften:
 \begin{description}
     \item[Ursache] Eine Aktion wird verursacht von einem Spieler und passiert nicht zufällig.
     \item[Absicht] Eine Aktion ist Folge einer höheren Intention.
@@ -34,12 +32,11 @@ Vielmehr ist eine Aktivität eine höhere Abstraktion mehrere Aktionen, die sich
 
 Ein Event ist hingegen an einen Zeitpunkt gebunden und bezieht sich auf einen bestimmten Kontext, der durch Regeln definiert ist~\cite{Giancola18}.
 Ein Beispiel für ein Event ist \ua ein Tor, dessen Entscheidungszeitpunkt klar definiert, in dem der Ball die Torlinie überschreitet.
-In Bezug auf die oben genannte Definition kann ein Event also ein mögliches Ergebnis einer Aktion betrachtet werden.
-Die Aktion (der erfolgreiche Torschuss) führt zu dem Event des Tors.
+In Bezug auf die oben genannte Definition kann ein Event als ein mögliches Ergebnis einer Aktion betrachtet werden.
+Die Aktion eines erfolgreichen Torschusses führt \zB zu dem Event des Tors.
+Alle drei Begriffe haben letztlich gemeinsam, dass sie zeitlich abgrenzbar sind.
 
-Alle drei Begriffe haben gemeinsam, dass sie zeitlich abgrenzbar sind.
-
-In dieser Arbeit wird trotz aller Unterschiede versucht, alle erlernbaren Ereignisse, die sich innerhalb eines Zeitfensters ereignen, als Aktionen abzubilden.
+In dieser Arbeit wird trotz aller Unterschiede versucht, alle Ereignisse als Aktionen abzubilden.
 Das ist zum einen der Natur von neuronalen Netzen geschuldet, die auf ein einheitliches Format angewiesen sind.
 Zum anderen lassen sich Events auf Aktionen zurückführen und Aktivitäten in Aktionen zerlegen, sodass eine einheitliche Handhabung möglich ist.
 Die Ergebnisse dienen somit primär der technischen Analyse.
@@ -49,46 +46,43 @@ Die Ergebnisse dienen somit primär der technischen Analyse.
 \label{sec:video-understanding}
 
 Die automatische Videoanalyse (auch Video Understanding) ist einer der schwierigsten Probleme im Bereich Computer Vision und Machine Learning~\cite{Sozykin17,Jiang19}.
-Als Video gilt in diesem Zusammenhang eine beliebig lange Sequenz bestehend aus Bildern (\gls{frames}).
+Als Video gilt in diesem Zusammenhang eine beliebig lange Sequenz bestehend aus Bildern (\glspl{frame}).
 Zur einfacheren Handhabung werden längere Videos meist in kürzere Segmente (\glspl{clip}) mit einer festen Länge von wenigen Sekunden zerlegt.
-Während ein (ungeschnittenes) Video viele Aktionen beinhalten kann, sind \glspl{clip} meist so gewählt, dass sich nur eine Aktion oder wenige (überschneidende) Aktionen darin ereignen~\cite{Jiang19,Kay17}.
-
+Während ein (ungeschnittenes) Video viele Aktionen beinhalten kann, sind \glspl{clip} meist so gewählt, dass sich nur eine oder wenige (überschneidende) Aktionen darin ereignen~\cite{Jiang19,Kay17}.
 Verschiedene Probleme widmen sich der Analyse von Videomaterial, die teils sehr unterschiedliche Aspekte behandeln:
 
 \begin{description}
-    \item[Feature Extraction]
-    Beschreibt die effiziente Komprimierung eines Bildes oder eines kurzen \glspl{clip} auf einen Vektor oder eine Matrix mit fester Größe~\cite{Tran14}.
-    Die so gewonnenen Matrizen werden als \emph{Features} oder \emph{Feature-Vektoren} bezeichnet.
-    \item[Feature Aggregation]
-    Setzt direkt auf der Feature Extraction an, indem die komprimierten Features einzelner Frames oder \glspl{clip} zu verschiedenen (meist konsekutiven) Zeitpunkten miteinander verknüpft werden~\cite{Ng15}.
+    \item[Feature-Extraktion]
+    beschreibt die effiziente Komprimierung eines Bilds oder eines kurzen \glspl{clip} auf einen Vektor oder eine Matrix mit fester Größe~\cite{Tran14}.
+    Die so gewonnenen Matrizen werden als \gls{feature} oder Feature-Vektoren bezeichnet.
+    \item[Feature-Aggregation]
+    setzt direkt an der Feature-Extraktion an, indem die komprimierten Features einzelner Frames oder \glspl{clip} zu verschiedenen (meist konsekutiven) Zeitpunkten miteinander verknüpft werden~\cite{Ng15}.
     Die Informationen werden also zeitlich aggregiert.
-    \item[Action Recognition]
-    (auch Video Classification); beschreibt das Erkennen von Aktionen innerhalb eines \glspl{clip}~\cite{Rodriguez08}.
+    \item[Human Action Recognition (HAR)]
+    (auch Video Klassifizierung) beschreibt das Erkennen von Aktionen innerhalb eines \glspl{clip}~\cite{Rodriguez08}.
     \item[Action Spotting]
-    Ist ein spezielles Problem, das auf der Action Recognition aufbaut.
+    ist ein spezielles Problem, das auf der \gls{har} aufbaut.
     Ist die Information, dass eine Aktion in einem \gls{clip} stattfindet, bereits gegeben, wird in dieser Aufgabe der genaue Zeitpunkt der Aktion innerhalb dieses \glspl{clip} bestimmt~\cite{Giancola18}.
     Die Aktionen werden also streng genommen als Events behandelt.
-    \item[Temporal Action Detection]
-    Unterscheidet sich vom Action Spotting dadurch, dass Zeitintervalle gesucht werden, in denen sich Aktionen ereignen~\cite{Xia20}.
-    Das Ergebnis ist eine Liste aus Tupeln (Label, Start, Dauer).
+    \item[Zeitliche Action Detection]
+    beschreibt das zeitversetzte Erkennen von Aktionen in ungeschnittenen Videos.
+    Es müssen dabei die Aktionen und die Zeitintervalle, in denen sie sich ereignen, gleichermaßen gefunden werden~\cite{Xia20}.
     \item[Action Detection]
-    (auch Action Localisation): Arbeitet auf ganzen Videos und findet alle darin enthaltenen Aktionen~\cite{Xia20}.
-    Es schließt somit die Action Recognition und die Temporal Action Detection ein.
-    Zusätzlich wird jeder Aktion ein räumliches Intervall (Bounding Box) zugewiesen.
-    Die räumliche Detection verhält sich analog zur Object Detection, wie die Action Recognition zur Object Recognition.
+    (auch Action Localisation) erweitert die zeitliche Action Detection zusätzlich um die Bestimmung räumlicher Intervalle (Bounding Box) für jede Aktion~\cite{Xia20}.
+    Die Action Detection verhält sich damit analog zur Object Detection, wie die Action Recognition zur Object Recognition.
 \end{description}
 
 
-Die Aufgabenstellung dieser Arbeit entspricht einer Action Recognition, die zur Anwendung in eine Temporal Action Detection eingebettet wird.
+Die Aufgabenstellung dieser Arbeit entspricht einer \gls{har}, die (perspektivisch) zur Anwendung in eine zeitliche Action Detection eingebettet werden soll.
 \autoref{fig:problems} zeigt ein typisches Zusammenspiel der verschiedenen Probleme.
 Die Zeitachse entspricht hier den Frames eines Videos.
 Dabei werden für eine bestimmte Anzahl an Frames (hier 16) iterativ Features extrahiert.
-Der Input für die Feature Extraction wird, sofern es sich um mehr als einen Frame handelt, als Chunk bezeichnet.
+Der Input für die Feature-Extraktion wird, sofern es sich um mehr als einen Frame handelt, als Chunk bezeichnet.
 Diese Chunk-Features werden in einer höheren Instanz zu einem \gls{clip}-Feature (hier aus 64 Frames) aggregiert.
-Die Feature-Aggregation ist optional und kann je nachdem, wie viele Frames die Feature Extraction verarbeiten kann, entfallen.
+Die Feature-Aggregation ist optional und kann je nachdem, wie viele Frames die Feature-Extraktion verarbeiten kann, entfallen.
 In diesem Fall können direkt Features auf \gls{clip}-Ebene generieren werden.
 In der Action Recognition lernt das Modell anschließend den Zusammenhang zwischen \gls{clip}-Feature und Label.
-Zuletzt kann das \gls{har}-Modell in der Temporal Action Detection iterativ benutzt werden, um Intervalle für die Aktionen zu bestimmen.
+Zuletzt kann das \gls{har}-Modell in der zeitlichen Action Detection iterativ benutzt werden, um Intervalle für die Aktionen zu bestimmen.
 
 \begin{figure}[htbp]
     \centering
@@ -99,16 +93,16 @@ Zuletzt kann das \gls{har}-Modell in der Temporal Action Detection iterativ benu
 
 Die Darstellung in \autoref{fig:problems} zeigt eine spezielle (binäre) Form der \gls{har}, die nur zwischen den Zuständen Tor und Nicht-Tor unterscheidet.
 Diese binäre Klassifizierung kann zu einer Multi-Class- und zu einer Multi-Label-Variante erweitert werden.
-Bei der Multi-Class-Recognition kann zu jedem Zeitpunkt eine aus $\gls{tld:A}$ Aktionsklassen erkannt werden.
+Bei der Multi-Class-Erkennung kann zu jedem Zeitpunkt eine aus $\gls{tld:A}$ Aktionsklassen klassifiziert werden.
 Für den Fall, dass sich keine Aktion ereignet, wird ein künstliches Label (oft \emph{Background} genannt) eingeführt.
-Im Multi-Label-Fall können sich die Aktionen sogar zeitlich überschneiden, \dh zu jedem Zeitpunkt können $0$ bis $C$ aus $C$ Aktionsklassen erkannt werden.
+Im Multi-Label-Fall können sich die Aktionen sogar zeitlich überschneiden, \dh zu jedem Zeitpunkt können $0$ bis $A$ Aktionsklassen erkannt werden.
 Die gleichzeitige Erkennung von zwei dicht aufeinanderfolgenden Aktionen innerhalb des gleichen \glspl{clip} ist also nur im Multi-Label-Fall möglich.
 
 
 \section{Lösungsstrategien}
 \label{sec:loesungsstrategien}
 
-Die meisten Ansätze zur Umsetzung einer Action Recognition lassen sich in eine von drei grundlegende Kategorien unterteilen~\cite{Rahmad18, Kothawade19}:
+Die meisten Ansätze zur Umsetzung einer \gls{har} lassen sich in eine von drei grundlegende Kategorien unterteilen~\cite{Rahmad18, Kothawade19}:
 
 \begin{description}
     \item[Detection \& Tracking] Es werden Low-Level-Features erfasst, indem die Akteure (Spieler) in jedem Bild einzeln erfasst und wiedererkannt (getrackt) werden.
@@ -117,11 +111,11 @@ Die meisten Ansätze zur Umsetzung einer Action Recognition lassen sich in eine 
     Diese Methode ist allerdings nur bei einer hohen Auflösung einsetzbar und erfordert eine manuelle Anpassung bei abweichenden Daten.
     Ebenso ist die Inferenzzeit vergleichsweise lang.
     Zu den populärsten Methoden gehören \ua \gls{idt}~\cite{Wang13}.
-    \item[Feature-Extraction \& Classification] Bei diesem Ansatz werden Bildinformationen zunächst komprimiert, um die Dimension im Input-Raum zu verkleinern.
+    \item[Feature-Extraktion \& Klassifizierung] Bei diesem Ansatz werden Bildinformationen zunächst komprimiert, um die Dimension im Input-Raum zu verkleinern.
     Die \gls{feature}s spezieller Objekte, wie Spielfeldlinien, Spieler oder Spielstandtafel werden einzeln oder als ein globaler Feature-Vektor auf dem Gesamtbild erfasst.
     Bei der anschließenden Klassifizierung werden die Feature-Vektoren mit einem nachgelagertem Klassifizierer (\zB einer \gls{svm}) auf eine Aktionsklasse abgebildet.
     Das Gesamtmodell besteht somit aus mehreren Untermodellen, die jeweils auf verschiedene Aufgaben zugeschnitten sind.
-    \item[End-to-end Deep Learning] Diese Ansätze benutzen \gls{dnn} und bilden alle Zusammenhänge in einem Schritt ab.
+    \item[End-to-end Deep-Learning] Diese Ansätze benutzen \gls{dnn} und bilden alle Zusammenhänge in einem Schritt ab.
     Im Vergleich zu den anderen Ansätzen zeichnet sich Deep-Learning durch seine hohe Zahl von Parametern aus, die optimiert werden müssen.
     Dazu braucht es im gleichen Maße eine hohe Zahl an Beispieldaten.
     Weitere Unterschiede sind eine höhere Rechenlast und damit verbunden eine längere Laufzeit während der Optimierung (\gls{training}).
@@ -132,7 +126,7 @@ Die meisten Ansätze zur Umsetzung einer Action Recognition lassen sich in eine 
 \begin{figure}[htbp!]
     \centering
     \bigimage{fig/methods}{0.9\textwidth}
-    \caption{Lösungsansätze für das Action-Recognition-Problem (Quelle: Eigene Darstellung)}
+    \caption{Lösungsansätze für das \gls{har}-Problem (Quelle: Eigene Darstellung)}
     \label{fig:methods}
 \end{figure}
 
@@ -143,7 +137,7 @@ Zudem ist die Umsetzung der beiden übrigen Kategorien aufgrund der aufwendigen 
 Daher werden im Folgenden ausschließlich \gls{deep-learning}-basierte Ansätze verfolgt.
 
 
-\section{Neuronale Netze und Deep Learning}
+\section{Neuronale Netze und Deep-Learning}
 \label{sec:deep-learning}
 
 \gls{deep-learning}, als Untermenge des Maschinellen Lernens (Machine Learning), setzt auf den Einsatz von Neuronalen Netzen zur Optimierung beliebig komplexer Funktionen.
