@@ -105,32 +105,26 @@ Die gleichzeitige Erkennung von zwei dicht aufeinanderfolgenden Aktionen innerha
 Die meisten Ansätze zur Umsetzung einer \gls{har} lassen sich in eine von drei grundlegende Kategorien unterteilen~\cite{Rahmad18, Kothawade19}:
 
 \begin{description}
-    \item[Detection \& Tracking] Es werden Low-Level-Features erfasst, indem die Akteure (Spieler) in jedem Bild einzeln erfasst und wiedererkannt (getrackt) werden.
-    Pro Spieler wird die Differenz zwischen den Bildern (\zB mit Trajektorien oder Optischem Fluss) errechnet, woraus sich eine Bewegung ergibt.
+    \item[Detection \& Tracking]
+    Es werden Low-Level-Features erfasst, indem die Akteure (Spieler) in jedem Bild einzeln erfasst und wiedererkannt (getrackt) werden.
+    Pro Spieler wird die Differenz zwischen den Bildern (\zB mit Trajektorien oder Optischem Fluss) errechnet, woraus sich ein Bewegungsmuster ergibt.
     Von der Bewegung wird dann auf eine Aktion geschlossen.
     Diese Methode ist allerdings nur bei einer hohen Auflösung einsetzbar und erfordert eine manuelle Anpassung bei abweichenden Daten.
     Ebenso ist die Inferenzzeit vergleichsweise lang.
     Zu den populärsten Methoden gehören \ua \gls{idt}~\cite{Wang13}.
-    \item[Feature-Extraktion \& Klassifizierung] Bei diesem Ansatz werden Bildinformationen zunächst komprimiert, um die Dimension im Input-Raum zu verkleinern.
+    \item[Feature-Extraktion \& Klassifizierung]
+    Bei diesem Ansatz werden Bildinformationen zunächst komprimiert, um die Dimension im Input-Raum zu verkleinern.
     Die \gls{feature}s spezieller Objekte, wie Spielfeldlinien, Spieler oder Spielstandtafel werden einzeln oder als ein globaler Feature-Vektor auf dem Gesamtbild erfasst.
     Bei der anschließenden Klassifizierung werden die Feature-Vektoren mit einem nachgelagertem Klassifizierer (\zB einer \gls{svm}) auf eine Aktionsklasse abgebildet.
     Das Gesamtmodell besteht somit aus mehreren Untermodellen, die jeweils auf verschiedene Aufgaben zugeschnitten sind.
-    \item[End-to-end Deep-Learning] Diese Ansätze benutzen \gls{dnn} und bilden alle Zusammenhänge in einem Schritt ab.
+    \item[End-to-end Deep-Learning]
+    Diese Ansätze benutzen \glspl{dnn} und bilden alle Zusammenhänge in einem Schritt ab.
     Im Vergleich zu den anderen Ansätzen zeichnet sich Deep-Learning durch seine hohe Zahl von Parametern aus, die optimiert werden müssen.
     Dazu braucht es im gleichen Maße eine hohe Zahl an Beispieldaten.
     Weitere Unterschiede sind eine höhere Rechenlast und damit verbunden eine längere Laufzeit während der Optimierung (\gls{training}).
     Andererseits entfallen bei dieser Methode weite Teile der Vorverarbeitung (Pre-Processing).
     Das Modell erlernt alle Low-Level-Features stattdessen implizit mit~\cite{Rahmad18}.
 \end{description}
-
-\begin{figure}[htbp!]
-    \centering
-    \bigimage{fig/methods}{0.9\textwidth}
-    \caption{Lösungsansätze für das \gls{har}-Problem (Quelle: Eigene Darstellung)}
-    \label{fig:methods}
-\end{figure}
-
-\autoref{fig:methods} zeigt einige der populärsten Ausprägungen dieser Strategien:
 
 Vergleicht man die drei genannten Gruppen, so ist nicht nur die Anzahl der Publikationen im Bereich \gls{deep-learning} höher, sondern auch die Genauigkeit der Modelle~\cite{Rahmad18}.
 Zudem ist die Umsetzung der beiden übrigen Kategorien aufgrund der aufwendigen Vorverarbeitung wesentlich zeitaufwendiger und würde den Rahmen dieser Arbeit sprengen.
@@ -141,8 +135,8 @@ Daher werden im Folgenden ausschließlich \gls{deep-learning}-basierte Ansätze 
 \label{sec:deep-learning}
 
 \gls{deep-learning}, als Untermenge des Maschinellen Lernens (Machine Learning), setzt auf den Einsatz von Neuronalen Netzen zur Optimierung beliebig komplexer Funktionen.
-\gls{dnn}, die dem menschlichen Gehirn nachempfunden sind, zeichnen sich durch eine Netzwerk-artige Struktur aus, bestehen aus Knoten, die in Schichten angeordnet und miteinander verbunden sind~\cite{Burkov19}.
-Das in~\cite{rosenblatt58} erstmals vorgestellte Perceptron (\autoref{fig:dnn} links) ist die einfachste Topologie eines Neuronalen Netzes bestehend aus einem zweischichtigem Netz, das einen Input $x$ auf einen Output $y$ abbildet.
+\glspl{dnn}, die dem menschlichen Gehirn nachempfunden sind, zeichnen sich durch eine Netzwerk-artige Struktur aus, bestehend aus Knoten, die in Schichten angeordnet und miteinander verbunden sind~\cite{Burkov19}.
+Das in~\cite{rosenblatt58} erstmals vorgestellte Perceptron (\autoref{fig:dnn} links) ist die einfachste Topologie eines Neuronalen Netzes bestehend aus einem zweischichtigem Netz.
 Mit der Hinzunahme weiterer \sog Hidden-Layer zwischen dem Input- und Output-Layer entstehen \emph{tiefe} \glspl{dnn} (auch \gls{mlp}), woher auch der Begriff Deep-Learning stammt~\cite{Burkov19}.
 Die in \autoref{fig:dnn} gezeigten grünen Knoten entsprechen sogenannten \fc-Layern (fully-connected), die mit allen Knoten der Vorgänger- und allen Knoten der Nachfolger-Schicht verbunden sind.
 Intern können die Layer als Gewichtsmatrizen $W$ repräsentiert werden, die mittels eines Optimierungsverfahren, wie \gls{backpropagation}~\cite{rumelhart86} und anhand von Problem-spezifischer Beispieldaten optimiert werden können.
@@ -195,10 +189,10 @@ Intern können die Layer als Gewichtsmatrizen $W$ repräsentiert werden, die mit
 %\end{equation}
 
 Abseits von klassischen \glspl{dnn} sind insbesondere die Konzepte von \glspl{cnn} und \glspl{rnn} hervorzuheben.
-\glspl{cnn} sind Netze, die häufig im Umgang mit Bildern genutzt werden, da sie besonders gut räumliche Beziehungen abstrahieren können.
-Hingegen werden \glspl{rnn} für die Verarbeitung sequenzieller Daten und Zeitreihen genutzt.
-Da Videos sowohl eine räumliche, als auch eine zeitliche Dimension vorweisen, überrascht es nicht, dass Techniken beider Kategorien für die in \autoref{ch:sota} vorgestellten, aktuellen Lösungsansätze zur \gls{har} relevant sind.
-Daher werden die Konzepte und wichtige Backbone-Modelle beider Oberkategorien zum allgemeinen Verständnis der folgenden Kapitel vorgestellt.
+\glspl{cnn} sind Netze, die häufig im Umgang mit Bildern genutzt werden, da sie besonders gut räumliche Beziehungen abstrahieren können~\cite{Pointer19}.
+Hingegen werden \glspl{rnn} für die Verarbeitung sequenzieller Daten und Zeitreihen genutzt~\cite{Pointer19}.
+Da Videos sowohl eine räumliche, als auch eine zeitliche Dimension vorweisen, überrascht es nicht, dass Techniken beider Kategorien für die im nachfolgenden Kapitel vorgestellten, aktuellen Lösungsansätze zur \gls{har} relevant sind.
+Daher werden die wichtigsten Konzepte und Modelle beider Oberkategorien zum allgemeinen Verständnis der folgenden Kapitel rekapituliert.
 
 \label{sec:conv}
 

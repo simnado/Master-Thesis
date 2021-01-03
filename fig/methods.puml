@@ -1,13 +1,8 @@
 @startmindmap
 
-* Action Recognition
-** Detection & Tracking
-*** improved Dense Trajectories
-*** ?
-** Feature Extraction & Classification
-*** Optical Flow + SVM
-*** ?
-** Deep Learning
+* HAR
+
+** Deep-Learning
 *** Early Fusion
 *** Late Fusion
 **** 2D-CNN + LSTM
