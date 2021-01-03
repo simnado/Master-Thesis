@@ -96,9 +96,9 @@ Für alle Videos, die nicht vom SoccerNet-Provider kommen und somit noch keine \
 
 \subsubsection{Aligning mit OCR}
 
-Damit die verfügbaren Annotationen mit den Video-Daten in Beziehung gesetzt werden können, müssen beide Datenquellen den gleichen zeitlichen Nullpunkt aufweisen.
+Damit die verfügbaren \gls{annotationen} mit den Video-Daten in Beziehung gesetzt werden können, müssen beide Datenquellen den gleichen zeitlichen Nullpunkt aufweisen.
 Dieses Problem wird als Aligning bezeichnet.
-Die Annotationen bestimmen für jede Aktion einem Zeitpunkt gemessen an der Spieluhr (Spielzeit).
+Die \gls{annotationen} bestimmen für jede Aktion einem Zeitpunkt gemessen an der Spieluhr (Spielzeit).
 Die Videos selbst starten allerdings in der Regel schon wenige Minuten vor dem Anpfiff (Videozeit).
 Als gemeinsame Nullpunkt wird deshalb der Anpfiff der jeweiligen Halbzeit festgesetzt.
 
@@ -108,21 +108,21 @@ Der Nullpunkt im Video ist genau eine Sekunde bevor die Anzeige von \emph{00:00}
 Um diesen Zeitpunkt schnell und genau zu finden, werden Screenshots verschiedener Frames erstellt, aus welchen mittels \gls{ocr} der Text des Bildbereichs extrahiert, indem typischerweise die Spieluhr zu finden ist.
 Dieser Text, der immer dem Schema einer Uhrzeit entspricht, wird mit einem Regulären Ausdruck in Sekunden-Einheiten konvertiert, aus denen sich wiederum die Differenz von Videozeit zur Spielzeit ergibt.
 Wiederholt man diesen Prozess oft genug, nähert sich der Median dieser Differenzen dem gesuchten Nullpunkt für den Anpfiff der ersten \bzw zweiten Halbzeit an.
-Der Nullpunkt wird als \code{startTime} gespeichert, während sich die \code{endTime} aus Startzeit und Dauer der Halbzeit ergibt, wobei die Halbzeitdauer wiederum in den \gls{sbod}-Annotationen enthalten ist.
+Der Nullpunkt wird als \code{startTime} gespeichert, während sich die \code{endTime} aus Startzeit und Dauer der Halbzeit ergibt, wobei die Halbzeitdauer wiederum in den \gls{sbod}-\gls{annotationen} enthalten ist.
 Der Einsatz dieses Verfahrens wurde in ähnlicher Form auch in~\cite{Giancola18} für den gleichen Zweck genutzt.
 Für die Umsetzung bedient sich diese Arbeit an der Open-Source-Bibliothek Tesseract~\cite{Smith07}.
 
 \subsubsection{Transformation der Annotationen}
 
-An dieser Stelle der Pipeline können Annotationen und Videos miteinander kombiniert werden.
+An dieser Stelle der Pipeline können \gls{annotationen} und Videos miteinander kombiniert werden.
 Daher werden im nächsten Schritt alle Aktionen eines Spiels vom Datenprovider \gls{sbod} geladen.
 Diese externen, aus den 33 Oberkategorien bestehenden Klassendefinitionen werden in neu abgeleitete Aktionsklassen transformiert.
 
 In \autoref{lst:sbod} ist ein exemplarischer Auszug, der eine Annotation aus \gls{sbod} zeigt.
 Die Aktionsdatensätze der Datenbank beinhalten neben der \code{externalClass} (hier: übernommen aus Zeile 10), auch die weiteren Aktionsdetails (hier: ab Zeile 26) als \code{details}, aus die neuen, eigenen Aktionsklassen abgeleitet werden.
 Die neuen Aktionen aus \autoref{ch:aktionskatalog} werden durch einen Query-Selektor im MongoDB-Format\footnote{https://docs.mongodb.com/manual/reference/operator/query (Stand: 08.10.2020)} definiert.
-Mit dem Selektor können alle Annotationen dieser Klasse in einem Zug aus den \gls{sbod}-Annotationen eines Spiels gefiltert werden.
-Die Repräsentation als Selektor ist unabhängig von der Datenbankinstanz, die Grundlage dieses Datensets ist und lässt sich auch mit wenig Aufwand auf die \gls{json}-Annotationen in \gls{sbod} direkt anwenden.
+Mit dem Selektor können alle \gls{annotationen} dieser Klasse in einem Zug aus den \gls{sbod}-\gls{annotationen} eines Spiels gefiltert werden.
+Die Repräsentation als Selektor ist unabhängig von der Datenbankinstanz, die Grundlage dieses Datensets ist und lässt sich auch mit wenig Aufwand auf die \gls{json}-\gls{annotationen} in \gls{sbod} direkt anwenden.
 So können die Klassen auch nach Veröffentlichung des Datensets angepasst und erweitert werden.
 
 %\lstinputlisting[language=json, caption=Datenformat in SoccerNet]{code/soccernet.json}
@@ -142,7 +142,7 @@ Dadurch wird sichergestellt, dass keine Spielminuten aus dem Video herausgeschni
 Als zweiter Integritätscheck wird geprüft, ob der zeitliche Nullpunkt dem tatsächlichen Anstoß entspricht.
 Während der Entwicklungsphase hat sich herausgestellt, dass die eingeblendete Spieluhr nur in 7 \% der Fälle mit dem Anstoß beginnt zu zählen.
 In 2,3 \% der Fälle startet sie bereits früher und in 90,8 \% erst später.
-Die Annotationen in \gls{sbod} beziehen sich auf den \emph{echten} Nullpunkt, welcher sich durch den Anstoß definiert, was die Ergebnisse des vorherigen Alignings diskreditiert.
+Die \gls{annotationen} in \gls{sbod} beziehen sich auf den \emph{echten} Nullpunkt, welcher sich durch den Anstoß definiert, was die Ergebnisse des vorherigen Alignings diskreditiert.
 Denn ein fehlerhaftes Alignment führt zu einer systematischen Verschiebung aller Aktionsintervalle entlang der Zeitachse.
 
 Um den potenziell falsch ermittelten Nullpunkt des Alignings zu korrigieren, kann der Nutzer den Nullpunkt in der \gls{gui} um wenige Sekunden nach vorne oder nach hinter justieren.
@@ -223,7 +223,7 @@ Es umschließt einmalige Prozesse, sowie Prozesse, die pro Training oder pro Sam
 \subsection{Effiziente Speicherung}
 \label{subsec:effiziente-speicherung}
 
-Um Samples aus Videos und Annotationen zu generieren, müssen einzelne Frames aus den Videos extrahiert werden.
+Um Samples aus Videos und \gls{annotationen} zu generieren, müssen einzelne Frames aus den Videos extrahiert werden.
 Dieser Prozess wiederholt sich für jedes Sample pro Epoche, die trainiert wird und stellt ohne weitere Optimierungen einen enormen IO-Overhead dar, der die Geschwindigkeit des eigentlichen Trainings ausbremsen kann~\cite{Wu20}.
 Der IO-Zugriff kann \zB beschränkt werden, indem die relevanten Frames vorab extrahiert und als Bilder gespeichert werden.
 Dieses Vorgehen skaliert jedoch nur mäßig mit der Größe des Datensets, da die Bilder schon bei kleinen Datensets oft zu viel Speicherplatz einnehmen.
@@ -243,11 +243,11 @@ Dazu werden die Presentation Timestamps und weitere Metadaten erhoben und in ein
 \subsection{Segmentierung und Sampling-Strategie}
 \label{subsec:segmentierung-und-sampling-strategie}
 
-Sind Videos und Metadaten lokal verfügbar, können die ungeschnittenen Videos zu Clips segmentiert und gelabelt werden.
-Die Clips werden in einer konfigurierbaren Länge $T$ und Framerate gesamplet.
-Um mehrere Samples aus den zugrundeliegenden Annotationen zu generieren, werden die Clips mit einer Verschiebung von einer Sekunde gesamplet.
-Das hat zur Folge, dass sich die Clips (bei $T > \text{Framerate}$) überschneiden (Temporale Augmentation, siehe~\cite{Giancola18}) und so zusätzliche Samples aus der begrenzten Zahl an Annotationen entstehen.
-\autoref{fig:samples} vergleicht pro Klasse die Anzahl möglicher Samples zur Anzahl bestehender Annotationen bei einer Dauer von $\Delta=4$ Sekunden.
+Sind Videos und Metadaten lokal verfügbar, können die ungeschnittenen Videos zu \glspl{clip} segmentiert und gelabelt werden.
+Die \glspl{clip} werden in einer konfigurierbaren Länge $T$ und Framerate gesamplet.
+Um mehrere Samples aus den zugrundeliegenden \gls{annotationen} zu generieren, werden die \glspl{clip} mit einer Verschiebung von einer Sekunde gesamplet.
+Das hat zur Folge, dass sich die \glspl{clip} (bei $T > \text{Framerate}$) überschneiden (Temporale Augmentation, siehe~\cite{Giancola18}) und so zusätzliche Samples aus der begrenzten Zahl an Annotationen entstehen.
+\autoref{fig:samples} vergleicht pro Klasse die Anzahl möglicher Samples zur Anzahl bestehender \gls{annotationen} bei einer Dauer von $\Delta=4$ Sekunden.
 
 \begin{figure}
     \centering
@@ -271,7 +271,7 @@ Diese potenziellen Samples werden intern als Tripel aus Videopfad, Framerate und
 Da die Trainingslaufzeit proportional mit der Anzahl der Samples skaliert, muss die Gesamtzahl der Samples im Kontext dieser Arbeit jedoch deutlich reduziert werden.
 Zum einen werden Samples, die keine Überschneidung mit einer der zwei Halbzeiten haben, aussortiert.
 Ebenso werden kritische Samples entfernt, die keine Überschneidung mit einer Annotation haben (Background-Samples), aber einen sehr \emph{nahen} zeitlichen Abstand zur nächsten Aktion haben.
-Motiviert ist diese Entscheidung durch die inakkuraten Aktionsintervalle in den Annotationen.
+Motiviert ist diese Entscheidung durch die teils inakkuraten Segmentmarkierungen in den \gls{sbod}-\gls{annotationen}.
 Die Grenzen einer Aktion sind teils subjektiv gelabelt und durch das Erlauben kritischer Background-Samples würde ein falsches Bild von Genauigkeit entstehen.
 Als Folge wird erwartet, dass das Modell die Aktionsgrenzen implizit selbst erlernt und da Background-Samples ohnehin überrepräsentiert sind, wird nicht erwartet, dass es so zu Performance-Einbußen kommt.
 Ein Background-Sample wird als kritisch deklariert, wenn es eine dreisekündige Pufferzone einer anderen Aktion schneidet, was laut \autoref{subsec:hyperparameter} etwa der durchschnittlichen Länge einer Aktion entspricht.
@@ -288,7 +288,7 @@ Die Gewichte $w_{y_i}$ setzen sich pro Sample wie in \autoref{eq:sample-weights}
 
 \begin{equation}
     \label{eq:sample-weights}
-    w_{y_i} = \frac{\sum_{c \in \gls{tld:A}} \frac{y_i^c r_{bg}}{r_c} }{\max \{1, \sum_{c \in \gls{tld:A}} y_i^c\}}
+    w_{y_i} = \frac{\sum_{a \in \gls{tld:A}} \frac{y_i^a r_{bg}}{r_a} }{\max \{1, \sum_{a \in \gls{tld:A}} y_i^a\}}
 \end{equation}
 
 Mit $r_{c}$ ist der Anteil aller Samples der jeweiligen Klasse unter allen Samples gemeint.
@@ -297,7 +297,7 @@ Die Gesamtzahl der Samples ist pro Datenset definiert durch \autoref{eq:limit}, 
 
 \begin{equation}
     \label{eq:limit}
-    | D_{\text{split} \in \{ \text{train}, \text{val}, \text{test}\}} | = \gls{tld:Theta}_\text{split} + \sum\limits_{c \in \gls{tld:A}} \min \{ \gls{tld:Theta}_\text{split}, |D_c| \}
+    | D_\text{train} | = \gls{tld:Theta}_\text{split} + \sum\limits_{a \in \gls{tld:A}} \min \{ \gls{tld:Theta}_\text{train}, |D_a| \}
 \end{equation}
 
 Dieses Vorgehen löst zum Teil auch das Problem der Ungleichgewichtung (Imbalance) der Klassen, was ein allgemeiner Nachteil für die Performance eines Classifiers ist~\cite{Giancola18, Burkov19}.
@@ -326,7 +326,7 @@ Data Augmentation beschreibt die Technik zusätzliche Trainingsdaten zu erlangen
 Durch den Einsatz der Temporal Augmentation wurden bereits zusätzliche Samples generiert, um Ungleichgewichtungen vorzubeugen, weshalb es keiner zusätzlichen Daten bedarf.
 Jedoch können die Samples mit Methoden der gewöhnlichen Data Augmentation kombiniert werden um ein Overfitting auf teilweise (im Sinne von Überschneidungen) gleichen Samples zu verhindern.
 
-Im Zuge der Data Augmentation wird jeder Clip, nachdem er dekodiert wurde, zunächst auf 90 \% seiner Höhe und Breite zufällig zugeschnitten.
+Im Zuge der Data Augmentation wird jeder \gls{clip}, nachdem er dekodiert wurde, zunächst auf 90 \% seiner Höhe und Breite zufällig zugeschnitten.
 Anschließend werden Helligkeit, Kontrast und Sättigung leicht verändert (Jittering; siehe~\cite{Tran18}).
 In der Hälfte der Fälle wird das Bild horizontal gespiegelt.
 Abschließend wird das Bild auf die Zielauflösung des jeweils verwendeten \gls{har}-Backbones verkleinert.

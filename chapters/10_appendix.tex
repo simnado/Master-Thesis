@@ -14,7 +14,7 @@ Sports-1M zeigt jeweils die Accuracy im Format \emph{clip@1}/\emph{video@1} und 
 \label{ch:aktionskatalog}
 
 In \autoref{tab:action} werden alle 32 Klassen des im Rahmen dieser Arbeit generierten und in \autoref{ch:data} vorgestellten Datensets aufgelistet.
-Neben der Anzahl ist die durchschnittliche und maximaler Dauer pro Aktion vermerkt, die sich aus den Annotationen in \cite{Statsbomb20} ergeben.
+Neben der Anzahl ist die durchschnittliche und maximaler Dauer pro Aktion vermerkt, die sich aus den \gls{annotationen} in \cite{Statsbomb20} ergeben.
 Aktionen, die hier keinen Wert vorweisen werden lediglich als Zeitpunkt in \gls{sbod} repräsentiert.
 
 \begin{figure}
@@ -37,7 +37,7 @@ In \autoref{fig:overlaps} wurde für alle 32 Klassen der prozentuale Anteil alle
 Ein Eintrag $c_{ij}$ lässt sich wie folgt interpretieren:
 $c_{ij}$ \% aller Samples der Klasse $i$ treten gemeinsam mit der der Klasse $j$ auf.
 
-Wie man sieht, ereignen sich \zB 74 \% der Aktionen \code{saved} (innerhalb einer Clip-Abdeckung von $\Delta=4$ Sekunden) gleichzeitig mit Aktionen der Klasse \code{footShot}.
+Wie man sieht, ereignen sich \zB 74 \% der Aktionen \code{saved} (innerhalb eines Zeitkontextes von $\Delta=4$ Sekunden) gleichzeitig mit Aktionen der Klasse \code{footShot}.
 Bei einer niedrigeren Wahl von $\Delta$ sind die Abhängigkeiten entsprechend geringer, es treten jedoch die gleichen Kombinationen hoher Abhängigkeiten auf.
 
 \begin{figure}

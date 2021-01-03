@@ -59,8 +59,8 @@ Die Differenz zweier Bilder kann damit wieder als ein oder zwei (für horizontal
 
 Das sogenannte Two Stream Network aus~\cite{Simonyan14} (siehe \autoref{fig:two-stream}) ist ein Modell, das mit zwei Input-Quellen in getrennten Netzen operiert.
 Im ersten Stream (Spatial Stream) wird ein einzelner Frame als normales Farbbild in ein CNN-backbone gegeben.
-Der zweite Stream (Temporal Stream) nimmt mehrere Bewegungsbilder pro Clip.
-Dazu wird für alle Frames des Clips vorab die Differenz als Optischer Fluss gespeichert.
+Der zweite Stream (Temporal Stream) nimmt mehrere Bewegungsbilder pro \gls{clip}.
+Dazu wird für alle Frames des \glspl{clip} vorab die Differenz als Optischer Fluss gespeichert.
 Diese Bilder (je zwei pro Ausrichtung) werden als gleichwertige Kanäle in ein zweites Stream gegeben.
 
 \begin{figure}[h!]
@@ -82,7 +82,7 @@ dem dorsalen Strom für die Erfassung von Bewegung und dem ventralen Strom für 
 Trotz langanhaltender Popularität ist der Einsatz von Optischem Fluss in Zusammenspiel mit Deep Learning problematisch~\cite{Zhu17}:
 Zum einen müssen die Differenz-Bilder vorab berechnet werden.
 Das führt zu zusätzlichem Zeit- und Speicheraufwand, der mit der Anzahl von Frames skaliert und im Kontext dieser Arbeit nicht unerheblich ist.
-Eine Echtzeit-Inferenz längerer Clips ist mit gewöhnlicher Server-Hardware schon nicht möglich.
+Eine Echtzeit-Inferenz längerer \glspl{clip} ist mit gewöhnlicher Server-Hardware schon nicht möglich.
 Des Weiteren sind die Modelle nicht Ende-zu-Ende trainierbar.
 Die Inferenz besteht aus zwei getrennten Schritten: der Berechnung von Optischem Fluss und dem Training der Netze.
 Der Optische Fluss selbst kann als Zwischenergebnis nicht mit-optimiert werden und ist damit nicht unbedingt auf die High-Level-Aufgabe zugeschnitten.
@@ -107,7 +107,7 @@ Zudem kann die Erzeugung des Optischen Flusses während des Trainings an die spe
 \subsection{Feature-Aggregation und Late Fusion}
 \label{subsec:late-fusion}
 
-In Late-Fusion-Modellen werden die Frames eines Clips zunächst nur einzeln in einem 2D-CNN-Backbone zu Frame-Features verarbeitet.
+In Late-Fusion-Modellen werden die Frames eines \glspl{clip} zunächst nur einzeln in einem 2D-CNN-Backbone zu Frame-Features verarbeitet.
 Dies entspricht im ersten Schritt einer Feature-Extraction, die nur Erscheinungen abdeckt.
 Erst in einem zweiten Schritt wird die Dynamik anhand der Frame-Features erfasst (Feature Aggregation).
 Ein entscheidender Nachteil dieser Ansätze ist, dass in den vorderen Layern sehr viele redundante Informationen erhoben werden.
@@ -115,7 +115,7 @@ Ein weiterer Nachteil besteht darin, dass dynamische Features im Verhältnis deu
 Die Feature-Aggregation erfolgt über Konkatenieren, Pooling oder den Einsatz eines \glspl{rnn}.
 
 Die Aggregation in~\cite{Karpathy14} wird durch Konkatenation gelöst.
-Aus den Frames eines Clips werden jeweils einzelne Features generiert.
+Aus den Frames eines \glspl{clip} werden jeweils einzelne Features generiert.
 Diese werden alle zu einem langen Vektor konkateniert und abschließend in einem \fc-Layer klassifiziert.
 So wird Dynamik durch die Differenz der jeweiligen Frame-Features abgebildet.
 
@@ -168,13 +168,13 @@ Durch den Einsatz von Optischem Fluss in mehreren Kanälen und durch die neuarti
 Das Lernen redundanter Informationen kann die Performance so letztlich ausbremsen.
 
 Ein weiterer Ansatz ist die Klassifikation basierend auf einem Feature-Extractor wie in~\cite{Girdhar17}.
-Das Modell ActionVLAD gilt als eine Erweiterung des Conv Pooling, wobei Features nicht aus dünn gesampleten Frames, sondern aus allen Frames des Clips extrahiert werden.
+Das Modell ActionVLAD gilt als eine Erweiterung des Conv Pooling, wobei Features nicht aus dünn gesampleten Frames, sondern aus allen Frames des \glspl{clip} extrahiert werden.
 Die Aggregation findet ebenfalls nach dem letzten \conv-Layer eines VGG-16-Backbones statt.
 
 Statt eines Max-Pooling-Layers wird allerdings ein \emph{Bag of visual words}-Verfahren eingesetzt (siehe \autoref{fig:avlad}).
 Die aggregierten Features werden auf ein Vokabular von Action Words (in 64 Cluster) projiziert.
 Diese Cluster repräsentieren die typischen (Sub-)Aktionen aus denen sich die eigentlichen Klassen herausbilden~\cite{Ghosh18}.
-Jeder Frame wird schließlich auf ein Cluster projiziert, sodass sich für den gesamten Clip ein Feature-Vektor mit je der Anzahl an Treffern pro Cluster ergibt.
+Jeder Frame wird schließlich auf ein Cluster projiziert, sodass sich für den gesamten \gls{clip} ein Feature-Vektor mit je der Anzahl an Treffern pro Cluster ergibt.
 Dieser Feature-Vektor wird mithilfe eines weiteren Klassifizierers dann auf die finale Klasse projiziert.
 Alle Parameters, darunter die Action Words, sowie die Feature Extractors werden während des Trainings des eigentlichen Klassifizierers mitgelernt.
 
@@ -205,7 +205,7 @@ Die Features werden dann nach und nach in einem LSTM-Layer geleitet (siehe \auto
     \label{fig:lrcn}
 \end{figure}
 
-Die Klassifizierung eines Clips setzt sich schließlich aus dem Durchschnitt aller Outputs $y_{t_i}$ zusammen.
+Die Klassifizierung eines \glspl{clip} setzt sich schließlich aus dem Durchschnitt aller Outputs $y_{t_i}$ zusammen.
 
 Herausfordernd ist hierbei, dass die visuellen Frame-Features genug relevante Informationen für das abschließende LSTM-Layer behalten.
 Das Modell wurde jeweils mit RGB-Bildern und Optischem Fluss getestet, wobei die Variante mit Optischem Fluss wesentlich bessere Ergebnisse erzielt.
@@ -215,7 +215,7 @@ Das Modell hat ebenfalls eine variable Input-Länge, ist aber deutlich schwerer 
 In~\cite{Ng15} wurde neben dem bereits erwähnten Conv Pooling auch ein Modell vorgestellt, das Frame-Features mit einem mehrschichtiges LSTM aggregiert.
 Im Gegensatz zum LRCN werden fünf LSTM-Schichten mit je 512 Memory-Zellen statt nur einer Schicht gewählt.
 Auch im Training gibt es einen gravierenden Unterschied:
-während bei LRCN ein Backpropagation-Schritt pro Clip (mit $T = 16$ Frames) gemacht wird, wird er in diesem Modell pro Frame (bei $T = 30$) gemacht.
+während bei LRCN ein Backpropagation-Schritt pro \gls{clip} (mit $T = 16$ Frames) gemacht wird, wird er in diesem Modell pro Frame (bei $T = 30$) gemacht.
 Als CNN-Backbone wird auch hier auf InceptionV1 gesetzt.
 
 \subsection{3D-Convolution}
@@ -238,7 +238,7 @@ Außerdem werden sie, anders als bei Late Fusion, stets im gleichen Tempo erhobe
 C3D~\cite{Tran15} ist das erste 3D-CNN, das an großen \gls{har}-Datensets getestet wurde.
 Seinerzeit war es als Feature Extractor konzipiert, der $T=16$ Input-Frames zu einem 4096-Elemente-langen Feature-Vektor komprimiert.
 Zur Klassifikation wurde anschließend eine \gls{svm} eingesetzt, wobei auch eine direkte Klassifikation im letzten \fc-Layer möglich ist.
-Das Netz basiert auf keinem vorhergegangenen Backbone, hat eine Tiefe von insgesamt 10 Schichten (davon 8 3D-\conv-Layer) und verarbeitet Clips mit einer Auflösung von $S=112$ Pixeln.
+Das Netz basiert auf keinem vorhergegangenen Backbone, hat eine Tiefe von insgesamt 10 Schichten (davon 8 3D-\conv-Layer) und verarbeitet \glspl{clip} mit einer Auflösung von $S=112$ Pixeln.
 
 In jedem Layer wird ein $3 \times 3 \times 3$-Kernel, gefolgt von einem $2 \times 2 \times 2$-\pool-Layer verwendet.
 Entscheidende Vorteile sind eine generische Feature-Extraction und die kompakte Repräsentation.
@@ -247,12 +247,12 @@ Es werden sowohl räumliche als auch zeitliche Features kombiniert.
 Aufgrund dieser hohen Abstraktion kann C3D häufig bei einfachen Klassifikationen auch ohne zusätzliches Training eingesetzt werden.
 Bei seiner Vielzahl an Parametern gestaltet es sich allerdings schwierig das Netz von Grund auf neu zu trainieren.
 Ebenfalls problematisch ist die Beschränkung auf $T=16$ Frames.
-So muss für längere Clips stets der Durchschnitt einzelner Chunks erfasst werden, was mit zusätzlichen Ungenauigkeiten einhergeht.
+So muss für längere \glspl{clip} stets der Durchschnitt einzelner Chunks erfasst werden, was mit zusätzlichen Ungenauigkeiten einhergeht.
 
 \subsubsection*{LTC (Long-term Temporal Convolution)}
 
 Letzteres Problem sollte durch die Veröffentlichung von LTC von~\cite{Varol18} behoben werden.
-Das Modell unterstützt mit $T=100$ Frames deutlich längere Clips, kompensiert dies aber mit einer deutlich geringeren Auflösung von nur $S=71$ Pixeln.
+Das Modell unterstützt mit $T=100$ Frames deutlich längere \glspl{clip}, kompensiert dies aber mit einer deutlich geringeren Auflösung von nur $S=71$ Pixeln.
 Ansonsten ähnelt die Architektur (in \autoref{fig:ltc}) der von C3D mit der Ausnahme, dass ausschließlich $3 \times 3 \times 3$-Kernel verwendet wurden.
 
 \begin{figure}[h!]
@@ -277,7 +277,7 @@ Beim Prozess der \emph{Inflation} wird jeder bereits vortrainierte 2D-Kernel um 
 \end{figure}
 
 Der Größenunterschied zu C3D und LTC spiegelt sich zwar in der Tiefe des Netzes wider, dennoch hat I3D deutlich weniger Parameter aufgrund der effizienten Inception-Architektur und kann somit deutlich schneller trainiert werden.
-Clips können mit je $T=64$ Frames inferiert werden.
+\glspl{clip} können mit je $T=64$ Frames inferiert werden.
 
 \subsubsection*{T3D (Temporal 3D)}
 
@@ -303,14 +303,14 @@ Die Gesamtarchitektur, sowie die eingesetzten TTLs sind in \autoref{fig:t3d} abg
 
 Die in~\cite{Wang18} vorgestellten Non-Local Networks haben eine ähnliche Absicht, wie die TTLs in T3D.
 Analog zu TTLs wurden Non-Local-Blöcke entwickelt, die direkte Verbindungen zwischen entfernten Pixeln ohne zusätzliche Convolution abbilden können.
-Sie transformieren die Feature-Maps eines 3D-ConvNets für einen Pixelwert $i \in \{S^2 \times T\}$ wie in \autoref{eq:non-local}:
+Sie transformieren die Feature-Maps eines 3D-ConvNets in jedem Pixelwert $i$ wie in \autoref{eq:non-local}:
 
 \begin{equation}
 \label{eq:non-local}
 \begin{split}
-    y           & = f_p(x) g(x) \\
-    f_p(x)      & = softmax(x^T W^T_\theta W_\phi x) \\
-    g(x)        & = W_g x_j
+    y_i             & = \sum_{\forall j} f_p(x_i, x_j) g(x_j) \\
+    f_p(x_i, x_j)   & = softmax(x_i^T W^T_\theta W_\phi x_j) \\
+    g(x)            & = W_g x
 %y_i             & = \frac{1}{\sum\limits_{\forall j}f(x_i, x_j)} \sum\limits_{\forall j} f_p(x_i, x_j) W_g x_j \\
 %f_p(x_i, x_j)   & = e^{W_{\theta} x_i^T W_{\phi} x_j}
 \end{split}
@@ -335,10 +335,10 @@ In SlowFast wird Bewegung durch ein Netz aus zwei Strömen erfasst.
 Die beiden Strömen sind wie folgt konzipiert:
 
 \begin{description}
-    \item[Slow pathway] (langsamer Strang) fokussiert sich auf räumliche Features, indem ein Clip mit einer niedrigen Framerate gesamplet wird.
+    \item[Slow pathway] (langsamer Strang) fokussiert sich auf räumliche Features, indem ein \gls{clip} mit einer niedrigen Framerate gesamplet wird.
     Aufgrund der niedrigen Framerate können nur weniger redundante Informationen gesammelt werden.
     Dies wird zusätzlich gehemmt, indem die Hälfte der Residual-Blöcke nur mit 2D-Convolution operieren.
-    \item[Fast pathway] (schneller Strang) generiert räumliche Features, indem ein Clip mit einer höheren Framerate gesamplet wird und wenige Kanäle zur Verfügung stehen.
+    \item[Fast pathway] (schneller Strang) generiert räumliche Features, indem ein \gls{clip} mit einer höheren Framerate gesamplet wird und wenige Kanäle zur Verfügung stehen.
     So wird ihm die Möglichkeit genommen sich räumliches zu fokussieren.
     Stattdessen muss er sich implizit auf die Dynamik zwischen den Frames fokussieren.
 \end{description}
@@ -361,7 +361,7 @@ Dort operieren P-Zellen (\emph{P} für parvozellulär) mit einer geringeren Freq
 Das Verhältnis von P- und M-Zellen ist etwa 4:1.
 Genau dieses Verhältnis wurde auch in der Architektur abgebildet, indem der Slow Pathway 80 \% aller Parameter beansprucht.
 
-Durch das dynamische Avg-Pooling am Ende ist die Summe aller Parameter unabhängig von der Clip-Länge (nicht aber die Größe der Feature-Map).
+Durch das dynamische Avg-Pooling am Ende ist die Summe aller Parameter unabhängig von der \gls{clip}-Länge (nicht aber die Größe der Feature-Map).
 Es ist derart implementiert, dass die \conv-Features auf eine fix definierte Zielauflösung komprimiert werden, sodass theoretisch ein Training mit beliebig hoher Auflösung $S^2 \times T$ möglich ist.
 
 Ein entscheidender Hyperparameter ist die Wahl von $\gls{tld:gamma-tau}$, dem temporären Stride des Slow Pathways.
@@ -375,7 +375,7 @@ Getestet wurden verschiedene Varianten mit $\gls{tld:gamma-tau} = 8$ und $\gls{t
 
 Spätestens mit der Veröffentlichung von I3D galt 3D-Convolution als der neue State of the art.
 Aufgrund der Vielzahl an Parametern waren diese Modelle allerdings noch immer für viele Bereiche zu groß und zu schwer zu trainieren.
-Infolgedessen wurden viele Ansätze publiziert, die versuchten die Idee von 3-dimensionaler Convolution zu approximieren und dabei annähernd gute Ergebnisse mit weniger Parametern und Rechenoperationen zu ermöglichen.
+Infolgedessen wurden viele Ansätze publiziert, die versuchten die Idee von dreidimensionaler Convolution zu approximieren und dabei annähernd gute Ergebnisse mit weniger Parametern und Rechenoperationen zu ermöglichen.
 Man spricht in diesem Zusammenhang von einer Faktorisierung der gewöhnlichen 3D-Convolution, die durch Architekturänderungen, die Einführung neuartiger Block-Typen oder durch die Anwendung von Group Convolution erfolgt.
 
 \subsubsection{Faktorisierte Architektur}
@@ -389,7 +389,7 @@ Diese Bilder werden nun analog mit 2D-Convolution weiter verarbeitet.
 
 Zu beachten ist, dass die komplette 3D-Convolution-Architektur durch Matrixtransformationen und 2D-Convolution faktorisiert wird.
 Dieser Teil findet allerdings erst in den hinteren Layern des Netzes statt, womit es weiter zu den Late Fusion Modellen zählt.
-Die Architektur hat zudem den Nachteil, dass Bewegungen nur über den gesamten Zeitkontext des Clips erfasst werden können.
+Die Architektur hat zudem den Nachteil, dass Bewegungen nur über den gesamten Zeitkontext des \glspl{clip} erfasst werden können.
 Kurze Bewegung oder Kombinationen von kurzen Bewegungen sind somit schwieriger abzubilden.
 
 \subsubsection{Faktorisierte Convolution-Blöcke}
@@ -480,7 +480,7 @@ Vor allem aber sticht die geringe Zahl an Parametern hervor, die mit keiner der 
 \section{Long-term Aggregation Frameworks}
 \label{sec:long-term-aggregation-frameworks}
 
-Die meisten der vorgestellten Modelle können nur Videoclips einer fixen oder zumindest begrenzten Länge klassifizieren.
+Die meisten der vorgestellten Modelle können nur \glspl{clip} einer fixen oder zumindest begrenzten Länge klassifizieren.
 Dieser Rahmen liegt je nach Modell zwischen 16 und 64 Frames.
 
 Einige Modelle (darunter R2+1D, CSN, SlowFast und X3D) ermöglichen durch den Einsatz eines dynamischen Avg-\pool-Layers eine Variable Input-Länge.
@@ -488,7 +488,7 @@ Allerdings ist die Nutzung nur dann optimal, wenn die Modelle zuvor auch mit der
 Problematisch ist auch, dass die Feature-Maps proportional zur Input-Länge mitwachsen.
 So wird das ohnehin speicherintensive Training noch schwieriger.
 
-Eine weitere Möglichkeit, die aber ebenfalls nur im geringen Maße praktikabel ist, ist ein vorgelagertes Subsampling der Clip (\cite{Ng15}).
+Eine weitere Möglichkeit, die aber ebenfalls nur im geringen Maße praktikabel ist, ist ein vorgelagertes Subsampling der \glspl{clip} (\cite{Ng15}).
 Einige Modelle, wie X3D, nutzen ohnehin ein dünnes Sampling und nicht jeden Frame.
 Werden die Frames allerdings zu dünn gesamplet, kann insbesondere bei 3D-Convolution-Modellen die Performance einbrechen, da konsekutive Frames zu unterschiedlich sind und die Kernel keine Zusammenhänge mehr herstellen können.
 
@@ -497,7 +497,7 @@ Stattdessen kann auf spezielle Long-term Aggregation Frameworks zurückgegriffen
 
 Ein besonders populäres Framework ist das TSN (Temporal Segments Network)~\cite{Wang16}~\cite{Wang19}.
 Es bettet das eigentliche Action-Recognition-Modell in einen spezielles Trainingssetup (siehe \autoref{fig:tsn}) ein.
-TSN unterteilt den Clip zunächst in Unter-Segmente (genannt Snippets).
+TSN unterteilt den \gls{clip} zunächst in Unter-Segmente (genannt Snippets).
 Innerhalb dieser Snippets wird jeweils ein Intervall zufallsbasiert bestimmt, dessen Länge in das entsprechend vortrainierte \gls{har}-Modell passt.
 Diese Snippets werden nun wie gewohnt inferiert, sodass man den Feature-Vektor des letzten \fc-Layers erhält.
 Für jeden Vektor wird der Fehler pro Klasse berechnet und über die Snippets gemittelt.
@@ -537,20 +537,20 @@ Da diese Arbeit den Fokus auf Action Recognition legt werden die Konzepte nur ob
 Im Allgemeinen können drei Kategorien unterschieden werden~\cite{Buch17}:
 Eine zweischrittige Verarbeitung aus \gls{har}-Classifier und nachgelagerter Intervallgenerierung, eine zweischrittige Verarbeitung aus vorgelagerter Generierung von Intervallen und der anschließenden Klassifizierung pro Segment, sowie der Ende-zu-Ende-Verarbeitung in einem Netz.
 
-Die erste Gruppe entspricht einem naiven Ansatz, indem die Videos mit einem bestimmten Offset, der Einfluss darauf hat, wie stark sich die Clips überschneiden, zu Clips segmentiert werden.
-Dabei wird jeder Clip mit einem \gls{har}-Backbone entlang der Zeitachse klassifiziert.
-Die Klassifizierung des Backbones bezieht sich dann jeweils auf den Mittelpunkt des Clips.
-Aus diesen Klassifizierungsscores der Clips können im Nachgang nun Intervalle für jede Klasse abgeleitet werden.
+Die erste Gruppe entspricht einem naiven Ansatz, indem die Videos mit einem bestimmten Offset, der Einfluss darauf hat, wie stark sich die \glspl{clip} überschneiden, segmentiert werden.
+Dabei wird jeder \gls{clip} mit einem \gls{har}-Backbone entlang der Zeitachse klassifiziert.
+Die Klassifizierung des Backbones bezieht sich dann jeweils auf den Mittelpunkt des \glspl{clip}.
+Aus diesen Klassifizierungsscores können im Nachgang nun Intervalle für jede Klasse abgeleitet werden.
 
 Die zweite Gruppe ist geprägt durch Modelle, wie BSM (Boundary-Sensitive Network)~\cite{Lin18} und BMN (Boundary-Matching Network)~\cite{Lin19}, die im ersten Schritt Intervallvorschläge (Proposals) für potenzielle Aktionen liefert, ohne direkt zu wissen, um welche Art von Aktion es sich handelt.
 Die Vorschläge werden also für alle Klassen auf die gleiche Art und Weise erhoben.
-Anschließend können Clips für jedes Proposal generiert werden und mit dem \gls{har}-Backbone klassifiziert werden.
+Anschließend können \glspl{clip} für jedes Proposal generiert werden und mit dem \gls{har}-Backbone klassifiziert werden.
 Praktisch an diesem Vorgehen ist, dass schon im ersten Schritt Segmente ohne Aktionen ausgeschlossen werden, wodurch ein Großteil des ursprünglichen Videos gar nicht mehr vom Backbone klassifiziert werden muss.
 Negativ ist der Punkt, dass die Action Proposal Generation nicht zwingend auf die Endaufgabe zugeschnitten ist (es sei denn beide Netze werden Ende-zu-Ende trainiert) und dass Frames in beiden Stufen separate geladen und verarbeitet werden, was zu einer längeren Laufzeit führt.
 
 Zur dritten Gruppe gehört \ua SS-TAD (Single-Stream Temporal Action Detection)~\cite{Buch17}.
 Die grundlegende Idee ist, sich zu merken, wann eine Aktion anfängt und aktiv zu erkennen, wann sie aufhört.
-Dazu wird das Video in Clips von $T=16$ Frames segmentiert, die mit einem 3D-ConvNet zu visuellen Features enkodiert werden.
+Dazu wird das Video in \glspl{clip} von $T=16$ Frames segmentiert, die mit einem 3D-ConvNet zu visuellen Features enkodiert werden.
 Die Scores pro Klasse werden in ein Modell, bestehend aus zwei \gls{rnn}-Modulen für Proposal Generation und Klassifizierung, gegeben.
 Die Proposals ergeben sich aus der Aktivierung eines $T$-elementigen Outputs, wobei jeder Index für die Anzahl vergangener Frames steht, die die aktuelle Aktion bereits überdauern.
 
@@ -567,12 +567,12 @@ Dazu werden die gängigen Datensets im Bereich Action Recognition und Temporal A
     Die Videos sind hierarchisch nach Labeln in Ordnern sortiert.
     \item[THUMOS14]~\cite{THUMOS14} Erweitert einen Teil aus UCF101 um Intervallmarkierungen zur Temporal Action Detection.
     Betroffen sind 21 der 101 Klassen.
-    Die Annotationen werden in Textdateien pro Klasse gespeichert.
+    Die \gls{annotationen} werden in Textdateien pro Klasse gespeichert.
     Jeder Eintrag besteht aus dem Videonamen, Start- und Endpunkt der Aktion.
     \item[Sports1M]~\cite{Karpathy14} Auto-Generiertes Datenset aus 1 Mio YouTube Videos zu Sportaktionen.
     \item[ActivityNet]~\cite{Caba15} Datenset zur Temporal Action Detection, beinhaltet 200 Klassen zu 20,000 Videos.
     Die Markierungen werden strukturiert in einer JSON-Datei gespeichert.
-    \item[Kinetics-400]~\cite{Kay17} Manuell annotiertes Datenset aus 650,000 Videoclips aus 400 Klassen.
+    \item[Kinetics-400]~\cite{Kay17} Manuell annotiertes Datenset aus 650,000 \glspl{clip} aus 400 Klassen.
     Erweiterung mit 600 und 700 Klassen existieren ebenfalls.
 \end{description}
 
@@ -580,7 +580,7 @@ Im Bereich Fußball wurden mit SoccAct-4~\cite{Ballan09} und SSID~\cite{Jiang16}
 
 Erst mit SoccerNet~\cite{Giancola18} wird ein Large-scale-Datenset für Fußball-Aktionen erzeugt.
 Die Aktionen beschränken sich auf Tore, Karten und Auswechslungen, die sekundengenau innerhalb eines Spiels erhoben wurden.
-Die Annotationen, der Code und auch die zugehörigen Videos aus sechs europäischen Fußballligen sind der Öffentlichkeit zugänglich.
+Die \gls{annotationen}, der Code und auch die zugehörigen Videos aus sechs europäischen Fußballligen sind der Öffentlichkeit zugänglich.
 
 Eine Erweiterung von SoccerNet stellt SoccerDB~\cite{Jiang19} dar, welches sich in großen Teilen mit SoccerNet überschneidet.
 Statt drei, werden hier jedoch 10 Klassen annotiert, die sich in vielen Fällen überschneiden, was es zu einem Multi-Label-Datenset macht.
@@ -595,9 +595,9 @@ Außerdem wird zusätzliches Videomaterial aus asiatischen Fußballligen verwend
 
 In \autoref{tab:dataset} werden die einschlägigen Datensets zur Action Recognition verglichen:
 
-Das Baseline-Modell in SoccerNet segmentiert vorab die ungekürzten Videos in 60-Sekunden-Clips.
-Jeder Clip wird mit den Aktionen, die innerhalb des Clips stattfinden, gelabelt.
-Bei den meisten Clips findet jedoch keine der genannten Aktionen statt.
+Das Baseline-Modell in SoccerNet segmentiert vorab die ungekürzten Videos in 60-Sekunden-\glspl{clip}.
+Jeder \gls{clip} wird mit den Aktionen, die innerhalb des \glspl{clip} stattfinden, gelabelt.
+Bei den meisten \glspl{clip} findet jedoch keine der genannten Aktionen statt.
 Diese werden als \emph{Background} gelabelt.
 
 Die eigentliche Verarbeitung besteht aus einem mehrstufiges Modell aus folgenden drei Zwischenschritten:

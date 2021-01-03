@@ -22,7 +22,7 @@ Das Datenset selbst besteht aus Markierungen, die sich auf ein Intervall innerha
 
 Um zu prüfen ob alle neuartigen Klassen mit Methoden des Deep-Learnings lernbar sind, wurden drei Baseline-Modelle aus drei unterschiedlichen Oberkategorien auf Eignung getestet:
 SlowFast als reines, R2+1D als Block-faktorisiertes und ir-CSN als Gruppen-faktorisiertes 3D-Convolution-\gls{dnn}.
-Für jedes Baseline-Modell wurden optimale Hyperparameter gesucht, wobei alle Modelle bessere Ergebnisse erzielen, wenn sie auf Clips mit einer längeren Dauer trainiert werden.
+Für jedes Baseline-Modell wurden optimale Hyperparameter gesucht, wobei alle Modelle bessere Ergebnisse erzielen, wenn sie auf \glspl{clip} mit einer längeren Dauer trainiert werden.
 Die zusätzliche Länge kann durch zusätzliche Frames oder durch ein dünneres Sampling erfolgen, wobei ersteres den größeren Erfolg verspricht.
 In einem Benchmark wurden die besten Konfigurationen der Baseline-Modelle übernommen und anhand von xxx-sekündigen Samples eines separaten Testsets verglichen, wobei ir-CSN mit XXX am besten abschnitt.
 
@@ -58,17 +58,17 @@ Ein ähnlicher Ansatz wurde bereits in \cite{Wang19} beschrieben.
 Ebenso vielversprechend ist die in \cite{Wu20} vorgestellte Methodik die räumliche Auflösung während des Trainings von niedrig- zu höher auflösenden Samples zu variieren.
 
 Mehrschrittige Modell, die aufgrund des erhöhten Entwicklungsaufwand im Vorfeld ausgeschlossen wurden, könnten ebenfalls Fortschritte bringen.
-So könnten \zB vorab Kamerawechsel erkannt werden und Clips ausschließlich so gesamplet werden, dass sie kontinuierliche Bewegung ohne Kameraschnitte zeigen.
+So könnten \zB vorab Kamerawechsel erkannt werden und \glspl{clip} ausschließlich so gesamplet werden, dass sie kontinuierliche Bewegung ohne Kameraschnitte zeigen.
 Alternative kann die Information eines Kamerawechsels, wie auch weitere separat erhobene Informationen wie Ballposition oder Spielerkoordinaten in das Baseline-Modell einfließen.
 
-Im Anschluss an die Action Recognition kann die hier nur naiv umgesetzte Temporal Action Detection durch den Einsatz eines mächtigeren Modells aus \autoref{sec:temporal-action-detection} ersetzt werden, die mit genaueren Annotationen eines abgewandelten Datensets trainiert werden können.
+Im Anschluss an die Action Recognition kann die hier nur naiv umgesetzte Temporal Action Detection durch den Einsatz eines mächtigeren Modells aus \autoref{sec:temporal-action-detection} ersetzt werden, die mit genaueren \gls{annotationen} eines abgewandelten Datensets trainiert werden können.
 
 Zusätzlich kann auf der selben Datengrundlage (mit gleichen Spielen) ein Datenset mit Spielerkoordinaten und Identifiern erstellt werden.
 Mit solchen Daten kann \ggf ein Modell zum Tracking von Spielern oder sogar der Projizierung von Spielern auf Spielfeldkoordinaten erstellt werden und mit dem hier vorgestellten Modell zur Aktionserkennung verknüpft werden.
 So wäre eine vollständige Erfassung Spieler-bezogenen Statistiken auf Basis von Spielaktionen und Spielerpositionen möglich, die das Fußball-Scouting nachhaltig prägen könnte.
 
 schlecht:
-Zur Laufzeit müssen diese ungeschnittenen Videos in kleinere Clips einer fester Länge segmentiert werden.
+Zur Laufzeit müssen diese ungeschnittenen Videos in kleinere \glspl{clip} einer fester Länge segmentiert werden.
 Anhand der zugrundeliegenden Stammdaten, wurde eine Minimaldauer von 3 und eine Maximaldauer von 6 Sekunden für diese Segmentierung festgelegt.
 Die Segmentierung des Trainings- und Validierungssets folgt
 

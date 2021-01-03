@@ -50,23 +50,23 @@ Die Ergebnisse dienen somit primär der technischen Analyse.
 
 Die automatische Videoanalyse (auch Video Understanding) ist einer der schwierigsten Probleme im Bereich Computer Vision und Machine Learning~\cite{Sozykin17,Jiang19}.
 Als Video gilt in diesem Zusammenhang eine beliebig lange Sequenz bestehend aus Bildern (\gls{frames}).
-Zur einfacheren Handhabung werden längere Videos meist in kürzere Segmente (\gls{clips}) mit einer festen Länge von wenigen Sekunden zerlegt.
-Während ein (ungeschnittenes) Video viele Aktionen beinhalten kann, sind Clips meist so gewählt, dass sich nur eine Aktion oder wenige (überschneidende) Aktionen darin ereignen~\cite{Jiang19,Kay17}.
+Zur einfacheren Handhabung werden längere Videos meist in kürzere Segmente (\glspl{clip}) mit einer festen Länge von wenigen Sekunden zerlegt.
+Während ein (ungeschnittenes) Video viele Aktionen beinhalten kann, sind \glspl{clip} meist so gewählt, dass sich nur eine Aktion oder wenige (überschneidende) Aktionen darin ereignen~\cite{Jiang19,Kay17}.
 
 Verschiedene Probleme widmen sich der Analyse von Videomaterial, die teils sehr unterschiedliche Aspekte behandeln:
 
 \begin{description}
     \item[Feature Extraction]
-    Beschreibt die effiziente Komprimierung eines Bildes oder eines kurzen Clips auf einen Vektor oder eine Matrix mit fester Größe~\cite{Tran14}.
+    Beschreibt die effiziente Komprimierung eines Bildes oder eines kurzen \glspl{clip} auf einen Vektor oder eine Matrix mit fester Größe~\cite{Tran14}.
     Die so gewonnenen Matrizen werden als \emph{Features} oder \emph{Feature-Vektoren} bezeichnet.
     \item[Feature Aggregation]
-    Setzt direkt auf der Feature Extraction an, indem die komprimierten Features einzelner Frames oder Clips zu verschiedenen (meist konsekutiven) Zeitpunkten miteinander verknüpft werden~\cite{Ng15}.
+    Setzt direkt auf der Feature Extraction an, indem die komprimierten Features einzelner Frames oder \glspl{clip} zu verschiedenen (meist konsekutiven) Zeitpunkten miteinander verknüpft werden~\cite{Ng15}.
     Die Informationen werden also zeitlich aggregiert.
     \item[Action Recognition]
-    (auch Video Classification); beschreibt das Erkennen von Aktionen innerhalb eines Clips~\cite{Rodriguez08}.
+    (auch Video Classification); beschreibt das Erkennen von Aktionen innerhalb eines \glspl{clip}~\cite{Rodriguez08}.
     \item[Action Spotting]
     Ist ein spezielles Problem, das auf der Action Recognition aufbaut.
-    Ist die Information, dass eine Aktion in einem Clip stattfindet, bereits gegeben, wird in dieser Aufgabe der genaue Zeitpunkt der Aktion innerhalb dieses Clips bestimmt~\cite{Giancola18}.
+    Ist die Information, dass eine Aktion in einem \gls{clip} stattfindet, bereits gegeben, wird in dieser Aufgabe der genaue Zeitpunkt der Aktion innerhalb dieses \glspl{clip} bestimmt~\cite{Giancola18}.
     Die Aktionen werden also streng genommen als Events behandelt.
     \item[Temporal Action Detection]
     Unterscheidet sich vom Action Spotting dadurch, dass Zeitintervalle gesucht werden, in denen sich Aktionen ereignen~\cite{Xia20}.
@@ -84,10 +84,10 @@ Die Aufgabenstellung dieser Arbeit entspricht einer Action Recognition, die zur 
 Die Zeitachse entspricht hier den Frames eines Videos.
 Dabei werden für eine bestimmte Anzahl an Frames (hier 16) iterativ Features extrahiert.
 Der Input für die Feature Extraction wird, sofern es sich um mehr als einen Frame handelt, als Chunk bezeichnet.
-Diese Chunk-Features werden in einer höheren Instanz zu einem Clip-Feature (hier aus 64 Frames) aggregiert.
+Diese Chunk-Features werden in einer höheren Instanz zu einem \gls{clip}-Feature (hier aus 64 Frames) aggregiert.
 Die Feature-Aggregation ist optional und kann je nachdem, wie viele Frames die Feature Extraction verarbeiten kann, entfallen.
-In diesem Fall können direkt Features auf Clip-Länge generieren werden.
-In der Action Recognition lernt das Modell anschließend den Zusammenhang zwischen Clip-Feature und Label.
+In diesem Fall können direkt Features auf \gls{clip}-Ebene generieren werden.
+In der Action Recognition lernt das Modell anschließend den Zusammenhang zwischen \gls{clip}-Feature und Label.
 Zuletzt kann das \gls{har}-Modell in der Temporal Action Detection iterativ benutzt werden, um Intervalle für die Aktionen zu bestimmen.
 
 \begin{figure}[htbp]
@@ -102,7 +102,7 @@ Diese binäre Klassifizierung kann zu einer Multi-Class- und zu einer Multi-Labe
 Bei der Multi-Class-Recognition kann zu jedem Zeitpunkt eine aus $\gls{tld:A}$ Aktionsklassen erkannt werden.
 Für den Fall, dass sich keine Aktion ereignet, wird ein künstliches Label (oft \emph{Background} genannt) eingeführt.
 Im Multi-Label-Fall können sich die Aktionen sogar zeitlich überschneiden, \dh zu jedem Zeitpunkt können $0$ bis $C$ aus $C$ Aktionsklassen erkannt werden.
-Die gleichzeitige Erkennung von zwei dicht aufeinanderfolgenden Aktionen innerhalb des gleichen Clips ist also nur im Multi-Label-Fall möglich.
+Die gleichzeitige Erkennung von zwei dicht aufeinanderfolgenden Aktionen innerhalb des gleichen \glspl{clip} ist also nur im Multi-Label-Fall möglich.
 
 
 \section{Lösungsstrategien}

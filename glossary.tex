@@ -6,7 +6,11 @@
 % Fachwörter starting here
 % use g for doubles entries in Abkürzungen und Fachwörter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\newglossaryentry{annotationen}{
+  name = {Annotationen},
+  sort = {Annotationen},
+  description = {Tupel aus Label und Segmentmarkierung. Die Markierung bezieht sich auf einen Auschnitt innerhalb eines ungeschnittenen Videos und das Label gibt eine in diesem Ausschnitt stattfindende Aktion an.}
+}
 \newglossaryentry{backpropagation}{
   name = {Backpropagation},
   sort = {Backpropagation},
@@ -23,10 +27,10 @@
   plural = {Kanäle},
   description = {}
 }
-\newglossaryentry{clips}{
-  name = {Clips},
+\newglossaryentry{clip}{
+  name = {Clip},
   sort = {Clip},
-  description = {}
+  description = {Ausschnitt fester Länge aus einem ungeschnittenen Video}
 }
 \newglossaryentry{dataset}{
   name = {Datenset},
@@ -109,7 +113,7 @@ That value influences the way the algorithm works and is not learned from the al
 \newglossaryentry{sample}{
   name = {Sample},
   sort = {Sample},
-  description = {Datensatz aus Features und Label $(x_i, y_i)$}
+  description = {Datensatz aus Clip und Labels $(x_i, y_i)$}
 }
 \newglossaryentry{training}{
   name = {Training},
@@ -178,20 +182,10 @@ That value influences the way the algorithm works and is not learned from the al
 	name={D},
 	description={Set aus Datensamples}
 }
-\newglossaryentry{tld:L}{%
-	type=symbols,
-	name={L},
-	description={Anzahl Schichten innerhalb eines Neuronalen Netzes}
-}
-\newglossaryentry{tld:N}{%
-	type=symbols,
-	name={M},
-	description={Anzahl Trainingsdaten}
-}
 \newglossaryentry{tld:S}{%
 	type=symbols,
 	name={S},
-	description={räumliche Auflösung}
+	description={Räumliche Auflösung}
 }
 \newglossaryentry{tld:T}{%
 	type=symbols,
@@ -243,12 +237,12 @@ That value influences the way the algorithm works and is not learned from the al
 \newglossaryentry{tld:x}{%
 	type=symbols,
 	name={x},
-	description={Input-Vektor (Tensor)}
+	description={Input-Vektor $x \in \mathbb{R}^{(C \times T \times S^2)}$, enthält Clip eines Samples}
 }
 \newglossaryentry{tld:y}{%
 	type=symbols,
 	name={y},
-	description={Label, bekannter Zielwert}
+	description={Output-One-Hot-Vektor $y \in \{0, 1\}^A$ enthält Labels eines Samples}
 }
 
 \newglossaryentry{tld:Delta}{%

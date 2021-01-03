@@ -11,7 +11,7 @@ Der Prozess bis zur fertigen Inbetriebnahme schließt folgende drei Schritte ein
 
 \begin{description}
     \item[Data Engineering] Die Daten müssen erhoben und mit dem Deep Learning Modell in Einklang gebracht werden.
-    Aus rohen Videos und strukturierten Annotationen werden Samples in ein einheitliches \gls{ml}-Datenset überführt.
+    Aus rohen Videos und strukturierten \gls{annotationen} werden Samples in ein einheitliches \gls{ml}-Datenset überführt.
     \item[Training] Es muss ein einheitlicher Trainingsablauf definiert werden, um die Ergebnisse einzelner Experimente vergleichen zu können.
     Dabei werden Metriken zur Evaluation der Modelle und zur Analyse von Konflikten erhoben.
     \item[Verifikation] Mithilfe des trainierten Klassifizierers werden Samples manuell verifiziert.
@@ -32,9 +32,9 @@ Damit das \gls{har}-Modell ausreichend gut adaptiert werden kann, wird stattdess
 Zudem soll das Videomaterial verschiedenen (TV-)Quellen zugrunde liegen, sodass sich das Modell nicht auf bestimmte Eigenschaften des Kameraschnitts (wie Art der Kameraführung, Wiederholungen, Einblendungen, Bildqualität) einschießt.
 
 Diese Rohdaten werden anschließend in ein \gls{ml}-Datenset konvertiert.
-Neuronale Netze lernen mit Samples $(X, Y)$, wobei $x \in X$ ein vierdimensionaler Video-Tensor und $y \in Y$ das Output-Label ist.
-Alle Samples $x$ entsprechen multidimensionalen Matrizen (Tensoren) der Größe $x \in R^{C \times T \times S_x \times S_y}$, die sich aus $T$ Farbbildern ($C=3$) eines Clips zusammensetzen.
-Die Labels entsprechen einem One-Hot-enkodiertem Vektor $y \in \{0, \dots, 1\}^K$.
+Neuronale Netze lernen mit Samples $(x_i, y_i)$.
+Alle Samples $x$ entsprechen multidimensionalen Matrizen (Tensoren) der Größe $C \times T \times S^2$, die sich aus $T$ Farbbildern ($C=3$) eines \glspl{clip} zusammensetzen.
+Die Labels entsprechen einem One-Hot-enkodiertem Vektor $y \in \{0, \dots, 1\}^A$.
 
 Da diese Tensoren unkomprimiert bereits in einer kleinen Menge einen erheblichen Teil des Dateispeichers belegen, werden \gls{har}-Datensets in der Regel in einer strukturierten Form als CSV- oder JSON-Datei veröffentlicht.
 Diese Dateien speichern neben dem Label einen nur den Verweis zu der Videoquelle (als Link oder ID) und Start \ggf Start- und Endmarkierungen, in denen sich die Aktion im Video ereignet.
@@ -47,13 +47,13 @@ Dabei wird die Erhebung von Videomaterial $X$ und die Erhebung von Aktionsannota
 \label{subsec:aktionsannotationen}
 
 Da Videomaterial von Fußballspielen durch öffentliche oder kommerzielle Video-Plattformen im Internet vergleichsweise einfach zu finden ist, liegt der Fokus bei der Generierung des Datensets primär im Beziehen akkurater Annotationen.
-Die Annotationen müssen eine genaue zeitliche Auflösung haben, die mindestens im Sekundenbereich liegt.
+Die \gls{annotationen} müssen eine genaue zeitliche Auflösung haben, die mindestens im Sekundenbereich liegt.
 Das liegt zum einen daran, dass Aktionen bei einem schnellen Spiel oft dicht aufeinander folgen und zum anderen daran, dass sich die Spielaktionen selbst nur wenige Sekunden lang sind.
 Zusätzlich sollen Sie mehr Klassen als die bisherigen Datensets (SoccerNet und SoccerDB) einschließen.
 
-Als Provider für Annotations wird an dieser Stelle auf \gls{sbod}\footnote{Da die Sammlung kontinuierlich erweitert wird, bezieht sich die Bezeichnung \gls{sbod} im Folgenden auf den Stand vom 16.07.2020}~\cite{Statsbomb20} zurückgegriffen.
-Dabei handelt es sich um eine frei nutzbare Sammlung professioneller Annotation eines kommerziellen Anbieters.
-Die Sammlung umfasst mehr als 28 Millionen detaillierte Annotationen aus 33 Oberkategorien zu 799 Spielen.
+Als Provider für \gls{annotationen} wird an dieser Stelle auf \gls{sbod}\footnote{Da die Sammlung kontinuierlich erweitert wird, bezieht sich die Bezeichnung \gls{sbod} im Folgenden auf den Stand vom 16.07.2020}~\cite{Statsbomb20} zurückgegriffen.
+Dabei handelt es sich um eine frei nutzbare Sammlung professioneller \gls{annotationen} eines kommerziellen Anbieters.
+Die Sammlung umfasst mehr als 28 Millionen detaillierte \gls{annotationen} aus 33 Oberkategorien zu 799 Spielen.
 Die Spiele wurden zwischen 2003 und 2020 ausgetragen und beziehen sich auf zehn internationale Ligen -- davon drei aus dem Frauenfußball.
 Jede der Oberkategorien hat teils zahlreiche zusätzliche Attribute, wodurch sich weitere Unterkategorien ableiten lassen.
 
@@ -72,7 +72,7 @@ Darüber hinaus unterliegt die Auswahl einiger selbstauferlegter Kriterien:
 \begin{description}
     \item[Visuelle Erkennbarkeit] Eine Aktion muss allein auf Basis visueller Reize innerhalb weniger Frames erkennbar sein.
     Die Klassen \code{Starting XI} oder \code{Tactical Shift} werden dadurch ausgeschlossen.
-    \item[Mindestanzahl an Beispielen] Aktionen müssen mit einer Mindestanzahl an Annotationen repräsentiert sein, damit sie in neuartigen Situationen sicher wiedererkannt werden können.
+    \item[Mindestanzahl an Beispielen] Aktionen müssen mit einer Mindestanzahl an \gls{annotationen} repräsentiert sein, damit sie in neuartigen Situationen sicher wiedererkannt werden können.
     Die untere Grenze wird bei 50 Beispielen festgesetzt und schließt somit Klassen wie \code{Own Goal Against} aus.
     \item[Maximalanzahl an Beispielen] Einige Aktionen wie \code{Pass} und \code{Carry} sind dermaßen überrepräsentiert, dass sich praktische jeder dieser Aktionen mit mindestens einer weiteren Aktion zeitlich überlagert.
     Zudem erschwert es die abschließende Temporal Action Detection wenn mehrere gleiche Aktionen direkt hintereinander stattfinden:
@@ -91,7 +91,7 @@ Als erste Video-Datenquelle wird das öffentliche Datenset SoccerNet verwendet.
 Die Videos zu den Spielen sind pro Halbzeit zugeschnitten und können separat heruntergeladen werden.
 Die Spiele decken fünf europäische Ligen, sowie Spiele der UEFA Championsleague ab, die zwischen 2014 und 2017 ausgetragen wurden.
 Die Videoqualität ist durchweg gut und liegt bei einer Auflösung von mindestens 720p (siehe~\cite{SoccerNet20}).
-SoccerNet besteht neben 6,637 Annotationen aus 1,000 Videos zu 500 Fußballspielen, wovon sich 41 mit den Annotationen aus \gls{sbod} überschneiden.
+SoccerNet besteht neben 6,637 \gls{annotationen} aus 1,000 Videos von 500 Fußballspielen, wovon sich 41 mit den Spielen aus \gls{sbod} überschneiden.
 Diese Menge wird im Vergleich zu anderen Datensets allerdings noch als deutlich zu klein eingeordnet (vgl. \autoref{tab:dataset}).
 
 Daher wird der Großteil der Videos über öffentliche Kanäle der Video-Plattform YouTube bezogen.
@@ -118,9 +118,9 @@ Durch die Wahl der Architektur ergibt sich das Zielformat, das durch ein \gls{ml
 Entscheidende Parameter für das Zielformat sind die Auflösung $S$, die Samplingrate $\tau$ und die Anzahl der Frames $T$.
 Die Referenzmodelle R2+1D-34, ip-CSN-152 und SlowFast-50 nutzen unterschiedliche Kombinationen dieser Werte, die sich allerdings nur auf vortrainierter Modelle beziehen.
 Technisch sind alle Modelle durch den Einsatz eines dynamischen \pool-Layers in der Lage auch mehr Frames zu verarbeiten.
-\autoref{tab:coverage} zeigt die Parameter, sowie die ursprüngliche Länge eines Clips (Clip-Dauer $\Delta$) bei einer Framerate von 25 \gls{fps}.
+\autoref{tab:coverage} zeigt die Parameter, sowie die ursprüngliche Länge (Zeitkontext $\Delta$) eines \glspl{clip} bei einer Framerate von 25 \gls{fps}.
 
-Die Clip-Dauer bezeichnet im Folgenden die Originallänge in Sekunden, die ein Clip im ursprünglichen Video einnimmt.
+Der Zeitkontext bezeichnet im Folgenden die Originallänge in Sekunden, die ein \gls{clip} im ursprünglichen Video einnimmt.
 Manche Aktionen (bzw\. Aktivitäten) bestehen aus mehreren Unteraktionen und dauern daher länger als andere Aktionen.
 Enthalten die Trainingsdaten zu kurze Samples, kann das Modell \uU nicht genug Informationen erfassen, um solche Klassen zu erkennen.
 Das einzelne Bild eines schießenden Spielers kann \zB zur Klasse Torschuss oder aber auch zur Klasse Flanke gehören.
@@ -196,11 +196,11 @@ Stattdessen kann das ungeschnittene Videomaterial gleichmäßig segmentiert werd
 \section{Umgang mit Fehlern im Datenset}
 \label{sec:umgang-mit-fehlern-in-datenset}
 
-Auch wenn die Annotationen aus \gls{sbod} manuell erfasst und verifiziert wurden, können sie dennoch Fehler enthalten.
+Auch wenn die \gls{annotationen} aus \gls{sbod} manuell erfasst und verifiziert wurden, können sie dennoch Fehler enthalten.
 Und selbst bei gegebener Fehlerfreiheit läge ihnen wahrscheinlich ein anderes als das in dieser Arbeit verwendete Videomaterial zugrunde.
 \gls{sbod} dient zur Auswertung von Spieldaten und ist auf Vollständigkeit aller Aktionen angewiesen.
 Der grundlegende Unterschied zum Datenset dieser Arbeit ist, dass dieses Datenset ausschließlich sichtbare Aktionen umfassen soll.
-Als Ground Truth gilt also immer nur das, was in dem jeweiligen Clip wirklich zu sehen ist.
+Als Ground Truth gilt also immer nur das, was in dem jeweiligen \gls{clip} wirklich zu sehen ist.
 \Dh zum einen, dass Aktionen die passiert sind, im Video aber nicht sichtbar sind (\zB weil die Kamera gerade ins Publikum schwenkt), entfernt werden müssen.
 Zum anderen bedeutet es, dass Wiederholungen von Aktionen im Video zusätzliche Aktionen darstellen, auch wenn sie sich in der realen Welt zu einem anderen Zeitpunkt ereignet haben.
 
@@ -208,7 +208,7 @@ Aufgrund der zeitlichen Limitation dieser Arbeit kann nicht jeder Datensatz einz
 Stattdessen wird ein Verifikationsschritt an bestimmten Zeitpunkten zwischen den Experimenten eingebaut.
 Während des Trainings werden stets die Fehler der Loss-Funktion pro Sample protokolliert, sodass im Anschluss nur besonders auffällige Samples mit einem vergleichsweise hohen Fehlerwert manuell verifiziert und im Fehlerfall korrigiert werden müssen.
 Der Ablauf orientiert sich an~\cite{Gugger20} und~\cite{Cioppa20}:
-Letztere fanden durch die Ergebnisse der Loss-Funktion Fehler in den Annotationen von SoccerNet.
+Letztere fanden durch die Ergebnisse der Loss-Funktion Fehler in den \gls{annotationen} von SoccerNet.
 
 \section{Experimente}
 \label{sec:experimente}
@@ -234,7 +234,7 @@ Unter Berücksichtigung der Einschränkungen aus \autoref{sec:hardwareeinschrank
 Diese Ergebnisse dienen wiederum als Grundlage eines halbautomatisierten Verifikationsschritts.
 Am Ende der ersten Phase wird schließlich die Entscheidung für eines der drei Baseline-Modelle gefällt, welches die besten Ergebnisse liefert und in den folgenden Phasen weiter optimiert wird.
 
-In der zweiten Phase werden verschiedene Konfigurationen von Hyperparametern und damit verbundenen Werte für die Clip-Dauer getestet.
+In der zweiten Phase werden verschiedene Konfigurationen von Hyperparametern und damit verbundenen Werte für den Zeitkontext getestet.
 Da die Konfiguration der Pre-Trainings aus \autoref{tab:coverage} die untere Grenze von 3 Sekunden alle nicht erreichen, werden für jedes Modell die Hyperparameter $T$ und $\tau$ optimiert und somit auch ein längerer Kontext ermöglicht.
 Technisch gesehen wird somit durch den Einsatz eines dünneren Samplings (mit steigendem $\tau$) \bzw dem Ausnutzen des dynamischen Avg-Pooling-Layers (mit steigendem $T$) eine Temporal Feature Aggregation umgesetzt.
 Einige ausgewählte Kombinationen der Hyperarameter werden im Zuge einer Grid-Suche mit vergleichsweise wenig Trainingsdaten getestet.
@@ -242,10 +242,10 @@ Die beste Konfiguration wird schließlich mit zusätzlichen Daten weiter trainie
 
 Der alternative Einsatz von \glspl{tsn} im Kontext dieser Arbeit wird als weniger geeignet eingeschätzt, da die Untersegmente eines Samples verschiedene Klassen beinhalten können.
 Dieser Fall kann am Beispiel einer Wiederholung veranschaulicht werden:
-Ein längerer Clip wird in drei Untersegmente geteilt, wovon eins eine Auswechslung und die anderen beiden eine Torwiederholung zeigen.
-Im TSN würde der Clip als Tor klassifiziert werden, da diese Aktionen im Durchschnitt über alle drei Snippets öfter vertreten ist.
+Ein längerer \gls{clip} wird in drei Untersegmente geteilt, wovon eins eine Auswechslung und die anderen beiden eine Torwiederholung zeigen.
+Im TSN würde der \gls{clip} als Tor klassifiziert werden, da diese Aktionen im Durchschnitt über alle drei Snippets öfter vertreten ist.
 Da der Fehler über alle Snippets zurückpropagiert wird, würde das Netz während des Trainings so einen fehlerhaften Zusammenhang zwischen Tor und Auswechslung lernen.
-\gls{tsn} ist also nur einsetzbar, wenn die Clips über seine komplette Länge nicht mit anderen Klassen interferiert.
+\gls{tsn} ist also nur einsetzbar, wenn die \glspl{clip} über seine komplette Länge nicht mit anderen Klassen interferiert.
 
 In der dritten Phase werden die 32 Aktionsklassen einzeln evaluiert und Klassen, die nur extrem selten korrekt klassifiziert werden, werden aus dem ursprünglichen Datenset entfernt.
 Da diese Klassen gravierenden Einfluss auf den Fehler und damit auf die Optimierung des Modells haben, wird das Netz erneut nachtrainiert mit nur einer Untermenge der ursprünglichen Klassen.
@@ -254,11 +254,11 @@ Auch hier folgt anschließend ein Verifikationsschritt.
 In der letzten Phase werden weitere Verbesserungen der Metriken angestrebt, durch manuelle Anpassungen äußerer Parameter, Regularisierungstechniken (siehe \autoref{subsec:reaktive-aenderungen}), sowie durch spezielle Techniken, wie Label Smoothing~\cite{Szegedy16} oder Multi-Grid-Training~\cite{Wu20}.
 
 Problematisch ist die Tatsache, dass die Modelle in den Experimenten verschieden lange Videos verarbeiten und sich die Trainings- und Validierungssets dadurch unterscheiden.
-Zwar bleibt die Anzahl der Samples gleich, da immer ein Clip pro Sekunde gesamplet wird.
+Zwar bleibt die Anzahl der Samples gleich, da immer ein \gls{clip} pro Sekunde gesamplet wird.
 Die Labels pro Sample können jedoch bei verschiedener Länge abweichen.
 Um trotzdem vergleichbare Ergebnisse zu erheben, wird zur Evaluation immer ein einheitliches Testset verwendet:
-In der ersten Phase wird ein Testset mit $\Delta_\text{test}=3$ verwendet, da die maximale Clip-Dauer der drei Baseline-Modelle bei 2.67 Sekunden liegt.
-In der zweiten Phase werden im Zuge der Hyperparameter-Optimierung auch längere Clips mit bis zu 6 Sekunden gesamplet, weshalb von dort an ein zweites Test-Set mit $\Delta_\text{test}=6$ verwendet wird.
+In der ersten Phase wird ein Testset mit $\Delta_\text{test}=3$ verwendet, da der maximale Zeitkontext bei den drei Baseline-Modellen bei 2.67 Sekunden liegt.
+In der zweiten Phase werden im Zuge der Hyperparameter-Optimierung auch längere Zeitkontexte mit bis zu 6 Sekunden gesamplet, weshalb von dort an ein zweites Test-Set mit $\Delta_\text{test}=6$ verwendet wird.
 Im Gegensatz zum Trainings- und Validierungsset unterliegen die Test-Sets keinem Downsampling.
 \Dh die Ungleichgewichtungen der realen Welt (insbesondere die Überrepräsentation von Background-Samples) wird auch im Test-Set widergespiegelt.
 

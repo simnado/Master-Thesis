@@ -1,22 +1,16 @@
 \chapter{Einleitung}
 \label{ch:intro}
 
-\begin{tcolorbox}[title=Todo]
- \begin{itemize}
-  \item Modellübersichtsgrafik: Mapping von Frames to Labels (grid-plot / annotation-plot)
- \end{itemize}
- \end{tcolorbox}
-
-Die automatisierte Klassifizierung von Videomaterial im Alltag vieler Menschen ein fester Bestandteil.
+Die automatisierte Klassifizierung von Videomaterial ist im Alltag vieler Menschen ein fester Bestandteil.
 Auswertungen von Überwachungskameras, Gesten-Steuerung an Smartphones und Erkennung von Müdigkeit am Steuer sind nur einige Beispiele.
 Der Sport- und im Speziellen der Fußballsektor ist besonders gekennzeichnet durch eine hohe Anzahl öffentlich verfügbarer Videos~\cite{Giancola18}, aus denen neues Wissen abgeleitet werden kann.
-Diese Arbeit beschäftigt sich in diesem Zusammenhang mit der Erkennung atomarer wohl-definierter Spielaktionen, wie Torschüsse, Auswechslungen oder Fouls, die eine spezielle Form der \gls{har} ist.
+Diese Arbeit beschäftigt sich in diesem Zusammenhang mit der Erkennung atomarer, wohl-definierter Spielaktionen, wie Torschüsse, Auswechslungen oder Fouls, die eine spezielle Form der \gls{har} ist.
 Die Spielaktionen sollen effizient und ausschließlich anhand des zugrunde liegenden Videobilds erkannt werden.
 
-Der Einsatz von Deep-Learning im Bereich der Video-Klassifizierung führte in den letzten Jahren zu einem signifikanten Fortschritt~\cite{Abu-Bakar19}.
+Der Einsatz von Deep-Learning im Bereich der Video-Klassifizierung (\gls{har}) führte in den letzten Jahren zu einem signifikanten Fortschritt~\cite{Abu-Bakar19}.
 Besonders durch die Verfügbarkeit von \glspl{gpu} und den Veröffentlichungen neuer umfassender Datensets konnten die Erkennungsraten in den letzten Jahren deutlich verbessert werden. % todo: quelle
 
-In der Sportdomäne ergeben sich technische Herausforderungen in der Erkennung von Spielaktionen -- vor allem durch die Ähnlichkeit der Videos.
+In der Sportdomäne ergeben sich besondere technische Herausforderungen in der Erkennung von Spielaktionen -- vor allem durch die Ähnlichkeit der Videos.
 Man spricht in diesem Zusammenhang von einer besonders hohen Inter-Klassen-Ähnlichkeit (inter-class similarity), die sich dadurch auszeichnet, dass verschiedene Klassen ähnliche visuelle Merkmale aufweisen, sich jedoch semantisch unterscheiden~\cite{Sozykin17}.
 Dazu kommt eine besonders hohe Intra-Klassen-Varianz (intra-class variance)~\cite{Ballan09}, \dh verschiedene Samples der gleichen Klassen können einen sehr unterschiedlichen Verlauf haben.
 Weitere Herausforderungen sind die Ungleichverteilung (imbalance) der Aktionsklassen, sowie die potenzielle Überschneidung von Klassen~\cite{Jiang19}.
@@ -27,18 +21,18 @@ Weitere Herausforderungen sind die Ungleichverteilung (imbalance) der Aktionskla
 Im Fußball-Scouting sind Spieldaten eine begehrte Ressource.
 Vor allem die Auswertung von Videomaterial aus TV-Aufzeichnungen erfordert jedoch viel Zeit.
 Dazu werden Spiele meist manuell mit Markierungen zu den Spielaktionen, wie Tore, Auswechslungen oder Zweikämpfen versehen.
-Diese Markierungen, im Folgenden Annotationen genannt, bestehen aus einem Label (entspricht der Aktionsklasse), sowie einer Start- und Endzeit, die den Zeitraum im Video definieren, in der die Aktion stattfindet.
+Diese Markierungen, im Folgenden \gls{annotationen} genannt, bestehen aus einem Label (entspricht der Aktionsklasse), sowie einer Start- und Endzeit, die den Zeitraum im Video definieren, in der die Aktion stattfindet.
 
-Die Annotationen gelten im Kontext der Klassifikation als die \sog verifizierte Ground Truth.
-Praktischen Einsatz erlangen derartige Annotationen auch im Scouting.
+Die \gls{annotationen} gelten im Kontext der Klassifikation als die \sog verifizierte Ground Truth.
+Praktischen Einsatz erlangen derartige \gls{annotationen} auch im Scouting.
 Fußball-Scouts können \zB effizienter an einer qualitativen Video-Analyse arbeiten, wenn sie wissen an welchen Stellen im Video, die für sie interessanten Aktionen stattfinden.
 
 Das Annotieren selbst ist allerdings ein zeitaufwendiger, teuer und monotoner Prozess.
 Spieldaten werden meist von freiwilligen Datenpflegern einer Community-Website oder von professionellen Datenpflegern erfasst.
-Datenprovider wie Wyscout, stellen bis zu 400 Vollzeitressourcen ein, die pro Spiel bis zu 2000 Annotationen beisteuern können~\cite{Jiang19}.
+Datenprovider wie Wyscout, stellen bis zu 400 Vollzeitressourcen ein, die pro Spiel bis zu 2000 \gls{annotationen} beisteuern können~\cite{Jiang19}.
 
-Diese Arbeit optimiert zunächst mittels existierender Modelle die Klassifikation von hand-annotierter Spielaktionen.
-Dadurch soll ermöglicht werden, dass derartige Annotationen künftig für den produktiven Einsatz im Scouting voll- oder teil-automatisiert generiert werden können und der manuelle Aufwand reduziert wird.
+Diese Arbeit optimiert zunächst mittels existierender Modelle die Klassifikation von hand-annotierten Spielaktionen.
+Dadurch soll ermöglicht werden, dass derartige \gls{annotationen} künftig für den produktiven Einsatz im Scouting voll- oder teil-automatisiert generiert werden können und der manuelle Aufwand reduziert wird.
 
 \section{Problemstellung und Forschungsfrage}
 \label{sec:forschungsfrage}
@@ -46,28 +40,35 @@ Dadurch soll ermöglicht werden, dass derartige Annotationen künftig für den p
 In der Fußballdomäne gibt es zurzeit nur kleine oder unvollständige Datensets~\cite{Giancola18, Jiang19}.
 Darüber hinaus sind die Erkennungsraten bei der Anwendung auf diesen Datensets vergleichsweise gering verglichen mit den groß angelegten, generischen Datensets~\cite{Kay17,Karpathy14} im Bereich \gls{har}.
 Zum einen mag das daran liegen, dass diese ein deutlich breiteres Repertoire an Videomaterial einschließen und zum anderen, dass sie Benchmarks unter deutlich höherer Rechenlast optimiert wurden.
-Die vorliegende Arbeit versucht diese Lücke zu verringern, indem ein Datenset generiert wird, welches auch bisher unbeachtete Spielaktionen einschließt und mit 32 verschiedenen Klassen ein mehr als 3 so großes Spektrum abbildet.
-Basierend auf diesem Datenset, genannt SOCC-HAR-32, werden aktuelle \gls{har}-Backbone-Modelle trainiert und auf ihre Eignung geprüft.
+Die vorliegende Arbeit versucht diese Lücke zu verringern, indem ein Datenset generiert wird, welches auch bisher unbeachtete Spielaktionen einschließt und mit 32 verschiedenen Klassen ein mehr als dreimal so großes Spektrum abbildet.
+Basierend auf diesem Datenset, genannt SOCC-HAR-32, werden aktuelle \gls{har}-Modelle (R2+1D-34, SlowFast-50, ir-CSN-152) trainiert und auf ihre Eignung geprüft.
 
 Die Fragen, der sich diese Arbeit widmet, sind:
 \begin{enumerate}
     \item Wie gut kann ein so breiteres Spektrum an Spielaktionen mit bestehenden, modernen Methoden des Deep-Learnings erlernt werden?
     \item Welche Art von Spielaktionen machen die \gls{har} besonders schwer?
-    \item Welches Backbone-Modell ist besonders geeignet für dieses Datenset?
+    \item Welches Modell ist besonders geeignet für dieses Datenset?
 \end{enumerate}
 
 Alle Fragen sollen unter Anwendung des aktuellen Forschungsstands (Januar 2020) bearbeitet werden.
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth, height=0.9\textwidth, keepaspectratio, interpolate, trim=120 25 100 25, clip]{img/01_cover3.pdf}
+    \caption{Übersicht: Aktionserkennung in Video-Clips }
+    \label{fig:cover}
+\end{figure}
+
 \section{Abgrenzung und Zielsetzung}
 \label{sec:zielsetzung}
 
-Ziel der Arbeit ist ein auf SOCC-HAR-32 optimiertes \gls{har}-Modell zu trainieren, welches beliebige Videoclips einer bestimmten Länge klassifizieren kann.
-Die Verarbeitung ungeschnittener Videos ist, genauso wie die Lokalisierung von Aktionen innerhalb der Videoclips, nicht Gegenstand dieser Arbeit.
-Das Modell soll in der Lage sein, alle auf visuellen Bewegungen basierenden Spielaktionen, zu erkennen.
+Ziel der Arbeit ist ein auf SOCC-HAR-32 optimiertes \gls{har}-Modell zu trainieren, welches beliebige Video-\glspl{clip} einer bestimmten Länge klassifizieren kann.
+Die Verarbeitung ungeschnittener Videos ist, genauso wie die Lokalisierung von Aktionen innerhalb der \glspl{clip}, nicht Gegenstand dieser Arbeit.
+Das Modell soll in der Lage sein, Spielaktionen, die durch visuellen Bewegungen identifiziert werden können, wie in \autoref{fig:cover}, korrekt zu erkennen.
 
-Der Input des Modells wird repräsentiert durch einen Videoclip $x \in (C \times T \times S^2)$ mit $C$ Farbkanälen, einer festen Länge $T$ and Frames und einer Auflösung von $S$ Pixeln.
+Der Input des Modells wird repräsentiert durch einen Video-\gls{clip} $x \in \mathbb{R}^{(C \times T \times S^2)}$ mit $C$ Farbkanälen, einer festen Länge von $T$ Frames und einer Auflösung von $S$ Pixeln.
 Der Output $y \in \{0, 1\}^A$ entspricht einem One-Hot-Vektor aus $A$ Aktionsklassen (hier 32).
-Das Modell soll den Zusammenhang zwischen $x$ und $y$ aus hinreichend vielen Beispielen Ende-zu-Ende in einem einstufigen Modell abbilden.
+Das Modell soll den Zusammenhang zwischen $x$ und $y$ mit hinreichend vielen Samples $(x_i, y_i)$ Ende-zu-Ende in einem einstufigen Modell abbilden.
 \Dh es wird auf jede Form von zusätzlichen Zwischenschritten verzichtet.
 Das schließt insbesondere vorgelagerte Berechnungen von Feature-Repräsentationen ein, die in mehreren Zwischenschritten aufeinander aufbauen.
 Der Fokus auf ein einstufiges Modell ist primär durch den vergleichsweise geringen Entwicklungsaufwand begründet, der die Bearbeitung im Rahmen dieser Arbeit erst ermöglicht.
@@ -75,14 +76,14 @@ Der Fokus auf ein einstufiges Modell ist primär durch den vergleichsweise gerin
 Ebenso schränken sich alle Experimente aufgrund des zeitlichen Rahmens und limitierter Rechenkapazität auf reines Transfer-Learning ein.
 \Dh alle Modelle werden mit öffentlichen, bereits auf anderen Datensets vortrainierten Gewichten initialisiert und nicht von Grund auf neu trainiert.
 
-Die Ergebnisse $y$ des Modells geben Aufschluss über alle Aktionen, die sich im Videoclip ereignen.
-Ferner kann jedoch keine Aussage darüber gemacht werden, zu welchen Zeitpunkt innerhalb des Clips sie genau stattfindet.
+Die Labels $y$ des Modells geben Aufschluss über alle Aktionen, die sich im \gls{clip} ereignen.
+Ferner kann jedoch keine Aussage darüber gemacht werden, zu welchen Zeitpunkt innerhalb des \glspl{clip} sie genau stattfinden.
 Auch die Verknüpfung der Spielaktionen zum ausführenden Spieler wird in dieser Arbeit ausgeschlossen, da es ein eigenständiges fundamentales Problem darstellt.
 
-Als Ziel wird erwartet, dass sich deutlich mehr Aktionsklassen durch aktuelle Methoden des Deep-Learnings erlernen lassen als es bislang durch bestehende Datensets erforscht wurde.
+Als Ziel wird erwartet, dass sich deutlich mehr Aktionsklassen durch aktuelle Methoden des Deep-Learnings erlernen lassen als es bislang durch bestehende Datensets erforscht ist.
 Die Erkennungsraten sollen sich dabei im Bereich bereits publizierter Modelle derselben Domäne bewegen.
 
-Perspektivisch soll damit ermöglicht werden, Hand-generierte Annotationen in gleicher Weise durch die Inferenz des trainierten Modells voll- oder teilautomatisiert selbst erzeugen zu können.
+Perspektivisch soll ermöglicht werden, Hand-generierte \gls{annotationen} in gleicher Weise durch die Inferenz des trainierten Modells voll- oder teilautomatisiert selbst erzeugen zu können.
 
 \section{Aufbau der Arbeit}
 \label{sec:aufbau-der-arbeit}
@@ -93,32 +94,32 @@ Um zu verstehen, welche Art von Daten erkannt werden soll, werden die Begriffe d
 Zur Lösung des Problems werden mehrere Forschungsstränge beleuchtet, wobei der Fokus schließlich auf Deep-Learning fällt
 In \autoref{sec:deep-learning} werden dazu grundlegende Techniken und Backbone-Modelle aus der 2D-Bild- und 1D-Zeitreihen-Verarbeitung abgehandelt, wie bestimmte Blocktypen in \glspl{cnn} und \glspl{rnn}.
 
-Basierend auf den vorgestellten Modellen, mit denen 1D- \bzw 2D-Samples klassifiziert werden können, wird in \autoref{ch:sota} die Brücke zu 3-dimensionalen Videodaten geschlagen:
+Basierend auf den vorgestellten Modellen, mit denen 1D- \bzw 2D-Samples klassifiziert werden können, wird in \autoref{ch:sota} die Brücke zu dreidimensionalen Videodaten geschlagen:
 Zunächst werden in \autoref{sec:deep-learning-modelle-zur-action-recognition} Kategorien zusammengefasst, wie sich zeitliche und räumliche Informationen kombinieren lassen.
 Dabei werden im Detail verschiedene Ansätze und konkrete Architekturen vorgestellt.
-In \autoref{sec:long-term-aggregation-frameworks} und \autoref{sec:temporal-action-detection} wird angeschnitten, wie sich die in der Länge begrenzte Modelle auf ungeschnittenes Bildmaterial anwenden lassen und wie Aktionsintervalle in ungeschnittenen Videos erfasst werden können.
-Zuletzt werden in \autoref{sec:datensets-und-benchmarks} die populärsten Datensets und aktuelle Benchmarks verglichen werden.
+In \autoref{sec:long-term-aggregation-frameworks} und \autoref{sec:temporal-action-detection} wird angeschnitten, wie sich die in der Länge begrenzten Modelle auf ungeschnittenes Videomaterial anwenden lassen und wie Aktionsintervalle in ungeschnittenen Videos erfasst werden können.
+Zuletzt werden in \autoref{sec:datensets-und-benchmarks} die populärsten Datensets und aktuelle Benchmarks verglichen.
 
-Basierend auf den Informationen der vorherigen Kapitel wird in \autoref{ch:concept} ein Vorgehen zur Problemlösung entwickelt
+Basierend auf den Informationen der vorherigen Kapitel wird in \autoref{ch:concept} ein Vorgehen zur Problemlösung entwickelt.
 In \autoref{sec:datenquellen} wird beschrieben, wie und auf welcher Grundlage ein Datenset vielfältiger Spielaktionen generiert werden kann.
 Dabei werden auch Anforderungen an die Beschaffenheit des generierten Datensets festgelegt.
-Anschließend werden in \autoref{sec:decisions} einige für diese Aufgabe geeignete Architekturen ausgewählt und ein Vorhaben beschrieben, das zeigt wie die Modelle auf die Daten angepasst werden können.
-In \autoref{sec:multi-label} wird der Umgang mit zeitgleich stattfindenden Aktionen diskutiert, wobei entschieden wird, das Modell als Multi-Label-Klassifizierer zu trainieren.
+Anschließend werden in \autoref{sec:decisions} einige für die Klassifizierung geeignete Modelle ausgewählt und ein Vorhaben beschrieben, das zeigt wie die Modelle auf die Daten angepasst werden können.
+In \autoref{sec:multi-label} wird der Umgang mit zeitgleich stattfindenden Aktionen beleuchtet, wobei entschieden wird, das Modell als Multi-Label-Klassifizierer zu trainieren.
 In \autoref{sec:umgang-mit-fehlern-in-datenset} wird ein weiterer Feedback-Kanal zum Umgang mit Daten- und Klassifikationsfehlern präsentiert.
-Schließlich münden alle Entscheidungen in \autoref{sec:experimente} in einem Plan, der festlegt, welche Experimente in welcher Abfolge durchgeführt werden.
-\autoref{sec:konzeptuelle-umsetzung} beschreibt hierzu die modulare Implementation aller zu entwickelnden Komponenten im Gesamtbild.
+Schließlich münden alle Entscheidungen in \autoref{sec:experimente} in einem Vorgehen, das festlegt, welche Experimente in welcher Abfolge durchgeführt werden.
+\autoref{sec:konzeptuelle-umsetzung} beschreibt dazu noch die modulare Implementation aller zu entwickelnden Komponenten im Gesamtbild.
 
 \autoref{ch:data} beschäftigt sich mit der Umsetzung des Data-Engineerings.
 Dazu wird in \autoref{sec:datenerhebung} der Prozess der Datenerhebung beschrieben, die in einem Datenset gipfelt, welches in \autoref{sec:eigenschaften-des-datensets} näher beschrieben wird.
 Anschließend wird in \autoref{sec:pre-processing} die Art und Weise beschrieben, wie aus dem Datenset Samples für das Deep-Learning-Modell generiert werden.
 
 \autoref{ch:training} definiert ein einheitlich reproduzierbares Trainingsprotokoll, das die Bestimmung von Hyperparametern und Einschränkungen durch die gegebene Hardware einschließt.
-In \autoref{sec:verifikation} wird zudem ein Protokoll für das Ändern fehlerhafter Daten vorgestellt.
+In \autoref{sec:nachgang} wird zudem ein Protokoll für das Ändern fehlerhafter Daten vorgestellt.
 
 Die Ergebnisse der Arbeit sind in \autoref{ch:results} zusammengefasst.
 Dabei werden in \autoref{sec:benchmark} zunächst drei verschiedene Baseline-Modelle mit unterschiedlicher Architektur separat trainiert und verglichen.
-Für das Modell mit den besten Ergebnissen (ir-CSN-152) werden in \autoref{sec:hyperparameter-optimierung} entscheidende Hyperparameter in einer abgewandelten Grid-Suche optimiert, um die Klassifikation möglichst langer Video-Clips zu ermöglichen.
-In \autoref{sec:kategorisierung-der-aktionsklassen} wird genauer Untersucht welche Klassen als besonders schwer erlernbar gelten und das Training ausbremsen.
+Für das Modell mit den besten Ergebnissen (ir-CSN-152) werden in \autoref{sec:hyperparameter-optimierung} entscheidende Hyperparameter in einer abgewandelten Grid-Suche optimiert, um die Klassifikation möglichst langer \glspl{clip} zu ermöglichen.
+In \autoref{sec:kategorisierung-der-aktionsklassen} wird genauer untersucht welche Klassen als besonders schwer erlernbar gelten und das Training ausbremsen.
 Einige der Aktionsklassen werden aus dem ursprünglichen Datenset entfernt und das Modell wird ohne diese Klasse erneut nachtrainiert.
 Die Erkennungsraten werden zusätzlich erhöht, indem \zB Datenfehler gezielt bereinigt werden.
 

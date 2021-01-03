@@ -177,12 +177,12 @@ Hierfür wird auf die während des Trainings persistierten Scores und Losses zur
 Mithilfe des Fehlerberichts genügt es, nur die Samples mit den höchsten Loss-Werten manuell zu kontrollieren.
 
 Schon während des Samplings (\autoref{subsec:segmentierung-und-sampling-strategie}) wird jedes Sample mit einer eindeutigen ID verknüpft, die sich aus dem zugehörigen Match und der Startmarkierung (in Videozeit) zusammensetzt.
-Mithilfe der ID können die Annotationen auch nachträglich aus der JSON-Datenbank geladen und die Scores mit den Ground-Truth-Labels des Samples verglichen werden.
+Mithilfe der ID können die \gls{annotationen} auch nachträglich aus der JSON-Datenbank geladen und die Scores mit den Ground-Truth-Labels des Samples verglichen werden.
 Dabei werden die Samples der besten Epoche für alle Datensets absteigend nach ihrem Loss sortiert und mithilfe eines Relabel-Tools verifiziert und im Fehlerfall \ggf korrigiert.
 Wird ein Fehler entdeckt kann dieser auf dreierlei Weisen behoben werden:
 
 \begin{description}
-    \item[Zusätzliche Aktion] Eine Aktion, die in den Annotationen vorher nicht erfasst war, ereignet sich im Videobild.
+    \item[Zusätzliche Aktion] Eine Aktion, die in den \gls{annotationen} vorher nicht erfasst war, ereignet sich im Videobild.
     Die Aktion kann als Tupel, bestehend aus Label und Zeitfenster, der Datenbank hinzugefügt werden.
     Dieser Fall tritt \zB auf, wenn eine Wiederholung gezeigt wird.
     \item[Verschobene Aktion] Eine Aktion, tritt im Videobild früher oder später auf, als es in den Ground-Truth-Daten dokumentiert ist.
@@ -200,10 +200,10 @@ Sind alle Experimente einer Phase abgeschlossen, wird zunächst eine neue Transa
 Für jedes der Experimente wird das Relabel-Tool mit den persistierten Score- und Loss-Werte des Fehlerreports initialisiert.
 Das Relabel-Tool erhält ebenfalls Zugriff auf die bestehende JSON-Datenbank.
 Die Samples werden absteigend nach Loss-Wert sortiert und dem Nutzer interaktiv präsentiert.
-Der Nutzer kann die einzelnen Annotationen des Samples ändern oder löschen oder eine neue Annotation hinzufügen.
+Der Nutzer kann die einzelnen zugrunde liegenden \gls{annotationen} eines Samples ändern oder löschen oder eine neue Annotation hinzufügen.
 Jede dieser drei Operationen lässt sich in Form einer Transaktion in einer \gls{csv}-Datei speichern.
 Nach der Verifikation eines Experiments werden die Transaktionen separat gespeichert, dann auf die Datenbank angewendet und dann die Datenbank in einer neuen Version gespeichert.
-Die geänderten Annotationen werden zudem als verifiziert in der Datenbank markiert, sodass der Nutzer die gleichen Fehler nicht mehrmals im Relabel-Tool vorgeschlagen bekommt.
+Die geänderten \gls{annotationen} werden zudem als verifiziert in der Datenbank markiert, sodass der Nutzer die gleichen Fehler nicht mehrmals im Relabel-Tool vorgeschlagen bekommt.
 
 Eine weitere Funktion des Fehlerreports besteht darin nach Auffälligkeiten in den Daten zu suchen:
 Es kann der durchschnittliche Fehler pro Video ermittelt werden und Ausreißer können mit einem z-Test identifiziert werden.
