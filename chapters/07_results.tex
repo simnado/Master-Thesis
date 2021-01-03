@@ -64,58 +64,66 @@ Eine weitere Optimierung des Baseline-Modells anhand der verifizierten Datenbank
 \section{Hyperparameter-Optimierung}
 \label{sec:hyperparameter-optimierung}
 
-Spielaktionen können unter Berufung auf \gls{sbod} zwischen bis zu 6 Sekunden dauern.
-Die vortrainierten Modelle bilden in ihrer ursprünglichen Form jedoch maximal 2.56 Sekunden ab.
-Im Zuge der zweiten Experimentphase werden verschiedene Hyperparameter mithilfe einer gierigen Grid-Suche getestet.
+Das aktuelle Baseline-Modell bilden in seiner ursprünglichen Form mit $T=32$ und $\tau = 2$ eine Clip-Dauer von 2.67 Sekunden ab.
+Da diese Hyperparameter auf Grundlage eines anderen Datensets gesetzt wurde, werden die oben genannten Hyperparameter im nachfolgenden Experiment in einer Grid-Suche anhand des vorliegenden Datensets angepasst.
+Das vorgehen ist weiter motiviert durch die Mindest-Clip-Dauer von 4 Sekunden in SoccerDB \bzw der unteren Grenze von 3 Sekunden basierend auf \gls{sbod}.
 
-Alle Modelle nutzen eine dynamisches Avg-\pool-Layer zwischen dem letzten \conv- und dem ersten \fc-Layer, das die Verarbeitung von Tensoren variabler Länge $T$ zulässt.
-Um eine geeignete Methode zu finden, wird der Einfluss von Avg-Pooling und von Subsampling auf den jeweils gleichen Daten pro Modell verglichen.
-
-Die Grid-Suche betrachtet Punkte für verschiedene Werte von $T$ und $\tau$.
-Beginnend mit dem Baseline-Modell aus der ersten Phase, werden iterativ mehrere Parameterkombination ausprobiert, sodass sich die Clip-Dauer um einen festen Faktor erhöht.
-Die Konfigurationen werden verglichen und die erfolgreichere wird wieder zum Startpunkt für die nächste Iteration.
-Die Suche endet sobald, es keine Verbesserungen mehr stattfindet oder das Training aufgrund von Hardwarebeschränkungen nicht mehr möglich ist.
-Mit den genannten Einschränkung ist die Suche deutlich schneller, aber auch unvollständiger als eine gewöhnliche Grid-Suche.
+Alle Modelle nutzen eine dynamisches Avg-\pool-Layer zwischen dem letzten \conv- und dem ersten \fc-Layer, das die Verarbeitung von Clips variabler Länge $T$ zulässt.
+Um eine geeignete Methode zu finden, wird der Einfluss des Avg-Poolings durch ein höheres $T$ und von schnelleren Clips durch einen höheren Zeitschritt $\tau$ verglichen.
+Die Grid-Suche betrachtet also Punkte für verschiedene Werte von $T$ und $\tau$, wobei die dadurch beeinflusste Clip-Dauer sich innerhalb der unteren und oberen Grenze von 3 \bzw 6 Sekunden bewegen soll.
+Für die Wahl von $T$ werden sechs Werte zwischen 24 und 64 getestet, wobei 64 die maximale Anzahl von Frames darstellt.
+Zusätzliche Frames würden die Kapazität der \gls{gpu} überschreiten und sind im Rahmen der Arbeit technisch nicht möglich.
+Die Punkte für $\tau$ werden so gewählt, dass sich die resultierende Clip-Dauer etwas um eine Sekunde unterscheidet.
+Zusätzlich wird das Baseline-Modell der vorherigen Phase erneut getestet.
+\autoref{fig:exp-hparams-grid} zeigt alle getesteten Punkte der Grid-Suche, sowie Orientierungslinien für die resultierende Clip-Dauer.
 
 \begin{figure}
     \centering
-    \begin{subfigure}{.33\textwidth}
-        \centering
-        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_grid_r2plus1d.eps}
-    \end{subfigure}%
-    \begin{subfigure}{.33\textwidth}
-        \centering
-        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_grid_slowfast.eps}
-    \end{subfigure}
-    \begin{subfigure}{.33\textwidth}
+    \begin{subfigure}{.25\textwidth}
         \centering
         \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_grid_csn.eps}
+        \caption{Punkte für Grid-Suche}
+        \label{fig:exp-hparams-grid}
+    \end{subfigure}%
+    \begin{subfigure}{.35\textwidth}
+        \centering
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_par_cor_prec.eps}
+        \caption{Precision für Grid-Suche}
+        \label{fig:exp-hparams-prec}
     \end{subfigure}
-    \caption{Grid-Suche für optimale Hyperparameter}
-    \label{fig:exp-hparams}
+    \begin{subfigure}{.35\textwidth}
+        \centering
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_par_cor_rec.eps}
+        \caption{Recall für Grid-Suche}
+        \label{fig:exp-hparams-rec}
+    \end{subfigure}
 \end{figure}
 
-\autoref{fig:exp-hparams} zeigt die Ergebnisse, indem pro Modell ausgehend vom Baseline-Modell die Clip-Dauer erhöht wird.
-Die Iterationen sind hier durch Linien dargestellt, die je Modelle einer festen Clip-Dauer trainieren.
-Aufgrund der Vielzahl zusätzlicher Experimente wurden die Laufzeit bei diesen Experimenten durch $\gls{tld:Theta}_\text{train} = 100$ und auf 3 Epochen begrenzt.
+Aufgrund der Vielzahl zusätzlicher Experimente wird die Laufzeit bei diesen Experimenten durch $\gls{tld:Theta}_\text{train} = 100$ und auf 3 Epochen begrenzt.
+Da das Baseline-Modell nach der ersten Phase bereits neue Feature gelernt hat, wird zu Beginn eine neue Lernrate gesucht, die für alle Trainings der Grid-Suche gilt und dem Intervall $[3e^{-4}, 3e^{-6}]$ entspricht.
+\autoref{fig:exp-hparams-prec} und \autoref{fig:exp-hparams-rec} veranschaulichen die Ergebnisse der Grid-Suche in Form von Parallelen Koordinaten.
+Es fällt auf, dass die Hyperparameter sehr gegensätzlichen Einfluss auf die Metriken Precision und Recall haben.
+So wirken sich zusätzliche Frames und ein hoher oder gleichbleibender Zeitschritt positiv auf den Recall aus, während sich beides eher negativ auf die Precision auswirkt.
+Eine erhöhte Clip-Dauer wirkt sich ebenfalls positiv auf den Recall auf.
+Die Precision scheint hingegen unabhängig von der Clip-Dauer zu sein.
 
-Als Startpunkt wird das Baseline-Modell der vorherigen Phase gewählt.
-Da das Baseline-Modell nach der ersten Phase bereits neue Feature gelernt hat, werden zu Beginn neue Lernraten gesucht, die für alle Trainings der Grid-Suche gelten.
-Das jeweils beste Modell wird nach Abschluss der Suche erneut für 10 Epochen mit $\gls{tld:Theta}_\text{train} = 200$ trainiert (analog zu Phase 1).
-\autoref{tab:phase2} vergleicht die Ergebnisse der ersten zwei Phasen.
+Um ein gutes Gleichgewicht zwischen den beiden Metriken zu erlangen, werden nachfolgend nur noch Ergebnisse betrachtet, die einen besonders hohen F1-Score aufweisen.
+In \autoref{tab:phase2} sind diese Experimente gelistet, die maximal 1 \% von dem maximale F1-Score abweichen.
+Als zusätzlicher Filter werden Experimente ausgeschlossen, deren Balanced Accuracy mehr als 1 \% vom Maximum abweicht.
 
 \begin{figure}
     \centering
-    \csvreader[no head,tabular=|l|r|r|r||r|r|r|,
+    \small
+    \csvreader[no head,tabular=|r|r|r||r|r|r|,
     table head=\hline,late after line=\\\hline]{tbl/exp_phase_2.csv}
-    {1=\model,2=\s,3=\t,4=\sr,5=\d,6=\result,7=\ihatelatex,8=\reallyshittylatex}
-    {\model & \t & \sr & \d & \result & \ihatelatex & \reallyshittylatex}
+    {1=\model,2=\s,3=\t,4=\sr,5=\d,6=\auroc,7=\ba,8=\fone}
+    {\t & \sr & \d & \ba & \fone & \auroc}
     \caption{Ergebnisse aus Phase 2}
     \label{tab:phase2}
 \end{figure}
 
-Die Ergebnisse zeigen, dass ir-CSN das Problem am besten löst und in allen Metriken die besten Ergebnisse hat.
-Daher wird der Fokus im weiteren Verlauf ausschließlich auf dieses eine Modell eingeschränkt.
+
+Das jeweils beste Modell wird nach Abschluss der Suche erneut für 5 Epochen mit $\gls{tld:Theta}_\text{train} = 200$ trainiert.
 
 \section{Kategorisierung der Aktionsklassen}
 \label{sec:kategorisierung-der-aktionsklassen}
