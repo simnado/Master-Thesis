@@ -233,7 +233,7 @@ während bei LRCN ein Backpropagation-Schritt pro \gls{clip} (mit $T = 16$ Frame
 
 Die nächste große Generation der \gls{har}-Modelle war die erstmalig in~\cite{Ji13} vorgestellte 3D-Faltung (3D-Convolution).
 Die 3D-Faltung funktioniert analog zur 2D-Faltung aus \autoref{sec:cnn}:
-Statt eines $(C \times S_x \times S_y)$-Inputs, erhält das Netz einen $(C \times T \times S^2)$-Input.
+Statt eines $(C \times S^2)$-Inputs, erhält das Netz einen $(C \times T \times S^2)$-Input.
 Alle \conv- und \pool-Layer haben nun dreidimensionale Kernel und erzeugen vierdimensionale Feature-Maps.
 
 Im Gegensatz zu vorherigen Early-Fusion-Modellen werden zeitliche Informationen nicht gemittelt.
@@ -247,21 +247,12 @@ C3D~\cite{Tran15} ist das erste 3D-CNN, das an großen \gls{har}-Datensets getes
 Seinerzeit war es als Feature Extractor konzipiert, der $T=16$ Input-Frames zu einem 4096-Elemente-langen Feature-Vektor komprimiert.
 Zur Klassifikation wurde anschließend eine \gls{svm} eingesetzt, wobei auch eine direkte Klassifikation im letzten \fc-Layer möglich ist.
 Das Netz basiert auf keinem vorhergegangenen Backbone, hat eine Tiefe von insgesamt 10 Schichten (davon 8 3D-\conv-Layer) und verarbeitet \glspl{clip} mit einer Auflösung von $S=112$ Pixeln.
-
-In jedem Layer wird ein $3 \times 3 \times 3$-Kernel, gefolgt von einem $2 \times 2 \times 2$-\pool-Layer verwendet.
+In jedem Layer wird ein $(3 \times 3 \times 3)$-Kernel, gefolgt von einem $(2 \times 2 \times 2)$-\pool-Layer verwendet.
 Entscheidende Vorteile sind eine generische Feature-Extraktion und die kompakte Repräsentation.
-Es werden sowohl räumliche als auch zeitliche Features kombiniert.
 
-Aufgrund dieser hohen Abstraktion kann C3D häufig bei einfachen Klassifikationen auch ohne zusätzliches Training eingesetzt werden.
 Bei seiner Vielzahl an Parametern gestaltet es sich allerdings schwierig das Netz von Grund auf neu zu trainieren.
 Ebenfalls problematisch ist die Beschränkung auf $T=16$ Frames.
 So muss für längere \glspl{clip} stets der Durchschnitt einzelner Chunks erfasst werden, was mit zusätzlichen Ungenauigkeiten einhergeht.
-
-\subsubsection*{LTC (Long-term Temporal Convolution)}
-
-Letzteres Problem sollte durch die Veröffentlichung von LTC von~\cite{Varol18} behoben werden.
-Das Modell unterstützt mit $T=100$ Frames deutlich längere \glspl{clip}, kompensiert dies aber mit einer deutlich geringeren Auflösung von nur $S=71$ Pixeln.
-Ansonsten ähnelt die Architektur (in \autoref{fig:ltc}) der von C3D mit der Ausnahme, dass ausschließlich $3 \times 3 \times 3$-Kernel verwendet wurden.
 
 \begin{figure}[h!]
     \centering
@@ -270,19 +261,25 @@ Ansonsten ähnelt die Architektur (in \autoref{fig:ltc}) der von C3D mit der Aus
     \label{fig:ltc}
 \end{figure}
 
+\subsubsection*{LTC (Long-term Temporal Convolution)}
+
+Letzteres Problem sollte durch die Veröffentlichung von LTC~\cite{Varol18} behoben werden.
+Das Modell unterstützt mit $T=100$ Frames deutlich längere \glspl{clip}, kompensiert dies aber mit einer deutlich geringeren Auflösung von $S=71$ Pixeln.
+Ansonsten ähnelt die Architektur (in \autoref{fig:ltc}) der von C3D mit der Ausnahme, dass ausschließlich $(3 \times 3 \times 3)$-Kernel verwendet wurden.
+
 \subsubsection*{I3D (Inflated 3D ConvNet)}
 
-Mit I3D~\cite{Carreira17} wurde das erste 3D-ConvNet veröffentlicht, das eine Transfer-Learning-Technik nutzt um bereits erlernt Features eines 2D-CNNs wiederzuverwenden.
-I3D basiert auf der Architektur von InceptionV1, die um eine dritte Dimension aufgeblasen (inflated) wird (siehe \autoref{fig:i3d}).
+Mit I3D~\cite{Carreira17} wurde das erste 3D-CNN veröffentlicht, das eine Transfer-Learning-Technik nutzt um bestehende Features eines 2D-CNNs wiederzuverwenden.
+I3D basiert auf der Architektur von InceptionV1, die um eine dritte Dimension aufgeblasen (inflated) wird.
 Beim Prozess der \emph{Inflation} wird jeder bereits vortrainierte 2D-Kernel um eine dritte Dimension erweitert, indem die vortrainierten Gewichte entlang der zeitlichen Achse kopiert werden.
-\Dh das Netz ist vortrainiert für die Klassifizierung stiller Videos ohne jede Bewegung.
+\Dh das Netz ist danach vortrainiert für die Klassifizierung stiller Videos \bzw Standbilder.
 
-\begin{figure}[h!]
-    \centering
-    \bigimage{img/03_Carreira17}{0.95\textwidth}
-    \caption{Architektur: I3D (Quelle:~\cite{Carreira17})}
-    \label{fig:i3d}
-\end{figure}
+%\begin{figure}[h!]
+%    \centering
+%    \bigimage{img/03_Carreira17}{0.95\textwidth}
+%    \caption{Architektur: I3D (Quelle:~\cite{Carreira17})}
+%    \label{fig:i3d}
+%\end{figure}
 
 Der Größenunterschied zu C3D und LTC spiegelt sich zwar in der Tiefe des Netzes wider, dennoch hat I3D deutlich weniger Parameter aufgrund der effizienten Inception-Architektur und kann somit deutlich schneller trainiert werden.
 \glspl{clip} können mit je $T=64$ Frames inferiert werden.
@@ -292,26 +289,35 @@ Der Größenunterschied zu C3D und LTC spiegelt sich zwar in der Tiefe des Netze
 T3D~\cite{Diba17} ist analog zu I3D eine 3D-Variante von DenseNet.
 Die Besonderheit ist hierbei die Hinzunahme eines neuartigen modularen Block-Typen zur Erfassung dynamischer Features von variabler Dauer.
 
-\begin{figure}[h!]
-    \centering
-    \bigimage{img/03_Diba17}{\textwidth}
-    \caption{Architektur: T3D (Quelle:~\cite{Diba17})}
-    \label{fig:t3d}
-\end{figure}
-
 Bei der gewöhnlichen 3D-Faltung wird stets eine lokale Nachbarschaft des jeweiligen Pixels betrachtet, welches im Mittelpunkt der Faltung steht.
-Die in dieser Arbeit neuen TTLs (Temporal Transition Layer) erfassen zeitgleich Bewegungen verschiedener Dauer.
+Die hier neuen TTLs (Temporal Transition Layer) erfassen allerdings zeitgleich Bewegungen verschieden langer Zeiträume.
 Kurze Bewegungen werden durch einen Kernel mit einer vergleichsweise geringen zeitlichen Dimension (flache Kernel) eingefangen und lange Bewegungen mit einem deutlich tieferen Kernel.
 In jedem TTL operieren drei verschiedene Kernel, deren Output zu einer neuen Feature-Map konkateniert und gepoolt wird.
 Das Netz kann mit einem flachen Kernel \zB eine kurze Geste des Schiedsrichters einfangen und gleichzeitig mit einem tieferen Kernel den Ball verfolgen, der langsam ins Aus rollt.
 Da die räumliche Auflösung innerhalb des TTL stets gleich ist, können die Features pro Kernel anschließend Pixel-genau kombiniert werden.
 Die Gesamtarchitektur, sowie die eingesetzten TTLs sind in \autoref{fig:t3d} abgebildet.
 
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{.5\textwidth}
+        \centering
+        \bigimage{img/03_Diba17}{\textwidth}
+        \caption{Architektur: T3D (Quelle:~\cite{Diba17})}
+        \label{fig:t3d}
+    \end{subfigure}%
+    \begin{subfigure}[b]{.5\textwidth}
+        \centering
+        %\bigimage{img/03_Girdhar17}{0.95\textwidth}
+        \caption{Schaubild: Non-Local-Blöcke (Quelle:~\cite{Wang18})}
+        \label{fig:non-local}
+    \end{subfigure}
+\end{figure}
+
 \subsubsection*{Non-Local Networks}
 
 Die in~\cite{Wang18} vorgestellten Non-Local Networks haben eine ähnliche Absicht, wie die TTLs in T3D.
-Analog zu TTLs wurden Non-Local-Blöcke entwickelt, die direkte Verbindungen zwischen entfernten Pixeln ohne zusätzliche Faltung abbilden können.
-Sie transformieren die Feature-Maps eines 3D-ConvNets in jedem Pixelwert $i$ wie in \autoref{eq:non-local}:
+Analog zu TTLs wurden Non-Local-Blöcke entwickelt, die direkte Verbindungen zwischen entfernten Pixeln abbilden können -- mit dem Unterschied, dass keine zusätzliche Faltung benötigt wird.
+Sie transformieren die Feature-Maps eines 3D-CNNs in jedem Pixelwert $i$ wie in \autoref{eq:non-local}:
 
 \begin{equation}
 \label{eq:non-local}
@@ -326,27 +332,29 @@ Sie transformieren die Feature-Maps eines 3D-ConvNets in jedem Pixelwert $i$ wie
 
 Die Funktion $f_p$ ist eine paarweise Funktion, die die Ähnlichkeit zweier Pixel ausdrückt und entspricht hier der Embedded-Gaussian-Funktion.
 $g(x)$ verknüpft jedes Pixel mit der Gewichtsmatrix $W_g$, die für die jeweilige Aufgabe optimiert werden muss.
-$W_\theta$ und $W_\phi$ ergeben sich wiederum aus der punktweisen $1 \times 1 \times 1$-Faltung eines Pixels.
+$W_\theta$ und $W_\phi$ ergeben sich wiederum aus der punktweisen $(1 \times 1 \times 1)$-Faltung eines Pixels.
 
-Non-local-Blöcke können nicht-lokale Beziehungen direkt abbilden, indem die Interaktion zwischen allen Pixeln des Input-Volumes berechnet werden.
+Non-Local-Blöcke können nicht-lokale Beziehungen direkt abbilden, indem die Interaktion zwischen allen Pixeln des Input-Volumes berechnet werden (siehe \autoref{fig:non-local}).
 Das hat zur Folge, dass insbesondere schnelle Bewegungen besser eingefangen werden können als es durch reine 3D-Faltung möglich ist.
 Verglichen mit den verschieden tiefen Filtern in TTLs, müssen hier keine diskreten Grenzen (für die zeitliche Dimension der TTL-Kernel) gezogen werden.
 Die Blöcke haben vielmehr die Mächtigkeit Bewegungen jedmöglicher Dauer implizit abzubilden.
 
-Durch den Einsatz eines Non-local-Blocks bleibt zudem die Größe der Feature-Map erhalten, sodass sie sich an beliebigen Stellen eines 3D-ConvNets einfügen lassen.
+Durch den Einsatz eines Non-Local-Blocks bleibt zudem die Größe der Feature-Map erhalten, sodass sie sich an beliebigen Stellen eines 3D-CNNs einfügen lassen.
 Die Experimente, in denen Non-Local-Blöcke an verschiedenen Stellen eines I3D-Netzes (NL-I3D) getestet wurden, zeigen, dass schon wenige (\zB 5) Non-Local-Blöcke reichen um genauere Ergebnisse zu erzielen.
 
 \subsubsection*{SlowFast}
 
 Zuletzt wurde in~\cite{Feichtenhofer18} SlowFast vorgestellt -- ein Modell basierend auf einem 3D-ResNet, welches kurze und lange Bewegungen durch eine Architekturänderung separate erfasst und kombiniert.
 In SlowFast wird Bewegung durch ein Netz aus zwei Strömen erfasst.
-Die beiden Strömen sind wie folgt konzipiert:
+Die beiden Ströme sind wie folgt konzipiert:
 
 \begin{description}
-    \item[Slow pathway] (langsamer Strang) fokussiert sich auf räumliche Features, indem ein \gls{clip} mit einer niedrigen Framerate gesamplet wird.
-    Aufgrund der niedrigen Framerate können nur weniger redundante Informationen gesammelt werden.
+    \item[Slow pathway]
+    (langsamer Strang) fokussiert sich auf räumliche Features, indem ein \gls{clip} mit einer niedrigen Framerate gesamplet wird.
+    Aufgrund der niedrigen Framerate können nur wenig redundante Informationen gesammelt werden.
     Dies wird zusätzlich gehemmt, indem die Hälfte der Residual-Blöcke nur mit 2D-Faltungen operieren.
-    \item[Fast pathway] (schneller Strang) generiert räumliche Features, indem ein \gls{clip} mit einer höheren Framerate gesamplet wird und wenige Kanäle zur Verfügung stehen.
+    \item[Fast pathway]
+    (schneller Strang) generiert räumliche Features, indem ein \gls{clip} mit einer höheren Framerate gesamplet wird und wenige Kanäle zur Verfügung stehen.
     So wird ihm die Möglichkeit genommen sich räumliches zu fokussieren.
     Stattdessen muss er sich implizit auf die Dynamik zwischen den Frames fokussieren.
 \end{description}
@@ -359,7 +367,7 @@ Die beiden Strömen sind wie folgt konzipiert:
 \end{figure}
 
 An zwei Stellen im Netz werden die dynamischen Features vom schnellen Strang in den langsamen Strang fusioniert.
-Diese Verbindung wird als Lateral Connection bezeichnet und ähnelt dem Vorgehen in 3D Fusion~\cite{Feichtenhofer16}.
+Diese Verbindungen werden als Lateral Connection bezeichnet und ähneln dem Vorgehen in der 3D-Fusion~\cite{Feichtenhofer16}.
 Schließlich werden die Features beider Stränge je mit einem Avg-\pool-Layer auf eine fixe Länge gestaucht und konkateniert.
 Ein abschließendes \fc-Layer dient zur Klassifikation.
 Die Gesamtarchitektur ist in \autoref{fig:slowfast} zu sehen.
@@ -370,13 +378,11 @@ Das Verhältnis von P- und M-Zellen ist etwa 4:1.
 Genau dieses Verhältnis wurde auch in der Architektur abgebildet, indem der Slow Pathway 80 \% aller Parameter beansprucht.
 
 Durch das dynamische Avg-Pooling am Ende ist die Summe aller Parameter unabhängig von der \gls{clip}-Länge (nicht aber die Größe der Feature-Map).
-Es ist derart implementiert, dass die \conv-Features auf eine fix definierte Zielauflösung komprimiert werden, sodass theoretisch ein Training mit beliebig hoher Auflösung $S^2 \times T$ möglich ist.
+Es ist derart implementiert, dass die \conv-Features auf eine fix definierte Zielauflösung komprimiert werden, sodass theoretisch ein Training mit beliebig hoher Auflösung $T \times S^2$ möglich ist.
 
-Ein entscheidender Hyperparameter ist die Wahl von $\gls{tld:gamma-tau}$, dem temporären Stride des Slow Pathways.
-Die Wahl von $\gls{tld:gamma-tau}$ führt dazu, dass immer nur einer von $\gls{tld:gamma-tau}$ Frames gesamplet wird.
-Die Samplingrate des schnellen Strangs entspricht per Definition immer dem achtfachen des langsamen Strangs.
-
-Getestet wurden verschiedene Varianten mit $\gls{tld:gamma-tau} = 8$ und $\gls{tld:gamma-tau} = 16$, basierend auf ResNet-50 und ResNet-101, sowie unter der Hinzunahme von Non-Local-Blöcken.
+Ein entscheidender Hyperparameter ist die Wahl von $\alpha$, dem temporären Stride des Slow Pathways.
+Die Wahl von $\alpha$ führt dazu, dass immer nur einer von $\alpha$ Frames gesamplet wird.
+Getestet wurden verschiedene Varianten mit $\alpha = 8$ und $\alpha = 16$, basierend auf ResNet-50 und ResNet-101, sowie unter optionaler Hinzunahme von Non-Local-Blöcken.
 
 \subsection{Factorized Convolution}
 \label{subsec:factorized-convolution}
@@ -418,7 +424,7 @@ Weiter werden drei der in \autoref{fig:p3d} gezeigten Blocktypen eingeführt und
     \label{fig:p3d}
 \end{figure}
 
-P3D ist nicht nur deutliche schlanker als vorherige 3D-ConvNets.
+P3D ist nicht nur deutliche schlanker als vorherige 3D-CNNs.
 Durch die Einführung zusätzlicher ReLu-Aktivierungen zwischen den 2D- und 1D-\conv-Layern entsteht auch doppelt so viel Nichtlinearität als zuvor.
 Das Netz ist damit deutlich einfacher zu optimieren und kann komplexere Funktionen abbilden~\cite{Tran18}.
 
@@ -558,7 +564,7 @@ Negativ ist der Punkt, dass die Action Proposal Generation nicht zwingend auf di
 
 Zur dritten Gruppe gehört \ua SS-TAD (Single-Stream Temporal Action Detection)~\cite{Buch17}.
 Die grundlegende Idee ist, sich zu merken, wann eine Aktion anfängt und aktiv zu erkennen, wann sie aufhört.
-Dazu wird das Video in \glspl{clip} von $T=16$ Frames segmentiert, die mit einem 3D-ConvNet zu visuellen Features enkodiert werden.
+Dazu wird das Video in \glspl{clip} von $T=16$ Frames segmentiert, die mit einem 3D-CNN zu visuellen Features enkodiert werden.
 Die Scores pro Klasse werden in ein Modell, bestehend aus zwei \gls{rnn}-Modulen für Proposal Generation und Klassifizierung, gegeben.
 Die Proposals ergeben sich aus der Aktivierung eines $T$-elementigen Outputs, wobei jeder Index für die Anzahl vergangener Frames steht, die die aktuelle Aktion bereits überdauern.
 

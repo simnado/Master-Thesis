@@ -105,8 +105,8 @@ Anforderungen an ein passendes \gls{har}-Modell ist primär eine hohe Accuracy.
 Zudem muss der Modell-Code, sowie vortrainierte Gewichte öffentlich-zugänglich sein und die Architektur sollte eine schnelle Inferenz ermöglichen, da das Modell zur zeitlichen Action Detection mehrmals für jede Aktion angewandt werden muss.
 Der letzte Punkt schließt Modelle, die auf die Berechnung von Optischen Fluss angewiesen sind, kategorisch aus.
 Die Performance betreffend liefern die Modelle SlowFast, X3D, ir-CSN, NL-I3D, Hidden-Two-Stream und R2+1D die besten Ergebnisse.
-Aus der Gruppe der 3D-ConvNets wird auf NL-I3D verzichtet, da es unter den Ergebnissen von SlowFast bleibt, welches ebenfalls mit Non-Local-Blöcken kombiniert werden kann.
-Zudem wird ein vollwertiges 3D-ConvNet wie I3D als zu groß erachtet, als dass die passende Hardware für das Training bereitgestellt werden kann.
+Aus der Gruppe der 3D-CNNs wird auf NL-I3D verzichtet, da es unter den Ergebnissen von SlowFast bleibt, welches ebenfalls mit Non-Local-Blöcken kombiniert werden kann.
+Zudem wird ein vollwertiges 3D-CNN wie I3D als zu groß erachtet, als dass die passende Hardware für das Training bereitgestellt werden kann.
 Außerdem wird das Hidden Two Stream Modell ausgeschlossen, da es zum einen vergleichsweise schwache Ergebnisse liefert und zum anderen das einzige Modell in dieser Liste ist, welches nur eine in C++ geschriebene Implementierung mit dem Deep-Learning-Framework Caffe~\cite{Jia14} bereitstellt.
 Alle weiteren Modelle sind in dem Python-Framework PyTorch~\cite{Paszke19} verfügbar und eine gesonderte Test- und Entwicklungsumgebung würde zu zusätzlichem Implementationsaufwand führen, der in diesem Fall als nicht gerechtfertigt angesehen wird.
 Aus der Gruppe der Group-Convolution-Modelle wird ir-CSN gewählt, da es eine höhere Accuracy aufweist als X3D.
