@@ -2,56 +2,56 @@
 \label{ch:sota}
 
 Dieses Kapitel widmet sich dem aktuellen Forschungsstand im Bereich \gls{har}.
-Der Hauptforschungsstrang im Bereich \gls{har} beschäftigt sich mit Modellen, die anhand von Datensets optimiert werden, die ein breites Spektrum an Anwendungsdomänen abdecken, als Sportarten, wie Fußball.
+Der Hauptforschungsstrang in diesem Bereich beschäftigt sich mit Modellen, die anhand von generischen Datensets optimiert werden, die ein breiteres Spektrum an Anwendungsdomänen abdecken, als Sportarten, wie Fußball.
 So soll sichergestellt werden, dass die Modelle besonders gut abstrahieren und sich in speziellen Domänen (hier Fußball) leicht nachtrainieren lassen (\gls{transfer-learning})~\cite{Burkov19}.
 Daher werden im Folgenden Modelle mit allgemeingültiger Anwendbarkeit rekapituliert, die in einem späteren Schritt mit Daten aus der Fußballdomäne weiter abgestimmt werden.
-
 \gls{har} gilt als der Kernproblem aufbauenden Probleme von Action Detection bis Video Understanding~\cite{Jiang19,Xia20}.
-Auf diverse Möglichkeiten die \gls{har} in eine zeitliche Action Detection zu integrieren, sowie auf bereits verfügbare Datensets wird gegen Ende des Kapitels eingegangen.
+Auf diverse Möglichkeiten ungeschnittenen Videos zu verarbeiten oder die \gls{har} in eine zeitliche Action Detection zu integrieren wird gegen Ende des Kapitels eingegangen.
 
 \section{Deep-Learning-Modelle zur Action Recognition}
 \label{sec:deep-learning-modelle-zur-action-recognition}
 
 Der Schlüssel zu einer guten \gls{har} ist die Erlernbarkeit von Bewegung (Motion).
 Bewegung setzt sich zum einen aus der Erscheinung (appearance) von Objekten innerhalb stiller Frames und zum anderen aus der Dynamik (dynamics) entlang mehrere Frames zusammen~\cite{Sun15,Wang16}.
+
 Die im Nachgang vorgestellten Kategorien haben unterschiedliche Ansätze diese beiden Faktoren zu erlernen und zu kombinieren.
-
-Ein naiver Ansatz wäre es, alle Frames eines Videos einzeln mit einem \gls{cnn} zu klassifizieren und den Durchschnitt über alle Frames zu bilden.
-Bei diesem Vorgehen wird jedoch keinerlei Dynamik im Video eingefangen~\cite{Karpathy14}.
-
-In~\cite{Karpathy14} wurden erstmalig verschiedene Methoden verglichen, auch Dynamik in Videos einzufangen.
+In~\cite{Karpathy14} wurden erstmalig verschiedene Methoden verglichen, Bewegung in Videos einzufangen.
 Dabei wurden die in \autoref{fig:fusion-types} gezeigten Ansätze Late-, Early und Slow-Fusion vorgestellt.
-Allen drei liegt dasselbe 2D-CNN-Backbone zugrunde, welches einer abgewandelten Form von AlexNet mit höherer Auflösung entspricht.
+Allen drei liegt dasselbe 2D-CNN-Backbone zugrunde, welches einer abgewandelten Form von AlexNet entspricht.
 
 \begin{figure}[h!]
     \centering
     \bigimage{img/03_Karpathy14}{0.8\textwidth}
-    \caption{Fusion-Modelle für 2D-Features (Quelle:~\cite{Karpathy14})}
+    \caption{Fusion-Modelle für Frame-Features (Quelle:~\cite{Karpathy14})}
     \label{fig:fusion-types}
 \end{figure}
 
-Im Folgenden wird zunächst auf Early- und Slow-Fusion (als spezielle Form der Early-Fusion) eingegangen, und wie sie durch die Hinzunahme weiterer Inputkanäle umgesetzt wurde.
-Auf die ebenfalls in~\cite{Karpathy14} vorgestellte Late Fusion wird in \autoref{subsec:late-fusion} eingegangen.
+In Late-Fusion-Modellen werden zunächst Features pro Frame erzeugt, wie es in einem 2D-\gls{cnn} der Fall ist und die fertigen Frame-Features werden erst in den allerhintersten Layern verknüpft.
+Bei Slow-Fusion-Modellen fließen die Informationen aller Frames hingegen schon im ersten Layer ein.
+Ein Kompromiss beider Anätze stellt die Slow Fusion dar, in der Features für je eine Untermenge der Frames verarbeitet und diese hierarchisch verknüpft werden.
+Die drei Kategorien werden im weiteren Verlauf als Oberkategorien immer wieder aufgegriffen, während deren konkrete Umsetzung in~\cite{Karpathy14} unter dem Projektnamen DeepVideo referenziert wird.
 
-\begin{figure}[htbp!]
-    \centering
-    \bigimage{fig/methods}{0.9\textwidth}
-    \caption{Lösungsansätze für das \gls{har}-Problem (Quelle: Eigene Darstellung)}
-    \label{fig:methods}
-\end{figure}
+%\autoref{fig:methods} zeigt einen Auszug konkreter Modelle, die unter diese drei Kategorien fallen und im weiteren Verlauf geneuer vorgestellt werden.
 
-\subsection{Early Fusion durch Konkatenation der Kanäle}
+%\begin{figure}[htbp!]
+%    \centering
+%    \bigimage{fig/methods}{0.9\textwidth}
+%    \caption{Lösungsansätze für das \gls{har}-Problem (Quelle: Eigene Darstellung)}
+%    \label{fig:methods}
+%\end{figure}
+
+\subsection{Early Fusion}
 \label{subsec:early-fusion}
 
-Im Early-Fusion-Verfahren aus~\cite{Karpathy14} werden die drei Input-Kanäle (\gls{rgb}) aller Frames konkateniert und gleichwertig in das CNN-Backbone gegeben.
+Im Early-Fusion-Verfahren aus DeepVideo~\cite{Karpathy14} werden die drei Input-Kanäle (\gls{rgb}) aller Frames konkateniert und gleichwertig in das CNN-Backbone gegeben.
 Erscheinung und Dynamik werden also parallel und von Anfang an erfasst.
 Allerdings kann das Netz nicht unterscheiden, welche Kanäle zu welchem Frame gehören.
 Somit herrscht keine Ordnung unter den Frames, \dh die Reihenfolge geht verloren.
 Es kann keine echte Bewegung erkannt werden, sondern nur ein durchschnittliches Erscheinungsbild.
 Das Öffnen einer Tür könnte \zB nicht von dem Schließen einer Tür unterschieden werden.
-Ein weiterer Nachteil ist, dass sich mit dieser Methode nur ein wenige Frames zeitgleich verarbeiten lassen.
+Ein weiterer Nachteil ist, dass sich mit dieser Methode nur wenige Frames zeitgleich verarbeiten lassen.
 
-Im Slow-Fusion-Verfahren, das eine hierarchische Form der Early Fusion darstellt, werden zunächst einzelne Frames in überlappende Intervalle gegliedert.
+Im Slow-Fusion-Verfahren von DeepVideo~\cite{Karpathy14}, das eine hierarchische Form der Early Fusion darstellt, werden zunächst einzelne Frames in überlappende Intervalle gegliedert.
 Diese werden dann, wie bei Early Fusion, als gleichwertige Kanäle verarbeitet.
 Nach wenigen Schichten werden die Low-Level-Features erneut fusioniert.
 Dennoch verliert das Modell die zeitlichen Informationen schließlich nach der letzten Fusion wieder~\cite{Tran15}.
@@ -68,23 +68,15 @@ Das sogenannte Two Stream Network aus~\cite{Simonyan14} (siehe \autoref{fig:two-
 Im ersten Stream (Spatial Stream) wird ein einzelner Frame als normales Farbbild in ein CNN-backbone gegeben.
 Der zweite Stream (Temporal Stream) nimmt mehrere Bewegungsbilder pro \gls{clip}.
 Dazu wird für alle Frames des \glspl{clip} vorab die Differenz als Optischer Fluss gespeichert.
-Diese Bilder (je zwei pro Ausrichtung) werden als gleichwertige Kanäle in ein zweites Stream gegeben.
-
-\begin{figure}[h!]
-    \centering
-    \bigimage{img/03_Simonyan14}{0.8\textwidth}
-    \caption{Two Stream Network (Quelle:~\cite{Simonyan14})}
-    \label{fig:two-stream}
-\end{figure}
-
-Damit zählt es ebenso zu den Early Fusion Modellen und leidet ebenfalls daran, das keine Reihenfolgen abgebildet werden kann.
-Dennoch erzielt es bessere Ergebnisse, da durch die Hinzunahme von Optischem Fluss externe Dynamik-Features hinzukommen.
-
+Diese Bilder (je zwei pro Ausrichtung) werden als gleichwertige Kanäle in einen zweiten Stream gegeben.
 Am Ende werden die Features aus beiden Streams mit einer \gls{svm} fusioniert.
+
+Da die Frames auch hier als gleichwerige Kanäle behandelt werden, zählt es ebenso zu den Early-Fusion-Modellen und leidet daran, das keine Reihenfolgen abgebildet werden kann.
+Dennoch erzielt es bessere Ergebnisse, da durch die Hinzunahme von Optischem Fluss externe Dynamik-Features hinzukommen.
 
 Der wesentliche Unterschied zur Early Fusion in~\cite{Karpathy14} ist die getrennte Verarbeitung von Erscheinung und Dynamik in jeweils getrennten Netzen.
 Motiviert ist diese Entscheidung durch die Two-Stream-Hypothese aus~\cite{Goodale92}, die besagt, dass der visuelle Kortex des menschlichen Gehirns Bewegung ebenfalls in zwei Strömen erfasst:
-dem dorsalen Strom für die Erfassung von Bewegung und dem ventralen Strom für die Erkennung von Objekten.
+dem dorsalen Strom für die Erfassung von Dynamik und dem ventralen Strom für die Erkennung von Objekten.
 
 Trotz langanhaltender Popularität ist der Einsatz von Optischem Fluss in Zusammenspiel mit Deep-Learning problematisch~\cite{Zhu17}:
 Zum einen müssen die Differenz-Bilder vorab berechnet werden.
@@ -92,7 +84,23 @@ Das führt zu zusätzlichem Zeit- und Speicheraufwand, der mit der Anzahl von Fr
 Eine Echtzeit-Inferenz längerer \glspl{clip} ist mit gewöhnlicher Server-Hardware schon nicht möglich.
 Des Weiteren sind die Modelle nicht Ende-zu-Ende trainierbar.
 Die Inferenz besteht aus zwei getrennten Schritten: der Berechnung von Optischem Fluss und dem Training der Netze.
-Der Optische Fluss selbst kann als Zwischenergebnis nicht mit-optimiert werden und ist damit nicht unbedingt auf die High-Level-Aufgabe zugeschnitten.
+Der Optische Fluss selbst kann als Zwischenergebnis nicht mit-optimiert werden und ist damit nicht unbedingt auf die High-Level-Aufgabe zugeschnitten \cite{Zhu17}.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{.5\textwidth}
+        \centering
+        \includegraphics[width=.95\linewidth]{img/03_Simonyan14}
+        \caption{Two Stream Network (Quelle:~\cite{Simonyan14})}
+        \label{fig:two-stream}
+    \end{subfigure}%
+    \begin{subfigure}[b]{.5\textwidth}
+        \centering
+        \bigimage{img/03_Zhu17}{0.95\textwidth}
+        \caption{Hidden Two Stream Network (Quelle:~\cite{Zhu17})}
+        \label{fig:hidden-two-stream}
+    \end{subfigure}
+\end{figure}
 
 \subsubsection{Hidden Two Stream Network}
 
@@ -101,38 +109,31 @@ Die genannten Probleme mit Optischem Fluss konnten schließlich mit dem Hidden T
 In der Arbeit wurde ein drittes zusätzliches Netz namens MotionNet trainiert, das aus zwei aufeinander folgenden Frames den resultierenden Optischen Fluss selbst generiert.
 Das MotionNet wird dem Temporal Stream einfach vorgeschaltet (siehe \autoref{fig:hidden-two-stream}), sodass der Optische Fluss durch die Inferenz des MotionNets direkt errechnet wird und kein aufwendiges Pre-Processing notwendig ist.
 
-\begin{figure}[h!]
-    \centering
-    \bigimage{img/03_Zhu17}{0.8\textwidth}
-    \caption{Hidden Two Stream Network (Quelle:~\cite{Zhu17})}
-    \label{fig:hidden-two-stream}
-\end{figure}
-
-Das Ergebnis ist eine bis zu 10x schnellere Verarbeitung bei fast gleichbleibender Genauigkeit.
+Das Ergebnis ist eine bis zu zehnmal schnellere Verarbeitung bei fast gleichbleibender Genauigkeit.
 Zudem kann die Erzeugung des Optischen Flusses während des Trainings an die spezielle Aufgabendomäne angepasst und optimiert werden.
 
-\subsection{Feature-Aggregation und Late Fusion}
+\subsection{Late Fusion}
 \label{subsec:late-fusion}
 
 In Late-Fusion-Modellen werden die Frames eines \glspl{clip} zunächst nur einzeln in einem 2D-CNN-Backbone zu Frame-Features verarbeitet.
-Dies entspricht im ersten Schritt einer Feature-Extraktion, die nur Erscheinungen abdeckt.
+Dies entspricht im ersten Schritt einer Feature-Extraktion, die nur Erscheinungs-Features generiert.
 Erst in einem zweiten Schritt wird die Dynamik anhand der Frame-Features erfasst und aggregiert.
 Ein entscheidender Nachteil dieser Ansätze ist, dass in den vorderen Layern sehr viele redundante Informationen erhoben werden.
 Ein weiterer Nachteil besteht darin, dass dynamische Features im Verhältnis deutlich unterrepräsentiert sind~\cite{Karpathy14}.
 Die Feature-Aggregation erfolgt über Konkatenieren, Pooling oder den Einsatz eines \glspl{rnn}.
 
-Die Aggregation in~\cite{Karpathy14} wird durch Konkatenation gelöst.
+Die Aggregation in DeepVideo~\cite{Karpathy14} wird durch Konkatenation der Frame-Features gelöst.
 Aus den Frames eines \glspl{clip} werden jeweils einzelne Features generiert.
 Diese werden alle zu einem langen Vektor konkateniert und abschließend in einem \fc-Layer klassifiziert.
 So wird Dynamik durch die Differenz der jeweiligen Frame-Features abgebildet.
 
-\subsubsection{Feature-Aggregation durch Pooling}
+\subsubsection{Conv Pooling}
 
 Eine weitere Option Frame-Features zu aggregieren ist durch Pooling.
-Dabei werden 2D-Frame-Features zu einem 3D-Volume gestapelt und mit einem oder mehreren \pool- und einem \fc-Layer klassifiziert.
+Dabei werden die Frame-Features vor dem ersten \fc-Layer zu einem 3D-Volume gestapelt und mit einem oder mehreren \pool- und einem \fc-Layer klassifiziert.
 
 In~\cite{Ng15} wurden verschiedene Varianten zur Erfassung von Bewegung getestet.
-In der Architektur werden die Frame-Features (generiert durch InceptionV1-Backbone) mit einem Max-Pooling-, zwei \fc- und einem Softmax-Layer weiterverarbeitet.
+Die Frame-Features (generiert durch InceptionV1-Backbone) wurden mit einem Max-Pooling-, zwei \fc- und einem Softmax-Layer weiterverarbeitet.
 Das Pooling beschränkt sich auf die zeitliche Dimension (Temporal Pooling), sodass die räumliche Dimension komplett erhalten bleibt.
 In der zeitlichen Dimension spielt die Reihenfolge allerdings immer noch keine Rolle, da jeweils nur nach Maxima gepoolt wird~\cite{Carreira17}.
 Die Klassifikation findet letztlich auf Basis hervorstechender Regionen innerhalb der Frame-Features statt.
@@ -148,17 +149,11 @@ Ein technischer Vorteil dieser Architektur ist allerdings, dass sie mit beliebig
 Das macht das Modell vergleichsweise leichtgewichtig, denn die Zahl der Parameter ist unabhängig von der Zahl der Frames.
 Da die Feature-Extraktion viele redundante Informationen für konsekutive Frames berechnet, reicht in diesem Verfahren auch eine niedrigere Subsamplingrate von 6 \gls{fps}.
 
+\subsubsection{Two-Stream-Fusion}
 
 Um den Fortschritt des seinerzeit populären Two-Stream-Modells mit Conv Pooling zu verbinden, stellte~\cite{Feichtenhofer16} 2016 die sogenannte Two Stream Fusion vor.
 Das Verfahren unterscheidet sich wesentlich dadurch, dass die Ströme nicht nur am Ende, sondern schon in früheren Layern fusioniert werden.
 Im Vergleich zum Conv Pooling wird jedoch kein Temporal Pooling genutzt, sondern ein 3D-Pooling (siehe \autoref{fig:two-stream-fusion}), das sowohl die zeitliche als auch die räumliche Dimension des Frame-Feature-Volumes reduziert.
-
-\begin{figure}[h!]
-    \centering
-    \bigimage{img/03_Feichtenhofer16}{\textwidth}
-    \caption{Architektur: TwoStream Fusion}
-    \label{fig:two-stream-fusion}
-\end{figure}
 
 Die zwei Ströme aus dem Vorgängermodell (spatial-, temporal stream) werden transformiert zu zwei neuen Strömen:
 Zunächst findet nach dem fünften \conv-Layer eine Fusion statt.
@@ -174,27 +169,37 @@ Ein Nachteil dieser Architektur ist wiederum, dass Bewegung auf zweierlei Mittel
 Durch den Einsatz von Optischem Fluss in mehreren Kanälen und durch die neuartigen Fusion-Layer.
 Das Lernen redundanter Informationen kann die Performance so letztlich ausbremsen.
 
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{.5\textwidth}
+        \centering
+        \bigimage{img/03_Feichtenhofer16}{0.95\textwidth}
+        \caption{Architektur: TwoStream Fusion (Quelle:~\cite{Feichtenhofer16})}
+        \label{fig:two-stream-fusion}
+    \end{subfigure}%
+    \begin{subfigure}[b]{.5\textwidth}
+        \centering
+        \bigimage{img/03_Girdhar17}{0.95\textwidth}
+        \caption{Architektur: ActionVLAD (Quelle:~\cite{Girdhar17})}
+        \label{fig:avlad}
+    \end{subfigure}
+\end{figure}
+
+\subsubsection{Action VLAD}
+
 Ein weiterer Ansatz ist die Klassifikation basierend auf einem Feature-Extraktor wie in~\cite{Girdhar17}.
 Das Modell ActionVLAD gilt als eine Erweiterung des Conv Pooling, wobei Features nicht aus dünn gesampleten Frames, sondern aus allen Frames des \glspl{clip} extrahiert werden.
 Die Aggregation findet ebenfalls nach dem letzten \conv-Layer eines VGG-16-Backbones statt.
 
-Statt eines Max-Pooling-Layers wird allerdings ein \emph{Bag of visual words}-Verfahren eingesetzt (siehe \autoref{fig:avlad}).
+Statt eines Max-Pooling-Layers wird allerdings ein \gls{bovw}-Verfahren ~\cite{Zisserman03} eingesetzt (siehe \autoref{fig:avlad}).
 Die aggregierten Features werden auf ein Vokabular von Action Words (in 64 Cluster) projiziert.
 Diese Cluster repräsentieren die typischen (Sub-)Aktionen aus denen sich die eigentlichen Klassen herausbilden~\cite{Ghosh18}.
 Jeder Frame wird schließlich auf ein Cluster projiziert, sodass sich für den gesamten \gls{clip} ein Feature-Vektor mit je der Anzahl an Treffern pro Cluster ergibt.
 Dieser Feature-Vektor wird mithilfe eines weiteren Klassifizierers dann auf die finale Klasse projiziert.
 Alle Parameters, darunter die Action Words, sowie die Feature-Extractors werden während des Trainings des eigentlichen Klassifizierers mitgelernt.
 
-\begin{figure}[h!]
-    \centering
-    \bigimage{img/03_Girdhar17}{0.9\textwidth}
-    \caption{Architektur: ActionVLAD (Quelle:~\cite{Girdhar17})}
-    \label{fig:avlad}
-\end{figure}
-
 Zusätzlich gibt es auch eine Version, die ActionVLAD in die Two Stream Architektur integriert.
 Die Features werden hier jedoch wieder separat pro Strom berechnet und erst am Ende kombiniert, in dem der Durchschnitt beider Vektoren genommen wird.
-
 
 \subsubsection{Feature-Aggregation mit RNNs}
 
@@ -203,40 +208,36 @@ Die Folge einzelner Frame-Features kann somit als Zeitreihe angesehen werden, di
 
 In~\cite{Donahue14} wurde erstmalig das Long-term Recurrent Convolutional Networks (LRCN) vorgestellt.
 Dort werden je Frame visuelle Features mit einem auf AlexNet basierenden Backbone extrahiert.
-Die Features werden dann nach und nach in einem LSTM-Layer geleitet (siehe \autoref{fig:lrcn}).
+Die Frame-Features werden dann nach und nach in ein LSTM-Layer geleitet (siehe \autoref{fig:lrcn}).
+Die Klassifizierung eines \glspl{clip} setzt sich schließlich aus dem Durchschnitt aller Outputs $y_{t_i}$ zusammen.
 
 \begin{figure}[h!]
     \centering
-    \bigimage{img/03_Donahue14}{0.5\textwidth}
+    \bigimage{img/03_Donahue14}{0.4\textwidth}
     \caption{Architektur: LRCN (Quelle:~\cite{Donahue14})}
     \label{fig:lrcn}
 \end{figure}
 
-Die Klassifizierung eines \glspl{clip} setzt sich schließlich aus dem Durchschnitt aller Outputs $y_{t_i}$ zusammen.
-
 Herausfordernd ist hierbei, dass die visuellen Frame-Features genug relevante Informationen für das abschließende LSTM-Layer behalten.
 Das Modell wurde jeweils mit RGB-Bildern und Optischem Fluss getestet, wobei die Variante mit Optischem Fluss wesentlich bessere Ergebnisse erzielt.
-Dies ist \ua ein deutlicher Hinweis darauf, dass die Bewegung in den ursprünglichen Bildern erst zu spät erfasst wird.
+Dies ist \ua ein Hinweis darauf, dass die Bewegung in den ursprünglichen Bildern erst zu spät erfasst wird.
 Das Modell hat ebenfalls eine variable Input-Länge, ist aber deutlich schwerer zu trainieren, da die Backpropagation über alle Frames geschieht und so sehr anfällig für Overfitting ist.
 
 In~\cite{Ng15} wurde neben dem bereits erwähnten Conv Pooling auch ein Modell vorgestellt, das Frame-Features mit einem mehrschichtiges LSTM aggregiert.
-Im Gegensatz zum LRCN werden fünf LSTM-Schichten mit je 512 Memory-Zellen statt nur einer Schicht gewählt.
+Im Gegensatz zum LRCN werden fünf LSTM-Schichten mit je 512 Memory-Zellen statt nur einer Schicht gewählt und das 2D-CNN-Backbone entspricht InceptionV1.
 Auch im Training gibt es einen gravierenden Unterschied:
 während bei LRCN ein Backpropagation-Schritt pro \gls{clip} (mit $T = 16$ Frames) gemacht wird, wird er in diesem Modell pro Frame (bei $T = 30$) gemacht.
-Als CNN-Backbone wird auch hier auf InceptionV1 gesetzt.
 
 \subsection{3D-Convolution}
 \label{subsec:3d-conv}
 
 Die nächste große Generation der \gls{har}-Modelle war die erstmalig in~\cite{Ji13} vorgestellte 3D-Faltung (3D-Convolution).
-
 Die 3D-Faltung funktioniert analog zur 2D-Faltung aus \autoref{sec:cnn}:
-Statt eines $(C \times S_x \times S_y)$-Inputs, erhält das Netz einen $(C \times T \times S_x \times S_y)$-Input.
-Alle \conv-Layer haben nun dreidimensionale Kernel und auch \pool-Layer operieren in der Regel dreidimensional.
+Statt eines $(C \times S_x \times S_y)$-Inputs, erhält das Netz einen $(C \times T \times S^2)$-Input.
+Alle \conv- und \pool-Layer haben nun dreidimensionale Kernel und erzeugen vierdimensionale Feature-Maps.
 
-3D-Faltung ist ein Slow-Fusion-Ansatz, da alle Dimensionen im gleichen Tempo hierarchisiert werden.
-Im Gegensatz zu den vorherigen Slow- und Early-Fusion werden zeitliche Informationen aber nicht mehr gemittelt.
-Die Reihenfolge bleibt also erhalten.
+Im Gegensatz zu vorherigen Early-Fusion-Modellen werden zeitliche Informationen nicht gemittelt.
+Die zeitliche Ordnung der Frames bleibt also erhalten.
 Außerdem werden sie, anders als bei Late Fusion, stets im gleichen Tempo erhoben und kombiniert.
 3D-CNNs haben allerdings auch wesentlich mehr Parameter und \gls{flops} als alle zuvor vorgestellten Modelle~\cite{Zhu19}~\cite{Carreira17}.
 

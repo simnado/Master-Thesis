@@ -2,15 +2,15 @@
 
 * HAR
 
-** Deep-Learning
-*** Early Fusion
-*** Late Fusion
-**** 2D-CNN + LSTM
-**** 2D-CNN + Pooling
+** Early Fusion
+*** Two-Stream-Modell
+** Late Fusion
+*** Conv Pooling
+*** 2D-CNN + LSTM
+** Slow Fusion
 *** 3D-Convolution
-*** Factorized 3D-Convolution
-**** Factorized Architecture
-**** 2D followed by 1D Convolution
-**** Channel-separated Convolution
+*** Faktorisierte 3D-Convolution
+**** 2+1D-Convolution
+**** Separierbare Convolution
 
 @endmindmap
