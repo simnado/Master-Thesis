@@ -223,10 +223,10 @@ In diesen Schichten werden die Informationen in den Feature-Maps weiter komprimi
 Einfache Operatoren, wie der Durchschnitt (Average Pooling) oder das Maximum (Max Pooling) werden auf Teilbereiche der Bilder angewandt.
 Dabei werden die Kanäle einzeln verarbeitet und nur die räumliche Dimension wird komprimiert.
 
-Yann Lecun stellte 1998 die Grundlagen mit LeNet-5~\cite{Lecun98} vor -- einem \gls{cnn} bestehend aus zwei \conv- und drei \fc-Layern, das Bilder mit $S^2=32 \times 32$ Pixeln klassifizieren kann.
+Yann Lecun stellte 1998 die Grundlagen mit LeNet-5~\cite{Lecun98} vor -- einem \gls{cnn} bestehend aus zwei \conv- und drei \fc-Layern, das quadratische Bilder mit einer Auflösung von $S=32$ Pixeln klassifizieren kann.
 2012 wurde der Ansatz mit AlexNet~\cite{Krizhevsky12} überholt.
 AlexNet ist geprägt durch eine tiefere Architektur von 8 Layern, die erstmalige Verwendung der \gls{relu}-Aktivierungsfunktion~\cite{jarrett09} und dem Einsatz von Max- statt Avg-Pooling.
-Bilder können hier in einer Auflösung von $S^2=224 \times 224$ verarbeitet werden.
+Bilder können hier in einer Auflösung von $S=224$ verarbeitet werden.
 Eine effizientere Weiterentwicklung dessen war VGG-16~\cite{Simonyan15} mit 16 Layern.
 Die großen Kernel der vorderen Layer wurden durch die Abfolge mehrerer kleinerer $(3 \times 3)$-Kernel ersetzt, sodass das rezeptive Feld dennoch gleich bleibt.
 

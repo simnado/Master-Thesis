@@ -228,12 +228,12 @@ Im Gegensatz zum LRCN werden fünf LSTM-Schichten mit je 512 Memory-Zellen statt
 Auch im Training gibt es einen gravierenden Unterschied:
 während bei LRCN ein Backpropagation-Schritt pro \gls{clip} (mit $T = 16$ Frames) gemacht wird, wird er in diesem Modell pro Frame (bei $T = 30$) gemacht.
 
-\subsection{3D-Convolution}
+\subsection{3D-CNNs}
 \label{subsec:3d-conv}
 
 Die nächste große Generation der \gls{har}-Modelle war die erstmalig in~\cite{Ji13} vorgestellte 3D-Faltung (3D-Convolution).
 Die 3D-Faltung funktioniert analog zur 2D-Faltung aus \autoref{sec:cnn}:
-Statt eines $(C \times S^2)$-Inputs, erhält das Netz einen $(C \times T \times S^2)$-Input.
+Statt eines $(C \times S \times S)$-Inputs, erhält das Netz einen $(C \times T \times S \times S)$-Input.
 Alle \conv- und \pool-Layer haben nun dreidimensionale Kernel und erzeugen vierdimensionale Feature-Maps.
 
 Im Gegensatz zu vorherigen Early-Fusion-Modellen werden zeitliche Informationen nicht gemittelt.
@@ -256,7 +256,7 @@ So muss für längere \glspl{clip} stets der Durchschnitt einzelner Chunks erfas
 
 \begin{figure}[h!]
     \centering
-    \bigimage{img/03_Varol16}{0.9\textwidth}
+    \bigimage{img/03_Varol16}{0.75\textwidth}
     \caption{Architektur: LTC (Quelle:~\cite{Varol18})}
     \label{fig:ltc}
 \end{figure}
@@ -378,25 +378,26 @@ Das Verhältnis von P- und M-Zellen ist etwa 4:1.
 Genau dieses Verhältnis wurde auch in der Architektur abgebildet, indem der Slow Pathway 80 \% aller Parameter beansprucht.
 
 Durch das dynamische Avg-Pooling am Ende ist die Summe aller Parameter unabhängig von der \gls{clip}-Länge (nicht aber die Größe der Feature-Map).
-Es ist derart implementiert, dass die \conv-Features auf eine fix definierte Zielauflösung komprimiert werden, sodass theoretisch ein Training mit beliebig hoher Auflösung $T \times S^2$ möglich ist.
+Es ist derart implementiert, dass die \conv-Features auf eine fix definierte Zielauflösung komprimiert werden, sodass theoretisch ein Training mit beliebig hoher Auflösung $T \times S \times S$ möglich ist.
 
-Ein entscheidender Hyperparameter ist die Wahl von $\alpha$, dem temporären Stride des Slow Pathways.
-Die Wahl von $\alpha$ führt dazu, dass immer nur einer von $\alpha$ Frames gesamplet wird.
-Getestet wurden verschiedene Varianten mit $\alpha = 8$ und $\alpha = 16$, basierend auf ResNet-50 und ResNet-101, sowie unter optionaler Hinzunahme von Non-Local-Blöcken.
+Ein entscheidender Hyperparameter ist die Wahl von $\alpha$, der das Verhältnis der Frameraten in Slow- und Fast-Pathway angibt.
+\Dh der Fast Pathway erhält $\alpha$-mal so viele Frames als Input, wie der Slow Pathway.
+Das Verhältnis verfügbarer Kanäle pro Pathway ist hingegen immer konstant bei $8:1$.
+Getestet wurden verschiedene Varianten mit $\alpha = 8$ und $\alpha = 4$, basierend auf ResNet-50 und ResNet-101, sowie unter optionaler Hinzunahme von Non-Local-Blöcken.
 
-\subsection{Factorized Convolution}
+\subsection{Faktorisierte 3D-CNNs}
 \label{subsec:factorized-convolution}
 
 Spätestens mit der Veröffentlichung von I3D galt 3D-Faltung als der neue State of the art.
 Aufgrund der Vielzahl an Parametern waren diese Modelle allerdings noch immer für viele Bereiche zu groß und zu schwer zu trainieren.
-Infolgedessen wurden viele Ansätze publiziert, die versuchten die Idee von dreidimensionaler Faltung zu approximieren und dabei annähernd gute Ergebnisse mit weniger Parametern und Rechenoperationen zu ermöglichen.
-Man spricht in diesem Zusammenhang von einer Faktorisierung der gewöhnlichen 3D-Faltung, die durch Architekturänderungen, die Einführung neuartiger Block-Typen oder durch die Anwendung von Group Convolution erfolgt.
+Infolgedessen wurden viele Ansätze publiziert, die versuchen die Idee von dreidimensionaler Faltung zu approximieren und dabei annähernd gute Ergebnisse mit weniger Parametern und Rechenoperationen zu ermöglichen.
+Man spricht in diesem Zusammenhang von einer Faktorisierung der gewöhnlichen 3D-Faltung, die durch Architekturänderungen, die Einführung neuartiger Block-Typen oder durch die Anwendung separierbarer Faltung erfolgt.
 
 \subsubsection{Faktorisierte Architektur}
 
 In~\cite{Sun15} wird mit FstCN (Factorized spatio-temporal convolutional network) versucht 3D-Faltung in räumliche 2D-Faltung gefolgt von einer 2D-Faltung über die Zeit- und Kanaldimension, zu ersetzen.
-Die Frames werden zunächst einzeln verarbeitet, sodass man ${T}$ 3D-Feature-Maps $(C \times S_x \times S_y)$ erhält.
-Nach der normalen 2D-Faltung wird ein 4D-Tensor $(T \times C \times S_x \times S_y)$ aus allen Feature-Maps generiert und so transformiert, dass eine Feature-Map $(S_x * S_y \times T \times C)$ entsteht.
+Die Frames werden zunächst einzeln verarbeitet, sodass man ${T}$ 3D-Feature-Maps $(C \times S \times S)$ erhält.
+Nach der normalen 2D-Faltung wird ein 4D-Tensor $(T \times C \times S \times S)$ aus allen Feature-Maps generiert und so transformiert, dass eine Feature-Map $(S^2 \times T \times C)$ entsteht.
 Es entsteht also ein Volume, welches in seinem Querschnitt ein Bild pro Pixel enthält.
 Die Pixelwerte ergeben sich aus dem jeweiligen Kanal der Feature-Map und dem Frame-Index.
 Diese Bilder werden nun analog mit 2D-Faltung weiter verarbeitet.
@@ -406,14 +407,13 @@ Dieser Teil findet allerdings erst in den hinteren Layern des Netzes statt, womi
 Die Architektur hat zudem den Nachteil, dass Bewegungen nur über den gesamten Zeitkontext des \glspl{clip} erfasst werden können.
 Kurze Bewegung oder Kombinationen von kurzen Bewegungen sind somit schwieriger abzubilden.
 
-\subsubsection{Faktorisierte \conv-Blöcke}
+\subsubsection{(2+1)D-Faltung}
 
+Statt 3D-Faltung einmalig durch eine globale Architekturänderung zu faktorisieren, wurden in späteren Publikationen Ansätze entwickelt, die die 3D-Faltung in mehrere Zwischenoperationen faktorisieren und diese als neuen Blocktyp an zahlreichen Stellen in der Gesamtarchitektur einbinden.
 
-Statt 3D-Faltung, wie bei FstCN, einmalig durch eine globale Architekturänderung zu faktorisieren, wurden in späteren Publikationen Ansätze entwickelt, die eine blockweise Faktorisierung an zahlreichen Stellen der Gesamtarchitektur einbinden.
-
-Das erste relevante Modell dieser Kategorie ist P3D (Pseudo-3D Residual Net)~\cite{Qiu17}, deren Grundlage ein 3D-ResNet-Backbone ist.
+Das erste relevante Modell dieser Kategorie ist P3D~\cite{Qiu17}, deren Grundlage ein 3D-ResNet-Backbone ist.
 In dem Netz wird jeder einzelne \res-Block faktorisiert, indem die bestehenden 3D-Kernel $(T \times S_x \times S_y)$ durch die Abfolge eines räumlichen $(1 \times S_x \times S_y)$- und eines zeitlichen $(T \times 1 \times 1)$-Kernels ersetzt wird.
-Das Netz erfasst somit iterativ mit Wechsel erst räumliche und dann zeitliche Features.
+Das Netz erfasst somit iterativ im Wechsel erst räumliche und dann zeitliche Features.
 
 Weiter werden drei der in \autoref{fig:p3d} gezeigten Blocktypen eingeführt und jeder bestehende \res-Block wird durch die Abfolge aller drei Blocktypen hintereinander ersetzt.
 
@@ -433,27 +433,26 @@ Auch hier werden die \res-Blöcke jeweils durch 2D- gefolgt von 1D-\conv-Layern 
 Im Vordergrund steht hierbei allerdings die direkte Vergleichbarkeit mit 3D-Faltung indem, verglichen mit einem 3D-ResNet, die gleiche Zahl an Parametern verwendet wird.
 
 Topologisch unterscheidet sich R2+1D von P3D durch den konsequenten Einsatz eines \res-Blocktypen, der dem Typ A aus \autoref{fig:p3d} entspricht.
-Zusätzlich werden keine Bottlenecks verwendet und das Netz kann mit einer variablen Input-Länge aufgerufen werden, indem vor dem ersten \fc-Layer ein dynamisches Avg-\pool-Layer eingeführt wird, dass die Dimension der Feature-Map auf eine feste Tiefe reduziert (analog zu SlowFast) .
+Zusätzlich werden keine Bottlenecks verwendet und das Netz kann dank eines dynamischen Avg-\pool-Layers (analog zu dem in SlowFast) mit einer variablen Input-Länge aufgerufen werden.
 
-\subsubsection{Faktorisierung durch Group Convolution}
+\subsubsection{Separierbare Faltung}
 
-Die in \autoref{subsec:group-conv} bereits vorgestellte Group Convolution stellt ebenfalls eine Form von Faktorisierung (und zwar der Kanal-Interaktion) dar.
-
+Die in \autoref{subsec:group-conv} bereits vorgestellte separierbare Faltung stellt ebenfalls eine Form von Faktorisierung im Sinne der Kanal-Interaktion dar.
 In~\cite{Tran19} wurden CSNs (Channel-Separated Convolutional Networks) vorgestellt.
-CSNs basieren ebenfalls auf einem 3D-ResNet, benutzen jedoch Group Convolution.
-Für eine 4-dimensionale Feature-Map, ersetzt die Faktorisierung nun die normale 3D-Faltung durch eine punktweise Faltung mit Kernel $(1, 1, 1)$ über alle Feature-Maps und eine Group Convolution mit Kernel $(3, 3, 3)$ pro Kanal.
+CSNs basieren ebenfalls auf einem 3D-ResNet, benutzen jedoch separierbare Faltung.
+Für eine 4-dimensionale Feature-Map, ersetzt die Faktorisierung nun die normale 3D-Faltung durch eine punktweise Faltung mit $(1, 1, 1)$-Kernel über alle Feature-Maps und eine separierbare Faltung mit $(3, 3, 3)$-Kernel pro Kanal.
 Erstere sorgt für Interaktion zwischen den Kanälen innerhalb eines Pixels.
 Letztere berechnet für einen einzelnen Index der Feature-Map die zeit-räumlichen Features.
 
 Präsentiert wurden in diesem Zuge zwei verschiedene Modelle:
 \begin{description}
-    \item[interaction-preserved (ip-CSN)] Die $3 \times 3 \times 3$-\conv-Layer werden durch punktweise Faltung, gefolgt von Depthwise Convolution ersetzt.
-    \item[interaction-reduced (ir-CSN)]  Die $3 \times 3 \times 3$-\conv-Layer werden nur durch Depthwise Convolution ersetzt.
+    \item[interaction-preserved (ip-CSN)] Die \conv-Layer werden durch punktweise Faltung, gefolgt von Depthwise Convolution ersetzt.
+    \item[interaction-reduced (ir-CSN)]  Die \conv-Layer werden nur durch Depthwise Convolution ersetzt.
     Alleine durch die Bottleneck-Blöcke der ResNet-Architektur kann noch Kanal-Interaktion hergestellt werden.
 \end{description}
 
 Ein noch globalerer Ansatz wird in~\cite{Feichtenhofer20} mit X3D (Expand 3D) präsentiert.
-Grundlage ist eine 2D-Variante des Slow Pathway aus SlowFast, der ebenfalls Group-Convolution, wie in ip-CSN nutzt.
+Grundlage ist eine 2D-Variante des Slow Pathway aus SlowFast, der ebenfalls separierbare Faltung, wie in ip-CSN, nutzt.
 Die Basisarchitektur wird auf Basis verschiedener Faktoren schrittweise in eine dreidimensionale Variante expandiert:
 Neben der raum-zeitlichen Dimension, wird auch die Dichte der gesampleten Frames (Framerate), die Anzahl der Kanäle innerhalb der Layer und die Anzahl der Layer selbst variiert.
 Folgende Faktoren (siehe~\autoref{fig:x3d}) wurden mithilfe eines Coordinate Descent Algorithmus~\cite{Wright15} optimiert, um die finale Architektur zu bestimmen:
@@ -469,78 +468,76 @@ Folgende Faktoren (siehe~\autoref{fig:x3d}) wurden mithilfe eines Coordinate Des
 
 \begin{figure}[h!]
     \centering
-    \bigimage{img/03_Feichtenhofer20}{0.8\textwidth}
+    \bigimage{img/03_Feichtenhofer20}{0.75\textwidth}
     \caption{Expansionsfaktoren in X3D (Quelle:~\cite{Feichtenhofer20})}
     \label{fig:x3d}
 \end{figure}
 
 In mehreren Phasen wurden die einzelnen Parameter jeweils um einen maximalen Faktor vergrößert.
 Die Maximalwerte ergeben sich aus der in \gls{flops} gemessenen Komplexität der Gesamt-Architektur, die pro Phase durch das Doppelte der vorherigen Phase gedeckelt wird.
-Für jeden Parameter wird die Änderungen durch den jeweils maximierten Faktoren getestet und der beste Faktor wird in die nächste Phase übernommen.
+Für jeden Parameter wird die Änderungen durch den jeweils maximierten Faktor getestet und der beste Faktor wird in die nächste Phase übernommen.
 Dieser Prozess wurde insgesamt 13 mal wiederholt, wodurch sechs Versionen (X3D-XS bis X3D-XXL) der Architektur entstanden -- darunter:
 
 \begin{description}
     \item[X3D-S] Alle Parameter bis auf $\gamma_w$ wurden in den ersten 7 Iterationen erhöht ($\gamma_t$ und $\gamma_\tau$ davon zweimal).
-    Das Modell samplet $T=13$ mal jeden sechsten Frame bei einer Auflösung von $S=160$ Pixeln.
-    \item[X3D-XL] Nach der zehnten Iteration steht ein Modell das jeden fünften Frame $T=16$ mal bei einer Auflösung von $S=312$ Pixeln samplet.
+    Das Modell samplet $T=13$ mal jeden sechsten Frame ($\tau = 6$) bei einer Auflösung von $S=160$ Pixeln.
+    \item[X3D-XL] Nach der zehnten Iteration steht ein Modell mit $T=16$, $\tau = 5$ und $S=312$.
 \end{description}
 
 Die Ergebnisse zeigen zum einen, dass mehrere Sekunden langes Videomaterial auch mit wenigen Frames und einem dünnen Sampling verarbeitet werden kann.
 Zum anderen sind besonders die Modelle (M bis XXL) interessant, da sie eine deutlich höhere Auflösung $S$ in Kombination mit deutlich weniger Kanälen als vorherige Modelle aufweisen und dabei zum Teil auch bessere Ergebnisse erzielen.
 Vor allem aber sticht die geringe Zahl an Parametern hervor, die mit keiner der vorherigen Faktorisierungsmethoden vergleichbar ist.
 
-%Zu beachten ist, dass alle zeitlichen Informationen bis zum finalen globalen \pool-Layer pro Kanal gewahrt werden.
-
 \section{Long-term Aggregation Frameworks}
 \label{sec:long-term-aggregation-frameworks}
 
-Die meisten der vorgestellten Modelle können nur \glspl{clip} einer fixen oder zumindest begrenzten Länge klassifizieren.
+Die meisten der vorgestellten Modelle können nur \glspl{clip} einer fixen oder zumindest begrenzten Länge $T$ klassifizieren.
 Dieser Rahmen liegt je nach Modell zwischen 16 und 64 Frames.
 
 Einige Modelle (darunter R2+1D, CSN, SlowFast und X3D) ermöglichen durch den Einsatz eines dynamischen Avg-\pool-Layers eine Variable Input-Länge.
-Allerdings ist die Nutzung nur dann optimal, wenn die Modelle zuvor auch mit der gleichen Länge an Frames trainiert wurden.
-Problematisch ist auch, dass die Feature-Maps proportional zur Input-Länge mitwachsen.
-So wird das ohnehin speicherintensive Training noch schwieriger.
+Allerdings ist die Nutzung nur dann optimal, wenn die Modelle zuvor auch mit der gleichen Anzahl an Frames trainiert wurden.
+Problematisch ist auch, dass die Feature-Maps trotzdem proportional zu $T$ mitwachsen, sodass diese Möglichkeit in der Praxis \zB durch das Speicherlimit einer GPU limitiert wird.
 
-Eine weitere Möglichkeit, die aber ebenfalls nur im geringen Maße praktikabel ist, ist ein vorgelagertes Subsampling der \glspl{clip} (\cite{Ng15}).
-Einige Modelle, wie X3D, nutzen ohnehin ein dünnes Sampling und nicht jeden Frame.
-Werden die Frames allerdings zu dünn gesamplet, kann insbesondere bei 3D-\glspl{cnn} die Performance einbrechen, da konsekutive Frames zu unterschiedlich sind und die Kernel keine Zusammenhänge mehr herstellen können.
+Eine weitere Möglichkeit, die aber ebenfalls nur im geringen Maße praktikabel ist, ist die Erhöhung des Zeitschritts $\tau$ (Subsampling) (\cite{Ng15}).
+Einige Modelle, wie SlowFast oder X3D, nutzen ohnehin nicht jeden Frame.
+Werden die Frames allerdings mit einem zu hohen Zeitschritt gesamplet, kann insbesondere bei 3D-\glspl{cnn} die Performance einbrechen, da konsekutive Frames zu unterschiedlich sind und die Kernel weniger Zusammenhänge herstellen können.
 
-Benötigt der Classifier einen deutlich längeren Zeitkontext, als das trainierte Modell abbildet, sind weder das dynamische Avg-Pooling noch Subsampling ausreichend.
+Benötigt der Klassifizierer einen deutlich längeren Zeitkontext $\Delta$, als das trainierte Modell abbilden kann, sind weder das dynamische Avg-Pooling noch Subsampling ausreichend.
 Stattdessen kann auf spezielle Long-term Aggregation Frameworks zurückgegriffen werden.
 
-Ein besonders populäres Framework ist das TSN (Temporal Segments Network)~\cite{Wang16}~\cite{Wang19}.
-Es bettet das eigentliche \gls{har}-Modell in einen spezielles Trainingssetup (siehe \autoref{fig:tsn}) ein.
-TSN unterteilt den \gls{clip} zunächst in Unter-Segmente (genannt Snippets).
-Innerhalb dieser Snippets wird jeweils ein Intervall zufallsbasiert bestimmt, dessen Länge in das entsprechend vortrainierte \gls{har}-Modell passt.
-Diese Snippets werden nun wie gewohnt inferiert, sodass man den Feature-Vektor des letzten \fc-Layers erhält.
-Für jeden Vektor wird der Fehler pro Klasse berechnet und über die Snippets gemittelt.
-Darüber wird abschließend die Aktivierung berechnet, die zur Klassifizierung dient.
+\subsubsection*{TSN (Temporal Segments Network)}
 
-\begin{figure}[h!]
-    \centering
-    \bigimage{img/03_Wang19}{0.9\textwidth}
-    \caption{Architektur: TSN (Quelle:~\cite{Wang19})}
-    \label{fig:tsn}
-\end{figure}
+Ein besonders populäres Framework ist das TSN~\cite{Wang16}~\cite{Wang19}.
+Es bettet das eigentliche \gls{har}-Modell in einen spezielles Trainingssetup (siehe \autoref{fig:tsn}) ein.
+TSN unterteilt den \gls{clip} zunächst in Unter-Segmente (Snippets).
+Innerhalb dieser Snippets wird jeweils zufallsbasiert ein Intervall bestimmt, dessen Länge $T$ in das entsprechend vortrainierte \gls{har}-Modell passt.
+Diese Snippets werden vom HAR-Modell inferiert, sodass man die Scores des letzten \fc-Layers als Output erhält.
+Für jeden Output-Vektor wird der Fehler pro Klasse berechnet und über die Snippets gemittelt.
+Darüber wird abschließend die Aktivierung berechnet, die zur Klassifizierung dient.
 
 Die Architektur ist differenzierbar und wird optimiert mit dem über alle Segmente aggregiertem Output.
 Somit können die Modellparameter anhand mehrere Snippets optimiert werden.
 In der ursprünglichen Form wurde TSN mit dem Two Stream Modell genutzt.
 Technisch gesehen lässt sich allerdings jedes der genannten Modelle einbinden~\cite{Kothawade19}.
 
+\begin{figure}[h!]
+    \centering
+    \bigimage{img/03_Wang19}{0.8\textwidth}
+    \caption{Architektur: TSN (Quelle:~\cite{Wang19})}
+    \label{fig:tsn}
+\end{figure}
+
+\subsubsection*{FASTER (Feature Aggregation for Spatio-temporal Redundancy)}
+
 Alternativ zu TSN kann das jeweilige \gls{har}-Backbone durch ein- oder mehrere \gls{rnn}-Layer erweitert werden.
-Exemplarisch wird hier FASTER (Feature Aggregation for Spatio-temporal Redundancy)~\cite{Zhu19} erwähnt.
+Exemplarisch wird hier FASTER~\cite{Zhu19} erwähnt.
 Durch FASTER soll nicht nur eine zeitliche Struktur über einen längeren Kontext abgebildet werden.
 Zusätzlich soll vermieden werden, dass redundante Informationen erhoben werden.
 
 Die Features des letzten \conv-Layers des CNN werden durch ein Avg-\pool-Layer geleitet.
-Diese Features werden dann als Input des RNNs verarbeitet und haben Einfluss auf den Hidden State des RNNs.
-Um das Modell zu beschleunigen werden statt eines Backbone-Modells zwei verschiedene Versionen verwendet, wobei beide vom gleichen Typ, aber mit unterschiedlicher Tiefe sind (\zB R2+1D-34 und R2+1D-152).
-Das tiefere der beiden backbones soll mehr Details erfassen und Aktionen sicher vorhersage, während das flachere sich auf Änderungen innerhalb einer Szene beschränkt.
-Das flache Modell wird in 75 \% der Fälle genutzt, sodass unnötige Operationen eingespart werden.
-Als RNN wird eine GRU benutzt.
-Trainiert wurde mit 32 Snippets zu je 8 Frames, was einen Kontext von über 10 Sekunden ermöglicht.
+Diese Features werden dann als Input einer GRU verarbeitet und haben Einfluss auf deren Hidden State.
+Um das Modell zu beschleunigen können statt eines Backbone-Modells zwei verschiedene Versionen verwendet werden, wobei beide vom gleichen Typ, aber unterschiedlicher Tiefe sein sollten (\zB R2+1D-34 und R2+1D-152).
+Das tiefere der beiden Backbones soll mehr Details erfassen und Aktionen sicher vorhersage, während das flachere sich auf Änderungen innerhalb einer Szene beschränkt.
 
 \section{Zeitliche Action Detection}
 \label{sec:temporal-action-detection}
@@ -549,9 +546,9 @@ Zuletzt soll ein kurzer Einblick zur Umsetzung einer zeitlichen Action Detection
 Da diese Arbeit den Fokus auf eine \gls{har} legt, werden die Konzepte nur oberflächlich angerissen.
 
 Im Allgemeinen können drei Kategorien unterschieden werden~\cite{Buch17}:
-Eine zweischrittige Verarbeitung aus \gls{har}-Classifier und nachgelagerter Intervallgenerierung, eine zweischrittige Verarbeitung aus vorgelagerter Generierung von Intervallen und der anschließenden Klassifizierung pro Segment, sowie der Ende-zu-Ende-Verarbeitung in einem Netz.
+Eine zweischrittige Verarbeitung aus \gls{har}-Klassifizierer und nachgelagerter Intervallgenerierung, eine zweischrittige Verarbeitung aus vorgelagerter Generierung von Intervallen und der anschließenden Klassifizierung pro Segment, sowie der Ende-zu-Ende-Verarbeitung in einem Netz.
 
-Die erste Gruppe entspricht einem naiven Ansatz, indem die Videos mit einem bestimmten Offset, der Einfluss darauf hat, wie stark sich die \glspl{clip} überschneiden, segmentiert werden.
+Die erste Gruppe entspricht einem naiven Ansatz, indem die Videos mit einem bestimmten Versatz, der Einfluss darauf hat, wie stark sich die \glspl{clip} überschneiden, segmentiert werden.
 Dabei wird jeder \gls{clip} mit einem \gls{har}-Backbone entlang der Zeitachse klassifiziert.
 Die Klassifizierung des Backbones bezieht sich dann jeweils auf den Mittelpunkt des \glspl{clip}.
 Aus diesen Klassifizierungsscores können im Nachgang nun Intervalle für jede Klasse abgeleitet werden.
@@ -560,7 +557,7 @@ Die zweite Gruppe ist geprägt durch Modelle, wie BSM (Boundary-Sensitive Networ
 Die Vorschläge werden also für alle Klassen auf die gleiche Art und Weise erhoben.
 Anschließend können \glspl{clip} für jedes Proposal generiert werden und mit dem \gls{har}-Backbone klassifiziert werden.
 Praktisch an diesem Vorgehen ist, dass schon im ersten Schritt Segmente ohne Aktionen ausgeschlossen werden, wodurch ein Großteil des ursprünglichen Videos gar nicht mehr vom Backbone klassifiziert werden muss.
-Negativ ist der Punkt, dass die Action Proposal Generation nicht zwingend auf die Endaufgabe zugeschnitten ist (es sei denn beide Netze werden Ende-zu-Ende trainiert) und dass Frames in beiden Stufen separate geladen und verarbeitet werden, was zu einer längeren Laufzeit führt.
+Negativ ist der Punkt, dass die Generierung der Proposals nicht zwingend auf die Endaufgabe zugeschnitten ist (es sei denn beide Netze werden Ende-zu-Ende trainiert) und dass Frames in beiden Stufen separate geladen und verarbeitet werden.
 
 Zur dritten Gruppe gehört \ua SS-TAD (Single-Stream Temporal Action Detection)~\cite{Buch17}.
 Die grundlegende Idee ist, sich zu merken, wann eine Aktion anfängt und aktiv zu erkennen, wann sie aufhört.
@@ -571,10 +568,10 @@ Die Proposals ergeben sich aus der Aktivierung eines $T$-elementigen Outputs, wo
 \section{Datensets und Benchmarks}
 \label{sec:datensets-und-benchmarks}
 
-Der Sportsektor zählt wohl zu den anspruchsvollsten Domänen im Bereich \gls{har}~\cite{Sozykin17}.
+Der Sportsektor zählt zu den besonders anspruchsvollen Domänen im Bereich \gls{har}~\cite{Sozykin17}.
 Dennoch können durch Techniken des Transfer-Learnings, bestehende Low-Level-Features, auf die hier betrachtete Aufgabe übertragen werden -- selbst wenn diese mithilfe generischer Datensets aus übergreifenden Domänen generiert wurden.
 Da bisher kein Datenset existiert, das Spielaktionen im gesuchten Umfang bereitstellt, müssen neue Daten erhoben werden, die sich an den Best Practices bestehender Datensets orientieren.
-Dazu werden die gängigen Datensets im Bereich \gls{har} kurz vorgestellt:
+Dazu werden die gängigen Datensets im Bereich \gls{har} kurz vorgestellt und in \autoref{tab:dataset} verglichen:
 
 \begin{description}
     \item[UCF101]~\cite{Soomro12} Einfaches \gls{har}-Datenset mit ungeschnittenen Videos und einfachen Labels aus 101 Klassen (davon 25 aus dem Sportbereich).
@@ -586,13 +583,14 @@ Dazu werden die gängigen Datensets im Bereich \gls{har} kurz vorgestellt:
     \item[Sports1M]~\cite{Karpathy14} Auto-Generiertes Datenset aus 1 Mio YouTube Videos zu Sportaktionen.
     \item[ActivityNet]~\cite{Caba15} Datenset zur zeitlichen Action Detection, beinhaltet 200 Klassen zu 20,000 Videos.
     Die Markierungen werden strukturiert in einer JSON-Datei gespeichert.
-    \item[Kinetics-400]~\cite{Kay17} Manuell annotiertes Datenset aus 650,000 \glspl{clip} aus 400 Klassen.
+    \item[Kinetics-400]~\cite{Kay17} Manuell annotiertes Datenset aus 650,000 \glspl{clip} und 400 Klassen.
     Erweiterung mit 600 und 700 Klassen existieren ebenfalls.
 \end{description}
 
-Im Bereich Fußball wurden mit SoccAct-4~\cite{Ballan09} und SSID~\cite{Jiang16} erstmalig Datensets veröffentlicht, die im Kontext von Deep-Learning aufgrund ihrer Größe jedoch keine Relevanz erreichten.
+\subsubsection*{Fußball-Datensets}
 
-Erst mit SoccerNet~\cite{Giancola18} wird ein Large-scale-Datenset für Fußball-Aktionen erzeugt.
+Im Bereich Fußball wurden mit SoccAct-4~\cite{Ballan09} und SSID~\cite{Jiang16} erstmalig Datensets veröffentlicht, die im Kontext von Deep-Learning aufgrund ihrer Größe jedoch keine Relevanz erreichten.
+Erst mit SoccerNet~\cite{Giancola18} wird ein großspuriges Datenset für Fußball-Aktionen erzeugt.
 Die Aktionen beschränken sich auf Tore, Karten und Auswechslungen, die sekundengenau innerhalb eines Spiels erhoben wurden.
 Die \gls{annotationen}, der Code und auch die zugehörigen Videos aus sechs europäischen Fußballligen sind der Öffentlichkeit zugänglich.
 
@@ -602,12 +600,10 @@ Außerdem wird zusätzliches Videomaterial aus asiatischen Fußballligen verwend
 
 \begin{figure}
     \centering
-    \csvautotabular{tbl/datasets.csv}
+    \small\csvautotabular{tbl/datasets.csv}
     \caption[Vergleich Datensets]{Vergleich Datensets}
     \label{tab:dataset}
 \end{figure}
-
-In \autoref{tab:dataset} werden die einschlägigen \gls{har}-Datensets verglichen:
 
 Das Baseline-Modell in SoccerNet segmentiert vorab die ungekürzten Videos in 60-Sekunden-\glspl{clip}.
 Jeder \gls{clip} wird mit den Aktionen, die innerhalb des \glspl{clip} stattfinden, gelabelt.
@@ -616,15 +612,15 @@ Diese werden als \emph{Background} gelabelt.
 
 Die eigentliche Verarbeitung besteht aus einem mehrstufiges Modell aus folgenden drei Zwischenschritten:
 
-\begin{itemize}
+\begin{enumerate}
     \item Feature-Extraktion mit 2D-ResNet für Frames alle 0.5 sek
     \item Konkatenation der Features und PCA zur Komprimierung auf 120 Einträge
     \item Klassifizierung der komprimierten Features mit ActionVLAD
-\end{itemize}
+\end{enumerate}
 
 Das Ergebnis ist eine mAP von 67,8 \%.
 Zu beachten ist, dass mit mAP der Durchschnitt der Precision von nur drei der insgesamt vier Klassen gemeint ist.
 Die Precision der \emph{Background}-Klasse wird explizit herausgerechnet.
 
 Als Baseline für SoccerDB wurde ein SlowFast-50 Modell verwendet, das eine mAP von 69,24 \% erreicht.
-Zum aktuellen Stand\footnote{01.09.2020} ist dieses Datenset allerdings noch unveröffentlicht.
+Zum aktuellen Stand\footnote{Stand: 01.09.2020} ist dieses Datenset allerdings noch unveröffentlicht.

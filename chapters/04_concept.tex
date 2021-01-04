@@ -33,7 +33,7 @@ Zudem soll das Videomaterial verschiedenen (TV-)Quellen zugrunde liegen, sodass 
 
 Diese Rohdaten werden anschließend in ein \gls{ml}-Datenset konvertiert.
 Neuronale Netze lernen mit Samples $(x_i, y_i)$.
-Alle Samples $x$ entsprechen multidimensionalen Matrizen (Tensoren) der Größe $C \times T \times S^2$, die sich aus $T$ Farbbildern ($C=3$) eines \glspl{clip} zusammensetzen.
+Alle Samples $x$ entsprechen multidimensionalen Matrizen (Tensoren) der Größe $C \times T \times S \times S$, die sich aus $T$ Farbbildern ($C=3$) eines \glspl{clip} zusammensetzen.
 Die Labels entsprechen einem One-Hot-enkodiertem Vektor $y \in \{0, \dots, 1\}^A$.
 
 Da diese Tensoren unkomprimiert bereits in einer kleinen Menge einen erheblichen Teil des Dateispeichers belegen, werden \gls{har}-Datensets in der Regel in einer strukturierten Form als CSV- oder JSON-Datei veröffentlicht.

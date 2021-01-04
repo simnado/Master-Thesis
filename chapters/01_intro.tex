@@ -77,7 +77,7 @@ Ziel der Arbeit ist ein auf SOCC-HAR-32 optimiertes \gls{har}-Modell zu trainier
 Die Verarbeitung ungeschnittener Videos ist, genauso wie die Lokalisierung von Aktionen innerhalb der \glspl{clip}, nicht Gegenstand dieser Arbeit.
 Das Modell soll in der Lage sein, Spielaktionen, die durch visuellen Bewegungen identifiziert werden können, wie in \autoref{fig:cover}, korrekt zu erkennen.
 
-Der Input des Modells wird repräsentiert durch einen Video-\gls{clip} $x \in \mathbb{R}^{(C \times T \times S^2)}$ mit $C$ Farbkanälen, einer festen Länge von $T$ Frames und einer Auflösung von $S$ Pixeln.
+Der Input des Modells wird repräsentiert durch einen Video-\gls{clip} $x \in \mathbb{R}^{(C \times T \times S \times S)}$ mit $C$ Farbkanälen, einer festen Länge von $T$ Frames und einer Auflösung von $S$ Pixeln.
 Der Output $y \in \{0, 1\}^A$ entspricht einem One-Hot-Vektor aus $A$ Aktionsklassen (hier 32).
 Das Modell soll den Zusammenhang zwischen $x$ und $y$ mit hinreichend vielen Samples $(x_i, y_i)$ Ende-zu-Ende in einem einstufigen Modell abbilden.
 \Dh es wird auf jede Form von zusätzlichen Zwischenschritten verzichtet.

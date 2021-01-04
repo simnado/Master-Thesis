@@ -22,8 +22,8 @@ Um diese Hürde zu überwinden, werden drei verschiedene Methoden verglichen, de
     Das Modell aggregiert die Informationen somit intern.
 \end{description}
 
-Während des Training werden stets 5-dimensionale Input-Batches $x_\text{fit} \in (B \times C \times T \times S^2)$ verwenden.
-Bei der Evaluation wird nun eine weitere Dimension benötigt, um die verschiedenen Crops abzubilden mit $x_\text{test} \in (B \times E \times C \times T \times S^2)$.
+Während des Training werden stets 5-dimensionale Input-Batches $x_\text{fit} \in (B \times C \times T \times S \times S)$ verwenden.
+Bei der Evaluation wird nun eine weitere Dimension benötigt, um die verschiedenen Crops abzubilden mit $x_\text{test} \in (B \times E \times C \times T \times S \times S)$.
 Dabei stell $E$ die Anzahl der zeitlichen Crops dar.
 
 Für ein vortrainiertes Modell mit maximaler Batchgröße $B_\text{fit}$ und Clip-Dauer $\Delta_\text{fit}$, lassen sich unter der Annahmen, dass das Produkt aller Dimension gleich bleibt, die maximalen Dimensionen für $x_\text{test}$ eindeutig ermitteln.

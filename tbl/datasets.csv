@@ -1,9 +1,9 @@
-Datenset,Videos,Klassen,Video length,Pixel
-UCF101,13.320,101,7.21 sec,240p
-Sports1M,1.133.158,487,?,(source form YouTube)
-ActivityNet,20.000,200,(untrimmed),(source from YouTube)
-Kinetics-400,306.245,400,10 sec,(source form YouTube)
-SSID,30,4,35 min,224p
-Socc-Act-4,100,4,4-10 sec,?
-SoccerNet-500,6.637,3,60 sec,720p
-SoccerDB,37.709,11,4-10 sec,?
+Datenset,Videos,Klassen,Video length
+UCF101,13.320,101,7.21 sec
+Sports1M,1.133.158,487,(untrimmed)
+ActivityNet,20.000,200,(untrimmed)
+Kinetics-400,306.245,400,10 sec
+SSID,30,4,35 min
+Socc-Act-4,100,4,4-10 sec
+SoccerNet,6.637,3,60 sec
+SoccerDB,37.709,10,4-10 sec
