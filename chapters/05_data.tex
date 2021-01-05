@@ -5,7 +5,7 @@
 \newcommand{\novideos}{194\ }
 \newcommand{\nomatches}{152\ }
 
-Unter Data Engineering wird das Problem beschrieben, rohe Daten in ein Machine-Learning-Datenset zu transformieren~\cite{Burkov19}.
+Unter Data Engineering wird das Problem beschrieben, rohe Daten in ein \gls{ml}-Datenset zu transformieren~\cite{Burkov19}.
 Dieser Prozess wird im Folgenden in zwei Teilprobleme unterteilt:
 \begin{description}
     \item[Datenerhebung] Einmaliger Prozess, indem ein Datenset erstellt wird.
@@ -300,7 +300,7 @@ Die Gesamtzahl der Samples ist pro Datenset definiert durch \autoref{eq:limit}, 
     | D_\text{train} | = \gls{tld:Theta}_\text{split} + \sum\limits_{a \in \gls{tld:A}} \min \{ \gls{tld:Theta}_\text{train}, |D_a| \}
 \end{equation}
 
-Dieses Vorgehen löst zum Teil auch das Problem der Ungleichgewichtung (Imbalance) der Klassen, was ein allgemeiner Nachteil für die Performance eines Classifiers ist~\cite{Giancola18, Burkov19}.
+Dieses Vorgehen löst zum Teil auch das Problem der Ungleichgewichtung (Imbalance) der Klassen, was ein allgemeiner Nachteil für die Performance eines Klassifizierers ist~\cite{Giancola18, Burkov19}.
 Indem die überrepräsentierte Klassen auf eine Oberzahl begrenzt werden (Random Downsampling) und zusätzliche Samples durch die Temporal Augmentation (Oversampling) hinzugefügt werden, können die natürlichen Ungleichgewichtungen der realen Welt kompensiert werden.
 
 Um die Vielfalt der Daten voll auszuschöpfen, variieren die Daten des Trainingssets $D_{\text{train}}$ in jeder Epoche, indem das Sampling jedes Mal erneut angestoßen wird.

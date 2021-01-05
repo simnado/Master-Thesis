@@ -1,88 +1,66 @@
 \chapter{Konzeption}
 \label{ch:concept}
 
-In diesem Kapitel werden die Schritte und Entscheidungen erläutert, die zur Erhebung der Daten, zum Training des Classifiers und für die spätere Anwendung notwendig sind.
+In diesem Kapitel werden die Schritte und Entscheidungen erläutert, die zur Erhebung der Daten und zum Training des Klassifizierers notwendig sind.
 Dazu werden vorab einige Entscheidungen und Anforderung an die zu entwickelnden Module geknüpft.
-
-\section{Zwischenschritte}
-\label{sec:steps}
-
-Der Prozess bis zur fertigen Inbetriebnahme schließt folgende drei Schritte ein, die in dieser Reihenfolge abgeschlossen werden müssen:
+Der Prozess von der Idee bis zur fertigen Inbetriebnahme schließt folgende vier Schritte ein, die in dieser Reihenfolge abgeschlossen werden müssen:
 
 \begin{description}
-    \item[Data Engineering] Die Daten müssen erhoben und mit dem Deep-Learning Modell in Einklang gebracht werden.
+    \item[Data Engineering] Die Daten müssen erhoben und mit dem Deep-Learning-Modell in Einklang gebracht werden.
     Aus rohen Videos und strukturierten \gls{annotationen} werden Samples in ein einheitliches \gls{ml}-Datenset überführt.
     \item[Training] Es muss ein einheitlicher Trainingsablauf definiert werden, um die Ergebnisse einzelner Experimente vergleichen zu können.
-    Dabei werden Metriken zur Evaluation der Modelle und zur Analyse von Konflikten erhoben.
-    \item[Verifikation] Mithilfe des trainierten Klassifizierers werden Samples manuell verifiziert.
-    Die Ground-Truth-Labels jener Samples, deren Fehler während des Trainings auffällig hoch sind, werden manuell verifiziert um so die Datenqualität zu verbessern.
+    Dabei werden Metriken zur Evaluation der Modelle erhoben.
+    \item[Verifikation] Mithilfe des trainierten Klassifizierers wird ein Teil der Samples manuell verifiziert.
+    Die Annotationen, auf denen die Samples basieren, können im Falle eines Datenfehlers manuell angepasst werden, um die Datenqualität zu verbessern.
     \item[Inferenz] Das trainierte Modell muss in eine zeitliche Action Detection integriert werden, sodass ungeschnittene Videos ganzer Spiele verarbeitet werden können.
-    Schließlich muss der Classifier in eine Nutzerschnittstelle integriert und bereitgestellt werden.
+    Schließlich muss der Klassifizierer in eine Nutzerschnittstelle integriert und bereitgestellt werden.
     Die Integration soll technisch ermöglicht werden, ist allerdings nicht mehr Bestandteil dieser Arbeit.
 \end{description}
 
-\section{Datenquellen}
+\section{Datenquellen und Datenformat}
 \label{sec:datenquellen}
 
 Essenziell für das Data-Engineering ist, dass die Trainingsdaten die richtigen Informationen enthalten, die es dem Modell erst ermöglichen notwendige Zusammenhänge zu abstrahieren.
 Die Daten müssen genug Informationen enthalten, um die Spielaktion lernbar zu machen.
-Zudem sollten die Daten ein möglichst diverses Spektrum und einen geringen Bias (siehe~\cite{Gugger20}) aufweisen und keine Ausrichtung auf spezielle Eigenschaften haben.
+Zudem sollten die Daten ein möglichst diverses Spektrum und einen geringen Bias aufweisen und keine Ausrichtung auf spezielle Eigenschaften haben ~\cite{Gugger20}.
 Aus den genannten Gründen wird sich dagegen entschieden nur Aufnahmen einer taktischen Kamera oder eines bestimmten Stadions zu verwenden.
 Damit das \gls{har}-Modell ausreichend gut adaptiert werden kann, wird stattdessen der Versuch unternommen ein Datenset zu generieren, das Spiele verschiedener Mannschaften, Nationalitäten und Geschlechter beinhaltet.
 Zudem soll das Videomaterial verschiedenen (TV-)Quellen zugrunde liegen, sodass sich das Modell nicht auf bestimmte Eigenschaften des Kameraschnitts (wie Art der Kameraführung, Wiederholungen, Einblendungen, Bildqualität) einschießt.
 
-Diese Rohdaten werden anschließend in ein \gls{ml}-Datenset konvertiert.
-Neuronale Netze lernen mit Samples $(x_i, y_i)$.
-Alle Samples $x$ entsprechen multidimensionalen Matrizen (Tensoren) der Größe $C \times T \times S \times S$, die sich aus $T$ Farbbildern ($C=3$) eines \glspl{clip} zusammensetzen.
-Die Labels entsprechen einem One-Hot-enkodiertem Vektor $y \in \{0, \dots, 1\}^A$.
-
-Da diese Tensoren unkomprimiert bereits in einer kleinen Menge einen erheblichen Teil des Dateispeichers belegen, werden \gls{har}-Datensets in der Regel in einer strukturierten Form als CSV- oder JSON-Datei veröffentlicht.
-Diese Dateien speichern neben dem Label einen nur den Verweis zu der Videoquelle (als Link oder ID) und Start \ggf Start- und Endmarkierungen, in denen sich die Aktion im Video ereignet.
-Die rohen Videodaten sind also nicht direkter Bestandteil des Datensets, sondern werden erst zur Laufzeit nachgeladen.
-
-Um ein eigenes, ausreichend großes Datenset zu erstellen, werden in dieser Arbeit mehrere Datenquellen kombiniert und in ein ähnliches Dateiformat überführt.
+Um ein eigenes, ausreichend großes Datenset zu erstellen, werden in dieser Arbeit mehrere Datenquellen kombiniert und in ein einheitliches Dateiformat überführt.
 Dabei wird die Erhebung von Videomaterial $X$ und die Erhebung von Aktionsannotationen $Y$ separat betrachtet.
 
 \subsection{Aktionsannotationen}
 \label{subsec:aktionsannotationen}
 
-Da Videomaterial von Fußballspielen durch öffentliche oder kommerzielle Video-Plattformen im Internet vergleichsweise einfach zu finden ist, liegt der Fokus bei der Generierung des Datensets primär im Beziehen akkurater Annotationen.
+Da Videomaterial von Fußballspielen durch öffentliche oder kommerzielle Video-Plattformen im Internet vergleichsweise einfach zu finden ist, liegt der Fokus bei der Generierung des Datensets primär auf dem Beziehen akkurater Annotationen.
 Die \gls{annotationen} müssen eine genaue zeitliche Auflösung haben, die mindestens im Sekundenbereich liegt.
 Das liegt zum einen daran, dass Aktionen bei einem schnellen Spiel oft dicht aufeinander folgen und zum anderen daran, dass sich die Spielaktionen selbst nur wenige Sekunden lang sind.
 Zusätzlich sollen Sie mehr Klassen als die bisherigen Datensets (SoccerNet und SoccerDB) einschließen.
-
-Als Provider für \gls{annotationen} wird an dieser Stelle auf \gls{sbod}\footnote{Da die Sammlung kontinuierlich erweitert wird, bezieht sich die Bezeichnung \gls{sbod} im Folgenden auf den Stand vom 16.07.2020}~\cite{Statsbomb20} zurückgegriffen.
-Dabei handelt es sich um eine frei nutzbare Sammlung professioneller \gls{annotationen} eines kommerziellen Anbieters.
-Die Sammlung umfasst mehr als 28 Millionen detaillierte \gls{annotationen} aus 33 Oberkategorien zu 799 Spielen.
-Die Spiele wurden zwischen 2003 und 2020 ausgetragen und beziehen sich auf zehn internationale Ligen -- davon drei aus dem Frauenfußball.
-Jede der Oberkategorien hat teils zahlreiche zusätzliche Attribute, wodurch sich weitere Unterkategorien ableiten lassen.
-
-In \gls{sbod} ist die Dauer einer Aktion, die mit einem Schuss oder Pass zusammenhängt definiert durch die Dauer, die der Ball zwischen Abspiel und Annahme (\bzw dem Rollen ins Aus oder Tor) zurücklegt.
-Andere Aktionen, wie Tore oder Auswechslungen, sind (wie auch in SoccerNet) als Zeitpunkte definiert.
-Damit alle Klassen in gleicher Weise durch Intervall repräsentiert werden können, wird ein angepasstes Zeitfenster gewählt.
-Dieses ergibt sich aus einer Mindestdauer pro Event, die um den besagten Zeitpunkt oder Mittelpunkt des Intervalls aufgespannt wird.
-Ist das Original-Zeitfenster größer als die Mindestdauer, bleibt das Intervall unverändert.
-
-\subsubsection*{Aktionskatalog}
-
-Die Auswahl erlernbarer Aktionsklassen zur \gls{har} wird eingeschränkt durch die Verfügbarkeit des Providers.
-Eine übersichtliche Auflistung aller erfassten Aktionen ist online\footnote{https://github.com/statsbomb/open-data/raw/master/doc/Open\%20Data\%20Events\%20v4.0.0.pdf (Stand: 08.10.2020)} zu finden.
-Darüber hinaus unterliegt die Auswahl einiger selbstauferlegter Kriterien:
+Darüber hinaus unterliegt die Auswahl zusätzlicher Klassen einiger selbstauferlegter Kriterien:
 
 \begin{description}
     \item[Visuelle Erkennbarkeit] Eine Aktion muss allein auf Basis visueller Reize innerhalb weniger Frames erkennbar sein.
-    Die Klassen \code{Starting XI} oder \code{Tactical Shift} werden dadurch ausgeschlossen.
     \item[Mindestanzahl an Beispielen] Aktionen müssen mit einer Mindestanzahl an \gls{annotationen} repräsentiert sein, damit sie in neuartigen Situationen sicher wiedererkannt werden können.
-    Die untere Grenze wird bei 50 Beispielen festgesetzt und schließt somit Klassen wie \code{Own Goal Against} aus.
-    \item[Maximalanzahl an Beispielen] Einige Aktionen wie \code{Pass} und \code{Carry} sind dermaßen überrepräsentiert, dass sich praktische jeder dieser Aktionen mit mindestens einer weiteren Aktion zeitlich überlagert.
-    Zudem erschwert es die abschließende zeitliche Action Detection wenn mehrere gleiche Aktionen direkt hintereinander stattfinden:
-    Wird \zB ein direkter Pass gespielt, erfolgt die Ballannahme gleichzeitig mit der Ballabgabe und es gibt keinen zeitlichen Puffer zwischen beiden \code{Pass}-Aktionen.
+    Die untere Grenze wird bei 50 Beispielen festgesetzt.
+    \item[Maximalanzahl an Beispielen] Einige Aktionen wie Pässe und Ballannahmen sind im Verhältnis zu anderen Aktionen so überrepräsentiert, dass sich praktische jeder dieser Aktionen mit mindestens einer weiteren Aktion zeitlich überlagert.
+    Zudem erschwert es die abschließende zeitliche Action Detection, wenn mehrere gleiche Aktionen direkt hintereinander stattfinden:
+    Wird \zB ein direkter Pass gespielt, erfolgt die Ballannahme gleichzeitig mit der Ballabgabe und es gibt keinen zeitlichen Puffer zwischen beiden Pass-Aktionen.
     Die hier verwendete Methodik kann solche Abfolgen von direkt folgender gleicher Aktionen also gar nicht auseinander halten und müsste sie als eine lange Aktion behandeln.
     \item[Objektive Regeln] Die Aktionen müssen durch ein eindeutiges Regelwerk definiert sein.
-    Klassen wie \code{Pressure}, \code{Error} oder \code{Miscontrol} werden als zu subjektiv eingestuft und werden daher ebenfalls ausgeschlossen.
 \end{description}
 
-Eine abschließende Liste aller insgesamt 32 abgeleiteten Aktionsklassen ist in \autoref{ch:aktionskatalog} zu finden.
+Als ein geeigneter Provider für \gls{annotationen} wird an dieser Stelle auf \gls{sbod}\footnote{Da die Sammlung kontinuierlich erweitert wird, bezieht sich die Bezeichnung \gls{sbod} im Folgenden auf den Stand vom 16.07.2020}~\cite{Statsbomb20} zurückgegriffen.
+Dabei handelt es sich um eine frei nutzbare Sammlung professioneller \gls{annotationen} eines kommerziellen Anbieters.
+Die Sammlung umfasst mehr als 28 Millionen detaillierte \gls{annotationen} aus 33 Oberkategorien (siehe~\cite{StatsbombDocs16}) zu 799 Spielen.
+Die Spiele wurden zwischen 2003 und 2020 ausgetragen und beziehen sich auf zehn internationale Ligen -- davon drei aus dem Frauenfußball.
+Jede der Oberkategorien hat teils zahlreiche zusätzliche Attribute, wodurch sich weitere Unterkategorien ableiten lassen.
+
+In \gls{sbod} ist die Dauer einer Aktion, die mit einem Schuss oder Pass zusammenhängt definiert durch die Dauer, die der Ball zwischen Abspiel und Annahme (\bzw dem Rollen ins Aus oder ins Tor) zurücklegt.
+Andere Aktionen, wie Tore oder Auswechslungen, sind (wie auch in SoccerNet) als Zeitpunkte definiert.
+Damit alle Klassen in gleicher Weise durch Zeitintervalle repräsentiert werden können, werden angepasste Zeitfenster generiert.
+So ein Zeitfenster ergibt sich aus einer Mindestdauer von zwei Sekunden, die um den besagten Zeitpunkt oder Mittelpunkt des Zeitintervalls aufgespannt wird.
+Ist das Original-Zeitintervall größer als die Mindestdauer, bleibt es unverändert und wird so übernommen.
 
 \subsection{Videomaterial}
 \label{subsec:videomaterial}
@@ -97,7 +75,18 @@ Diese Menge wird im Vergleich zu anderen Datensets allerdings noch als deutlich 
 Daher wird der Großteil der Videos über öffentliche Kanäle der Video-Plattform YouTube bezogen.
 Diese Videos sind nicht pro Halbzeit zugeschnitten und potenziell fehlerbehaftet (\zB durch herausgeschnittene Spielminuten oder eine abweichende Abspielgeschwindigkeit), was ein zusätzliches Pre-Processing erfordert (siehe \autoref{ch:data}).
 
-\section{Relevante HAR-Modelle und Hyperparameter}
+\subsection{Zielformat}
+\label{subsec:zielformat}
+
+Die Rohdaten aller oben genannten Quellen werden anschließend in ein Zielformat überführt.
+Dazu findet vorab ein Matching statt, das jeweils Videos und Annotation für ein Spiel zusammenbringt.
+Die erfolgreich gematchten Datensätze, werden in einer Datei persistiert, die Annotationen und Videos in Verbindung setzt.
+\gls{har}-Datensets in der Regel nicht direkt als fertige Samples $(x_i, y_i)$ veröffentlicht, da die Input-Matrizen $x_i$ unkomprimiert sehr viel Speicher belegen.
+Stattdessen werden die Daten in einem Zwischenformat (\zB CSV- oder JSON-Datei) gespeichert.
+Diese strukturierten Dateien speichern jeweils Tupel aus einem Label, dem Verweis auf eine Videoquelle (als Link oder Dateiname), sowie Start- und Endmarkierungen, die angeben wann die Aktion im Video zu sehen ist.
+Die rohen Videodaten sind also nicht direkter Bestandteil des Datensets, sondern müssen zur Laufzeit nachgeladen werden.
+
+\section{Anwendbarkeit von HAR-Modellen}
 \label{sec:decisions}
 
 Neben der passenden Datengrundlage werden im nächsten Schritt geeignete \gls{har}-Modelle und die zu optimierenden Hyperparameter ausgewählt.
