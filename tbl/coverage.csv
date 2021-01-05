@@ -1,4 +1,4 @@
-Modell,$\gamma_s$,$\gamma_t$,$\gamma_\tau$,$\Delta$
+Modell,$S$,$T$,$\tau$,$\Delta$
 R2+1D,112,32,1,1.28
 SlowFast,224,32,2,2.56
 CSN,224,32,2,2.56
