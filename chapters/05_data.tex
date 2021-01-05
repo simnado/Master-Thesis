@@ -19,6 +19,7 @@ Dieser Prozess wird im Folgenden in zwei Teilprobleme unterteilt:
         \item Plots (boxplot für Re-sampling, bar-plots drehen, sodass beschriftung leichter lesbar ist)
         \item Autoref mit Listing funktioniert nicht
         \item Aktionskatalog im Anhang
+        \item \Dh die Ungleichgewichtungen der realen Welt (insbesondere die Überrepräsentation von Background-Samples) wird auch im Test-Set widergespiegelt.
     \end{itemize}
 \end{tcolorbox}
 
@@ -202,6 +203,59 @@ Die genauen Zahlen sind ebenso der Tabelle in \autoref{ch:aktionskatalog} zu ent
     \caption{Eigenschaften zum Datenset}
     \label{fig:annotations}
 \end{figure}
+
+
+\subsection{Überschneidungen von Aktionen}
+\label{sec:multi-label}
+
+Der oben genannte Aktionskatalog hat mit insgesamt 32 Aktionsklassen das Potenzial einige Aktionen zu beinhalten die sich mit anderen zeitlich überschneiden.
+Dazu zählt einerseits der Fall, dass zwei Aktionen von zwei verschiedenen Spielern tatsächlich zeitgleich ausgeführt werden.
+Andererseits können abhängig von der Problembeschreibung \zB hierarchische Klassen definiert werden, sodass sich eine Klasse \code{penaltyKick} immer mit der Klasse \emph{footShot} überlagert.
+
+Um die Signifikanz dieses Problems zu verdeutlichen wurden für verschiedene $\Delta$ untersucht, wie oft sich eine Klasse mit einer anderen überschneidet.
+Eine dedizierte Grafik ist in \autoref{ch:overlaps} zu finden.
+Die häufigsten Kombinationen sind folgende:
+
+\begin{enumerate}
+    \item \code{saved} mit \code{footShot}
+    \item \code{penaltyKick} mit \code{goal}
+    \item \code{badBehavior} mit \code{card}
+    \item \code{goal} mit \code{footShot}
+    \item \code{collected} mit \code{cross}
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=.95\linewidth]{img/data-plots/1sec/background_ratio_all_1sek.eps}
+        \caption{$\Delta = 1$}
+        %\label{fig:anno_bg_ratio}
+    \end{subfigure}%
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=.95\linewidth]{img/data-plots/4sec/background_ratio_all_202010-1419-3706.eps}
+        \caption{$\Delta = 4$}
+        %\label{fig:anno_classes}
+    \end{subfigure}
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=.95\linewidth]{img/data-plots/8sec/background_ratio_all_202010-1419-4303.eps}
+        \caption{$\Delta = 8$}
+        %\label{fig:anno_classes}
+    \end{subfigure}
+    \caption{Skalierung des Background- und Überschneidungsverhältnisses zur Wahl von $\Delta$}
+    \label{fig:ratios}
+\end{figure}
+
+Dass die Zahl der Überschneidungen mit der Wahl von $\Delta$ skaliert, belegt auch der wachsende Anteil von Samples mit mehr als einer Aktion, wie \autoref{fig:ratios} zeigt.
+Dabei wird die in \autoref{subsec:segmentierung-und-sampling-strategie} verwendete Sampling-Strategie verwendet.
+
+Als Folge der oben veranschaulichten Statistiken wird vorab auf ein Multi-Label-Ansatz gesetzt.
+Das Verfahren ist damit auch flexibler bei Anpassungen des Aktionskatalogs und kommt ohne ein künstlichen \emph{Background}-Labels aus.
+Zudem kann auf ein aufwendiges Verfahren dedizierte, überschneidungsfreie Intervalle für jede Aktion zu finden verzichtet werden.
+Stattdessen kann das ungeschnittene Videomaterial gleichmäßig segmentiert werden und jedes Segment erhält Labels für alle darin stattfindenden Aktionen.
+
 
 \section{Pre-Processing}
 \label{sec:pre-processing}
