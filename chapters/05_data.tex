@@ -17,9 +17,9 @@ Dieser Prozess wird im Folgenden in zwei Teilprobleme unterteilt:
 
 \begin{tcolorbox}[title=WIP]
     \begin{itemize}
-        \item Plots (boxplot für Re-sampling, bar-plots drehen, sodass beschriftung leichter lesbar ist)
-        \item Aktionskatalog im Anhang
-        \item \Dh die Ungleichgewichtungen der realen Welt (insbesondere die Überrepräsentation von Background-Samples) wird auch im Test-Set widergespiegelt.
+        \item Bar-Plots: (boxplot für Re-sampling, bar-plots drehen, sodass beschriftung leichter lesbar ist)
+        \item Pie-Plots: schachteln
+        \item Beispielsample mit und ohne Augmentation
     \end{itemize}
 \end{tcolorbox}
 
@@ -304,16 +304,16 @@ Die Videos des Providers YouTube können direkt in der Zielauflösung herunterge
 Die Videos des Providers SoccerNet müssen hingegen erst in High Definition heruntergeladen werden und anschließend in die Zielauflösung konvertiert werden.
 Alle Videos haben eine einheitliche Framerate von 25 \gls{fps}.
 Sobald ein Video in der Zielauflösung verfügbar ist, kann es analysiert werden.
-Dazu werden die \gls{pts} und weitere Metadaten erhoben und in einer Pickle-Datei \cite{Lubanovic19} persistiert.
+Dazu werden die \gls{pts} und weitere Metadaten erhoben und in einer Pickle-Datei~\cite{Lubanovic19} persistiert.
 
 \subsection{Segmentierung und Sampling-Strategie}
 \label{subsec:segmentierung-und-sampling-strategie}
 
 Sind Videos und Metadaten lokal verfügbar, können die ungeschnittenen Videos zu \glspl{clip} segmentiert und gelabelt werden.
-Die \glspl{clip} werden in einer konfigurierbaren Länge $T$ und Framerate gesamplet.
-Um mehrere Samples aus den zugrundeliegenden \gls{annotationen} zu generieren, werden die \glspl{clip} mit einer Verschiebung von einer Sekunde gesamplet.
-Das hat zur Folge, dass sich die \glspl{clip} (bei $T > \text{Framerate}$) überschneiden (Temporale Augmentation, siehe~\cite{Giancola18}) und so zusätzliche Samples aus der begrenzten Zahl an Annotationen entstehen.
-\autoref{fig:samples} vergleicht pro Klasse die Anzahl möglicher Samples zur Anzahl bestehender \gls{annotationen} bei einer Dauer von $\Delta=4$ Sekunden.
+Die \glspl{clip} werden mit einer konfigurierbaren Auflösung $S$, Länge $T$ und Zeitschritt $\tau$ gesamplet.
+Um zusätzliche Training-Samples zu generieren, werden die \glspl{clip} mit einem Versatz von einer Sekunde gesamplet.
+Das hat zur Folge, dass sich die \glspl{clip} mit $\Delta > 1$ zeitlich überschneiden (Temporale Augmentation, siehe~\cite{Giancola18}) und so zusätzliche Samples aus der begrenzten Zahl an Annotationen entstehen.
+\autoref{fig:samples} zeigt die Auswirkungen, indem pro Klasse die Anzahl möglicher Samples zur Anzahl bestehender \gls{annotationen} bei einer Dauer von $\Delta=4$ Sekunden verglichen wird.
 
 \begin{figure}
     \centering
@@ -333,18 +333,18 @@ Das hat zur Folge, dass sich die \glspl{clip} (bei $T > \text{Framerate}$) über
     \label{fig:samples}
 \end{figure}
 
-Diese potenziellen Samples werden intern als Tripel aus Videopfad, Framerate und \gls{pts} gespeichert.
-Da die Trainingslaufzeit proportional mit der Anzahl der Samples skaliert, muss die Gesamtzahl der Samples im Kontext dieser Arbeit jedoch deutlich reduziert werden.
+Da die Trainingslaufzeit mit der Anzahl der Samples skaliert, muss die Gesamtzahl an Samples pro Epoche unter Berücksichtigung von Hardwareeinschränkungen deutlich reduziert werden.
 Zum einen werden Samples, die keine Überschneidung mit einer der zwei Halbzeiten haben, aussortiert.
-Ebenso werden kritische Samples entfernt, die keine Überschneidung mit einer Annotation haben (Background-Samples), aber einen sehr \emph{nahen} zeitlichen Abstand zur nächsten Aktion haben.
+Ebenso werden \emph{kritische} Samples entfernt, die keine Überschneidung mit einer Annotation haben (Background-Samples), aber einen sehr \emph{nahen} zeitlichen Abstand zur nächsten Aktion haben.
 Motiviert ist diese Entscheidung durch die teils inakkuraten Segmentmarkierungen in den \gls{sbod}-\gls{annotationen}.
 Die Grenzen einer Aktion sind teils subjektiv gelabelt und durch das Erlauben kritischer Background-Samples würde ein falsches Bild von Genauigkeit entstehen.
 Als Folge wird erwartet, dass das Modell die Aktionsgrenzen implizit selbst erlernt und da Background-Samples ohnehin überrepräsentiert sind, wird nicht erwartet, dass es so zu Performance-Einbußen kommt.
-Ein Background-Sample wird als kritisch deklariert, wenn es eine dreisekündige Pufferzone einer anderen Aktion schneidet, was laut \autoref{subsec:hyperparameter} etwa der durchschnittlichen Länge einer Aktion entspricht.
+Ein Background-Sample wird als kritisch deklariert, wenn es die dreisekündige Pufferzone einer anderen Aktion schneidet, was laut \autoref{subsec:hyperparameter} etwa der durchschnittlichen Länge einer Aktion entspricht.
 
 Zusätzlich wird die Maximalzahl an Samples pro Klasse durch einen Richtwert $\gls{tld:Theta}$ gedrosselt.
 Der Richtwert für Trainingsdaten orientiert sich an~\cite{Kay17} (250-1000 Samples pro Klasse) und ist konfigurierbar.
-Analog wird die Größe der Validierungs- und Testsamples fest auf 50 \bzw 100 Samples begrenzt.
+Analog wird die Größe der Validierungssets auf 50 Samples pro Klasse begrenzt.
+Das Testset bleibt ungefiltert.
 
 Da es sich um ein Multi-Label-Datenset handelt, sind die Grenzwerte tatsächlich nur als Richtwerte anzusehen.
 Denn bei einer harten Obergrenze würde in Kauf genommen werden, dass Samples einer unterrepräsentierten Klasse ebenfalls ausgeschlossen werden können, wenn sie in Kombination mit einer überrepräsentierten Klasse auftreten.
@@ -359,19 +359,19 @@ Die Gewichte $w_{y_i}$ setzen sich pro Sample wie in \autoref{eq:sample-weights}
 
 Mit $r_{c}$ ist der Anteil aller Samples der jeweiligen Klasse unter allen Samples gemeint.
 Analog ist $r_{bg}$ der Anteil an Samples, die mit keiner der definierten Klassen gelabelt sind.
-Die Gesamtzahl der Samples ist pro Datenset definiert durch \autoref{eq:limit}, wobei $D_c$ die Menge verfügbarer Samples einer Klasse beschreibt:
+Die Gesamtzahl der Samples ist pro Datenset definiert durch \autoref{eq:limit}, wobei $D^a$ eine Menge verfügbarer Samples einer Aktionsklasse $a$ beschreibt:
 
 \begin{equation}
     \label{eq:limit}
-    | D_\text{train} | = \gls{tld:Theta}_\text{split} + \sum\limits_{a \in \gls{tld:A}} \min \{ \gls{tld:Theta}_\text{train}, |D_a| \}
+    | D_{\text{split} \in \{\text{train}, \text{val}\}} | = \gls{tld:Theta}_\text{split} + \sum\limits_{a \in \gls{tld:A}} \min \{ \gls{tld:Theta}_\text{split}, |D^a_\text{split}| \}
 \end{equation}
 
 Dieses Vorgehen löst zum Teil auch das Problem der Ungleichgewichtung (Imbalance) der Klassen, was ein allgemeiner Nachteil für die Performance eines Klassifizierers ist~\cite{Giancola18, Burkov19}.
 Indem die überrepräsentierte Klassen auf eine Oberzahl begrenzt werden (Random Downsampling) und zusätzliche Samples durch die Temporal Augmentation (Oversampling) hinzugefügt werden, können die natürlichen Ungleichgewichtungen der realen Welt kompensiert werden.
 
-Um die Vielfalt der Daten voll auszuschöpfen, variieren die Daten des Trainingssets $D_{\text{train}}$ in jeder Epoche, indem das Sampling jedes Mal erneut angestoßen wird.
+Um die Vielfalt der Daten voll auszuschöpfen, variieren die Daten des Trainingssets $D_{\text{train}}$ in jeder Epoche, indem das Sampling jedes Mal erneut, zufallsbasiert angestoßen wird.
 Für die Daten aus $D_\text{val}$ wird das Sampling nur einmal (und mit einem festen Seed) ausgeführt, sodass die Daten über alle Epochen gleich bleiben und die Metriken pro Epoche vergleichbar bleiben.
-Für das Testset $D_\text{test}$ wird hingegen gar kein Sampling ausgeführt, da es für alle Experimente gleich sein muss.
+Für das Testset $D_\text{test}$ wird hingegen kein Sampling ausgeführt, da es bewusst die Ungleichgewichtungen der realen Welt abbilden soll.
 Hier wird immer mit der vollständigen Datenmenge getestet.
 Die Verteilung in \autoref{fig:resamples} zeigt das Ergebnis.
 
@@ -382,17 +382,14 @@ Die Verteilung in \autoref{fig:resamples} zeigt das Ergebnis.
     \label{fig:resamples}
 \end{figure}
 
-\subsection{Data Augmentation \& Standardisierung}
+\subsection{Data-Augmentation und Standardisierung}
 \label{subsec:data-augmentation}
 
-Zu jeder Epoche werden je nach Batch-Größe mehrere Samples aus $D_{\text{train}}$, $D_\text{val}$ \bzw $D_\text{test}$ bestimmt.
-Für jedes der Samples werden die jeweiligen Frames aus den Quellvideos dekodiert.
-
-Data Augmentation beschreibt die Technik zusätzliche Trainingsdaten zu erlangen, indem zufällige Variationen gleicher Samples generiert werden (\cite{Gugger20}).
+Data Augmentation beschreibt die Technik zusätzliche Trainingsdaten zu generieren, indem zufällige Variationen gleicher Samples generiert werden (\cite{Gugger20}).
 Durch den Einsatz der Temporal Augmentation wurden bereits zusätzliche Samples generiert, um Ungleichgewichtungen vorzubeugen, weshalb es keiner zusätzlichen Daten bedarf.
-Jedoch können die Samples mit Methoden der gewöhnlichen Data Augmentation kombiniert werden um ein Overfitting auf teilweise (im Sinne von Überschneidungen) gleichen Samples zu verhindern.
+Jedoch können die Samples mit Methoden der gewöhnlichen Data Augmentation kombiniert werden um eine Überanpassung auf teilweise (im Sinne von Überschneidungen) gleichen Samples zu verhindern.
 
-Im Zuge der Data Augmentation wird jeder \gls{clip}, nachdem er dekodiert wurde, zunächst auf 90 \% seiner Höhe und Breite zufällig zugeschnitten.
+Im Zuge der Data Augmentation wird jeder \gls{clip}, nachdem er dekodiert wurde, zunächst auf 90 \% seiner Höhe und Breite zufällig zugeschnitten (Cropping).
 Anschließend werden Helligkeit, Kontrast und Sättigung leicht verändert (Jittering; siehe~\cite{Tran18}).
 In der Hälfte der Fälle wird das Bild horizontal gespiegelt.
 Abschließend wird das Bild auf die Zielauflösung des jeweils verwendeten \gls{har}-Backbones verkleinert.
@@ -406,7 +403,7 @@ Für das Validierungs- und Testset wird nur ein 90 \%-iger zentraler Ausschnitt 
     \label{fig:sample_example}
 \end{figure}
 
-Nach der Data Augmentation werden alle Tensoren standardisiert.
+Nach der Data Augmentation werden alle Tensoren $x_i$ noch standardisiert.
 \Dh alle Samples werden auf einen Wertebereich von $\left[ -1, 1\right]$ projiziert -- mit einer Normalverteilung mit Mittelwert $\mu = 0$ und Standardabweichung $\sigma = 1$~\cite{Burkov19}.
 Die Standardisierung erfolgt mit den Mittelwerten und Standardabweichung der vortrainierten Daten (\zB Kinetics) oder sofern nicht verfügbar mit den selbst ermittelten Werten des Datensets.
 Anschließend werden die Werte auf den Bereich $\left[0, 1\right]$ normalisiert.
