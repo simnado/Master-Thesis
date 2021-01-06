@@ -10,29 +10,6 @@ Sports-1M zeigt jeweils die Accuracy im Format \emph{clip@1}/\emph{video@1} und 
     \label{tab:models}
 \end{figure}
 
-\chapter{Aktionskatalog}
-\label{ch:aktionskatalog}
-
-Eine übersichtliche Auflistung aller erfassten Aktionen ist in \cite{StatsbombDocs16} zu finden.
-
-
-In \autoref{tab:action} werden alle 32 Klassen des im Rahmen dieser Arbeit generierten und in \autoref{ch:data} vorgestellten Datensets aufgelistet.
-Neben der Anzahl ist die durchschnittliche und maximaler Dauer pro Aktion vermerkt, die sich aus den \gls{annotationen} in \cite{Statsbomb20} ergeben.
-Aktionen, die hier keinen Wert vorweisen werden lediglich als Zeitpunkt in \gls{sbod} repräsentiert.
-
-\begin{figure}
-    \centering
-    \begin{subfigure}{0.45\textwidth}
-        \centering
-        \csvautotabular{tbl/actions_a.csv}
-    \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
-        \centering
-        \csvautotabular{tbl/actions_b.csv}
-    \end{subfigure}
-    \label{tab:action}
-\end{figure}
-
 \chapter{Paarweise Intersektion von Spielaktionen}
 \label{ch:overlaps}
 

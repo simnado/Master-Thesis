@@ -116,11 +116,11 @@ Für die Umsetzung bedient sich diese Arbeit an der Open-Source-Bibliothek Tesse
 
 An dieser Stelle der Pipeline können \gls{annotationen} und Videos miteinander kombiniert werden.
 Daher werden im nächsten Schritt alle Aktionen eines Spiels vom Datenprovider \gls{sbod} geladen.
-Diese externen, aus den 33 Oberkategorien bestehenden Klassendefinitionen werden in neu abgeleitete Aktionsklassen transformiert.
+Diese externen, aus den 33 Oberkategorien bestehenden Klassendefinitionen \cite{StatsbombDocs16} werden in neu abgeleitete Aktionsklassen transformiert.
 
 In \autoref{lst:sbod} ist ein exemplarischer Auszug, der eine Annotation aus \gls{sbod} zeigt.
 Die Aktionsdatensätze der Datenbank beinhalten neben der \code{externalClass} (hier: übernommen aus Zeile 10), auch die weiteren Aktionsdetails (hier: ab Zeile 26) als \code{details}, aus denen neue, eigene Aktionsklassen abgeleitet werden.
-Die neuen Aktionen aus \autoref{ch:aktionskatalog} werden durch einen Query-Selektor im MongoDB-Format\cite{Bradshaw16} definiert.
+Die neuen Aktionen werden durch einen Query-Selektor im MongoDB-Format\cite{Bradshaw16} definiert.
 Mit dem Selektor können alle \gls{annotationen} dieser Klasse in einem Zug aus den \gls{sbod}-\gls{annotationen} eines Spiels, die in separaten Dateien vorliegen, gefiltert werden.
 Die Repräsentation als Selektor ist unabhängig vom hier benutzten Datenschema und der Programmiersprache und lässt sich auch direkt auf die \gls{json}-\gls{annotationen} in \gls{sbod} anwenden.
 
@@ -173,13 +173,34 @@ Zusätzlich wird auch hier ein eindeutiger Identifier in Form einer \gls{url} de
 \section{Eigenschaften des Datensets}
 \label{sec:eigenschaften-des-datensets}
 
-Das finale Datenset, welches als Grundlage dieser Arbeit verwendet wird, umfasst \noaction Aktion und \novideos Videos aus insgesamt \nomatches Spielen.
-Trotz der vergleichsweise hohen Zahl an Aktionsklassen, besteht der Hauptteil des Videomaterials aus Background-Samples.
-\autoref{fig:anno_bg_ratio} zeigt das Verhältnis von durch Aktionen geprägter Videozeit, wobei die Gesamtmenge der Summe aller Halbzeiten über allen Datensets entspricht.
-Die Zeit vor und nach den Halbzeiten wird nicht mitgezählt.
+Das Resultat der Datenerhebung ist ein Datenset, welches \noaction Aktionen und \novideos Videos aus insgesamt \nomatches Spielen umfasst.
+In \autoref{tab:action} werden alle 32 Klassen des Datensets aufgelistet.
+Neben der Anzahl ist die durchschnittliche und maximaler Dauer pro Aktion vermerkt, die sich aus den \gls{annotationen} in~\cite{Statsbomb20} ergeben.
+Aktionen, die hier keinen Wert vorweisen werden lediglich als Zeitpunkt in \gls{sbod} repräsentiert.
 
+\begin{figure}
+    \centering
+    \small
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \csvautotabular{tbl/actions_a.csv}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \csvautotabular{tbl/actions_b.csv}
+    \end{subfigure}
+    \caption{Aktionskatalog in SOCC-HAR-32}
+    \label{tab:action}
+\end{figure}
+
+\subsection{Ungleichverteilung von Aktionen}
+\label{subsec:ungleichverteilung-von-aktionen}
+
+Trotz der hohen Zahl an Aktionsklassen, besteht der Hauptteil des Videomaterials aus aktionsfreien Teilen (Background).
+\autoref{fig:anno_bg_ratio} zeigt das Verhältnis von durch Aktionen geprägter Videozeit bei einsekündiger Segmentierung aller Halbzeitvideos.
+Die Zeit vor und nach den Halbzeiten wird nicht mitgezählt.
 Hinzu kommt, dass die Klassen untereinander sehr ungleich verteilt sind, wie \autoref{fig:anno_classes} zeigt.
-Die genauen Zahlen sind ebenso der Tabelle in \autoref{ch:aktionskatalog} zu entnehmen.
+Die genauen Zahlen sind ebenso der Tabelle in \autoref{tab:action} zu entnehmen.
 
 \begin{figure}
     \centering
@@ -203,20 +224,28 @@ Die genauen Zahlen sind ebenso der Tabelle in \autoref{ch:aktionskatalog} zu ent
 \subsection{Überschneidungen von Aktionen}
 \label{sec:multi-label}
 
-Der oben genannte Aktionskatalog hat mit insgesamt 32 Aktionsklassen das Potenzial einige Aktionen zu beinhalten die sich mit anderen zeitlich überschneiden.
+Der oben genannte Aktionskatalog hat mit insgesamt 32 Aktionsklassen das Potenzial einige Aktionen zu beinhalten, die sich mit anderen zeitlich überschneiden.
 Dazu zählt einerseits der Fall, dass zwei Aktionen von zwei verschiedenen Spielern tatsächlich zeitgleich ausgeführt werden.
 Andererseits können abhängig von der Problembeschreibung \zB hierarchische Klassen definiert werden, sodass sich eine Klasse \code{penaltyKick} immer mit der Klasse \emph{footShot} überlagert.
 
-Um die Signifikanz dieses Problems zu verdeutlichen wurden für verschiedene $\Delta$ untersucht, wie oft sich eine Klasse mit einer anderen überschneidet.
+Um die Signifikanz dieses Problems zu verdeutlichen wurden untersucht, wie sich die Wahl von $\Delta$ auf die Anzahl von Überschneidungen auswirkt.
+\autoref{fig:ratios} zeigt, dass bei einem höheren Zeitkontext $\Delta$ die Zahl von Hintergrund-Samples zwar sinkt, die Zahl der Überschneidungen jedoch steigt.
+
+Als Folge der oben veranschaulichten Statistiken wird vorab auf ein Multi-Label-Ansatz gesetzt.
+Das Verfahren ist damit auch flexibler bei Anpassungen des Aktionskatalogs und kommt ohne ein künstlichen \emph{Background}-Labels aus.
+Zudem kann auf ein aufwendiges Verfahren dedizierte, überschneidungsfreie Intervalle für jede Aktion zu finden, verzichtet werden.
+Stattdessen kann das ungeschnittene Videomaterial gleichmäßig in Clips segmentiert werden und jeder Clip erhält ein Label pro darin stattfindender Aktion.
+
+Zudem wurde untersucht, wie oft sich eine Klasse mit einer anderen überschneidet.
 Eine dedizierte Grafik ist in \autoref{ch:overlaps} zu finden.
-Die häufigsten Kombinationen sind folgende:
+Die häufigsten Kombinationen sind (bei $\Delta=4$) folgende:
 
 \begin{enumerate}
-    \item \code{saved} mit \code{footShot}
-    \item \code{penaltyKick} mit \code{goal}
-    \item \code{badBehavior} mit \code{card}
-    \item \code{goal} mit \code{footShot}
-    \item \code{collected} mit \code{cross}
+    \item \code{saved} mit \code{footShot}: 74 \%
+    \item \code{penaltyKick} mit \code{goal}: 57 \%
+    \item \code{badBehavior} mit \code{card}: 51 \%
+    \item \code{goal} mit \code{footShot}: 50 \%
+    \item \code{collected} mit \code{cross}: 40 \%
 \end{enumerate}
 
 \begin{figure}
@@ -243,19 +272,10 @@ Die häufigsten Kombinationen sind folgende:
     \label{fig:ratios}
 \end{figure}
 
-Dass die Zahl der Überschneidungen mit der Wahl von $\Delta$ skaliert, belegt auch der wachsende Anteil von Samples mit mehr als einer Aktion, wie \autoref{fig:ratios} zeigt.
-Dabei wird die in \autoref{subsec:segmentierung-und-sampling-strategie} verwendete Sampling-Strategie verwendet.
-
-Als Folge der oben veranschaulichten Statistiken wird vorab auf ein Multi-Label-Ansatz gesetzt.
-Das Verfahren ist damit auch flexibler bei Anpassungen des Aktionskatalogs und kommt ohne ein künstlichen \emph{Background}-Labels aus.
-Zudem kann auf ein aufwendiges Verfahren dedizierte, überschneidungsfreie Intervalle für jede Aktion zu finden verzichtet werden.
-Stattdessen kann das ungeschnittene Videomaterial gleichmäßig segmentiert werden und jedes Segment erhält Labels für alle darin stattfindenden Aktionen.
-
-
-\section{Pre-Processing}
+\section{Datenaufbereitung}
 \label{sec:pre-processing}
 
-Das Pre-Processing basiert auf dem gegebenen Datenset des vorherigen Kapitels.
+Die Datenaufbereitung basiert auf dem exportierten Datenset des vorherigen Kapitels.
 Es umschließt einmalige Prozesse, sowie Prozesse, die pro Training oder pro Sample während des Trainings durchgeführt werden.
 \autoref{fig:data-pipeline} zeigt die Prozesse jeder dieser Kategorien.
 
@@ -266,14 +286,14 @@ Es umschließt einmalige Prozesse, sowie Prozesse, die pro Training oder pro Sam
     \label{fig:data-pipeline}
 \end{figure}
 
-\subsection{Effiziente Speicherung}
+\subsection{Effizientes Laden und Speichern}
 \label{subsec:effiziente-speicherung}
 
-Um Samples aus Videos und \gls{annotationen} zu generieren, müssen einzelne Frames aus den Videos extrahiert werden.
+Um Samples $(x_i, y_i)$ aus den Videos des Datensets zu generieren, müssen einzelne Frames aus den Videos extrahiert und in den Arbeitsspeicher geladen werden.
 Dieser Prozess wiederholt sich für jedes Sample pro Epoche, die trainiert wird und stellt ohne weitere Optimierungen einen enormen IO-Overhead dar, der die Geschwindigkeit des eigentlichen Trainings ausbremsen kann~\cite{Wu20}.
-Der IO-Zugriff kann \zB beschränkt werden, indem die relevanten Frames vorab extrahiert und als Bilder gespeichert werden.
+Der IO-Zugriff kann \zB reduziert werden, indem die relevanten Frames vorab extrahiert und als Bilder gespeichert werden.
 Dieses Vorgehen skaliert jedoch nur mäßig mit der Größe des Datensets, da die Bilder schon bei kleinen Datensets oft zu viel Speicherplatz einnehmen.
-Alternativ kann auch der Zugriff auf unverarbeitete Videos durch Multiprocessing optimiert werden, indem die Videos vorher analysiert werden.
+Alternativ kann der Zugriff durch Multiprocessing optimiert werden und indem die Videos vorher analysiert werden.
 Sind Framerate und \gls{pts} eines Videos bekannt, kann mithilfe des \gls{pes} die entsprechende Stelle innerhalb des Videos direkt und vergleichsweise schnell gefunden werden~\cite{Fischer10}.
 Diese Methode ist in den einschlägigen \gls{har}-Bibliotheken (darunter auch die Implementationen von~\cite{Feichtenhofer18} und~\cite{Wang19}) gängige Praxis und wird in diesem Setup übernommen.
 
@@ -284,7 +304,7 @@ Die Videos des Providers YouTube können direkt in der Zielauflösung herunterge
 Die Videos des Providers SoccerNet müssen hingegen erst in High Definition heruntergeladen werden und anschließend in die Zielauflösung konvertiert werden.
 Alle Videos haben eine einheitliche Framerate von 25 \gls{fps}.
 Sobald ein Video in der Zielauflösung verfügbar ist, kann es analysiert werden.
-Dazu werden die Presentation Timestamps und weitere Metadaten erhoben und in einer \code{pickle}-Datei persistiert.
+Dazu werden die \gls{pts} und weitere Metadaten erhoben und in einer Pickle-Datei \cite{Lubanovic19} persistiert.
 
 \subsection{Segmentierung und Sampling-Strategie}
 \label{subsec:segmentierung-und-sampling-strategie}
