@@ -1,15 +1,13 @@
 @startuml
 
 start
-:Match Import;
-:Action Import;
-
+:Spiel Import;
 fork
-:Video Matching;
+:Matching: Spiel 1;
 fork again
 :...;
 fork again
-:Video Matching;
+:Matching: Spiel n;
 end fork
 
 :Dataset Export;

@@ -1,23 +1,23 @@
-\chapter{Data Engineering \& Pre-Processing}
+\chapter{Data-Engineering}
 \label{ch:data}
 
 \newcommand{\noaction}{37521\ }
 \newcommand{\novideos}{194\ }
 \newcommand{\nomatches}{152\ }
 
+In diesem Kapitel werden die Schritte zur Generierung des Datensets SOCC-HAR-32 beschrieben, sowie seine Eigenschaften und weitere Aufbereitungsschritte.
 Unter Data Engineering wird das Problem beschrieben, rohe Daten in ein \gls{ml}-Datenset zu transformieren~\cite{Burkov19}.
 Dieser Prozess wird im Folgenden in zwei Teilprobleme unterteilt:
 \begin{description}
-    \item[Datenerhebung] Einmaliger Prozess, indem ein Datenset erstellt wird.
+    \item[Datenerhebung] Prozess, indem ein Datenset erstellt wird.
         Dazu werden verschiedene Datenquellen aggregiert und in einer Datenbank einheitlich persistiert.
-    \item[Daten Pre-Processing] Wiederkehrender Prozess zur Laufzeit der Experimente.
+    \item[Datenaufbereitung] Prozess zur Laufzeit des Trainings.
         Basierend auf dem Datenset, werden die persistierten Daten ausgelesen und dem \gls{har}-Modell in einer effizienten Weise bereitgestellt.
 \end{description}
 
 \begin{tcolorbox}[title=WIP]
     \begin{itemize}
         \item Plots (boxplot für Re-sampling, bar-plots drehen, sodass beschriftung leichter lesbar ist)
-        \item Autoref mit Listing funktioniert nicht
         \item Aktionskatalog im Anhang
         \item \Dh die Ungleichgewichtungen der realen Welt (insbesondere die Überrepräsentation von Background-Samples) wird auch im Test-Set widergespiegelt.
     \end{itemize}
@@ -33,9 +33,6 @@ Das zu erstellende Datenset basiert auf den drei Datenquellen \gls{sbod}, Soccer
 \subsection{Datenschema}
 \label{subsec:schema}
 
-Zu diesem Zweck wird zunächst ein einheitliches Datenschema (siehe \autoref{fig:classes}) definiert.
-Das Format bezieht sich auf die Speicherung aller Datenquellen in einer dokumentenbasierten NoSQL-Datenbank.
-
 \begin{figure}
     \centering
     \bigimage{fig/schema}{0.7\textwidth}
@@ -43,43 +40,45 @@ Das Format bezieht sich auf die Speicherung aller Datenquellen in einer dokument
     \label{fig:classes}
 \end{figure}
 
+Zu diesem Zweck wird zunächst ein einheitliches Datenschema bestend aus Spielen, Videos und Aktionen wie in \autoref{fig:classes} definiert.
+Das Format bezieht sich auf die Speicherung aller Datenquellen in einer dokumentenbasierten NoSQL-Datenbank.
+
 In SoccerNet werden stets zwei Videos pro Spiel bereitgestellt, wobei ein Video jeweils eine der zwei Halbzeiten zeigt.
 Da diese Aufteilung nicht immer durch YouTube gegeben ist, werden im Falle eines kompletten Videos über beide Halbzeiten dennoch zwei Datensätze erstellt.
 Beide Datensätze weisen dann die gleiche \code{externalId} (die sich aus der Video-\gls{url} ergibt) auf, markieren mit unterschiedlicher \code{startTime} und \code{endTime} jedoch disjunkte Intervalle innerhalb des Videos.
 
 Die gesuchten Aktionsintervalle ergeben sich aus den Feldern \code{second} und \code{duration} und beziehen sich auf die jeweilige Spielzeit, beginnend mit dem Anpfiff der jeweiligen Halbzeit.
-Die Zuordnung von Aktionen zu einem Teil-Datenset (\code{split}, hier: Trainings-, Validierungs-, Test-Set) geschieht Spiel-übergreifend.
+Die Zuordnung von Aktionen zu einem Teil-Datenset (\code{split}, hier: Trainings-, Validierungs-, Testset) geschieht Spiel-übergreifend.
 \Dh alle Aktionen innerhalb eines Spiels werden stets dem gleichen Datenset zugeordnet.
 Diese gängige Praxis wurde übernommen aus~\cite{Giancola18} und~\cite{Jiang19}.
 
-\subsection{Pipeline}
+\subsection{Verarbeitungs-Pipeline}
 \label{subsec:pipeline}
 
-Um die verschiedenen Datenquellen in das zuvor beschriebene Format zu überführen, wird ein semi-automatisierter Datenimport ausgeführt, der in \autoref{fig:collection-pipeline} dargestellt ist.
-Dieser überführt alle Spiele und Aktionen aus \gls{sbod} in das obige Datenschema.
-Anschließend werden zwei Provider-Klassen (für SoccerNet und YouTube) implementiert, die mehrere Stufen einer Pipeline durchlaufen (\autoref{fig:collection-pipeline_b}).
-Zunächst werden alle Spiele mit Videos des SoccerNet-Providers abgeglichen -- alle übrigen Spiele werden mit dem YouTube-Provider erfasst.
-Abschließend werden die relationalen Daten aus der Datenbank in ein maschinenlesbares Dateiformat exportiert.
+Um die verschiedenen Datenquellen in das beschriebene Format zu überführen, wird ein semi-automatisierter Datenimport ausgeführt, deren Schritte in \autoref{fig:collection-pipeline_a} dargestellt sind.
+Dieser überführt zunächst alle Spiele aus \gls{sbod} in das obige Datenschema.
+Anschließend werden zwei Provider-Klassen (für SoccerNet und YouTube) implementiert, pro Spiel mehrere Stufen einer Import-Pipeline durchlaufen (\autoref{fig:collection-pipeline_b}), in denen weitere Datensätze angelegt werden.
+Zuletzt werden die relationalen Daten aus der Datenbank in eine JSON-Datei exportiert.
 
 \begin{figure}
     \centering
-    \begin{subfigure}{.5\textwidth}
+    \begin{subfigure}[b]{.5\textwidth}
         \centering
         \includegraphics[width=.8\linewidth]{fig/collection.eps}
         \caption{Gesamter Prozess}
         \label{fig:collection-pipeline_a}
     \end{subfigure}%
-    \begin{subfigure}{.5\textwidth}
+    \begin{subfigure}[b]{.5\textwidth}
         \centering
         \includegraphics[width=.95\linewidth]{fig/collection-pipeline.eps}
-        \caption{Video Import pro Spiel}
+        \caption{Matching pro Spiel}
         \label{fig:collection-pipeline_b}
     \end{subfigure}
     \caption{Pipeline zur Datenerhebung}
     \label{fig:collection-pipeline}
 \end{figure}
 
-Im ersten Schritt wird ein Matching durchgeführt, welches prüft, ob es eine Überschneidung der Daten gibt.
+Im ersten Schritt der Import-Pipeline wird ein Matching durchgeführt, welches prüft, ob es eine Überschneidung der Daten gibt.
 Für den SoccerNet-Provider reicht ein lokaler Abgleich zwischen den online\footnote{https://github.com/SilvioGiancola/SoccerNet-code (Stand: 08.10.2020)} verfügbaren Dateilisten mit einem Suchbegriff -- bestehend aus Wettbewerb, Saison, Mannschaften, Spieldatum und Ergebnis.
 Gibt es eine Übereinstimmung werden die Attribute \code{provider} und \code{externalId} des Matches gespeichert und jeweils zwei neue Video-Datensätze generiert.
 Alle dieser Videos sind in je einer niedrigen (224p) und in einer hohen Qualität (720p oder 1080p) online verfügbar.
@@ -90,7 +89,7 @@ Gibt es keine Übereinstimmung, wird auf den YouTube-Provider zurückgegriffen, 
 Da Videos auf YouTube nicht für diese Aufgabe verifiziert sind, kann dieser Schritt nicht vollautomatisiert, sondern nur semi-automatisiert geschehen.
 In einer \gls{gui} werden dem Nutzer mehrere Videos als Suchtreffer der YouTube-\gls{api} vorgeschlagenen.
 Diese Videos kann der Nutzer mit den Eigenschaften des Match-Datensatzes (Datum, Ergebnis, Saison, etc.) manuell abgleichen und im Falle eines Matchings einer der Halbzeiten oder (falls das komplette Spiel gezeigt wird) beiden Halbzeiten zuordnen.
-Wird bei keinem der Provider ein Treffer gefunden, wird das Spiel aus der Datenbank gelöscht.
+Wird bei keinem der Provider ein Treffer gefunden, wird das Spiel wieder aus der Datenbank gelöscht.
 
 Im nächsten Schritt werden die Video-Dateien beider Halbzeiten in der höchstmöglichen Auflösung von der jeweiligen Plattform heruntergeladen und lokal zwischengespeichert.
 Für alle Videos, die nicht vom SoccerNet-Provider kommen und somit noch keine \code{startTime} und \code{endTime} haben, wird die Startzeit der Halbzeit automatisiert mittels \gls{ocr} wie folgt bestimmt:
@@ -98,8 +97,8 @@ Für alle Videos, die nicht vom SoccerNet-Provider kommen und somit noch keine \
 \subsubsection{Aligning mit OCR}
 
 Damit die verfügbaren \gls{annotationen} mit den Video-Daten in Beziehung gesetzt werden können, müssen beide Datenquellen den gleichen zeitlichen Nullpunkt aufweisen.
-Dieses Problem wird als Aligning bezeichnet.
-Die \gls{annotationen} bestimmen für jede Aktion einem Zeitpunkt gemessen an der Spieluhr (Spielzeit).
+Dieses Problem wird als Aligning bezeichnet~\cite{Purushwalkam20}.
+Die \gls{sbod}-\gls{annotationen} bestimmen für jede Aktion einem Zeitpunkt gemessen an der Spieluhr (Spielzeit).
 Die Videos selbst starten allerdings in der Regel schon wenige Minuten vor dem Anpfiff (Videozeit).
 Als gemeinsame Nullpunkt wird deshalb der Anpfiff der jeweiligen Halbzeit festgesetzt.
 
@@ -110,33 +109,31 @@ Um diesen Zeitpunkt schnell und genau zu finden, werden Screenshots verschiedene
 Dieser Text, der immer dem Schema einer Uhrzeit entspricht, wird mit einem Regulären Ausdruck in Sekunden-Einheiten konvertiert, aus denen sich wiederum die Differenz von Videozeit zur Spielzeit ergibt.
 Wiederholt man diesen Prozess oft genug, nähert sich der Median dieser Differenzen dem gesuchten Nullpunkt für den Anpfiff der ersten \bzw zweiten Halbzeit an.
 Der Nullpunkt wird als \code{startTime} gespeichert, während sich die \code{endTime} aus Startzeit und Dauer der Halbzeit ergibt, wobei die Halbzeitdauer wiederum in den \gls{sbod}-\gls{annotationen} enthalten ist.
-Der Einsatz dieses Verfahrens wurde in ähnlicher Form auch in~\cite{Giancola18} für den gleichen Zweck genutzt.
+Der Einsatz einer \gls{ocr} wurde in ähnlicher Form auch in~\cite{Giancola18} für den gleichen Zweck genutzt.
 Für die Umsetzung bedient sich diese Arbeit an der Open-Source-Bibliothek Tesseract~\cite{Smith07}.
 
-\subsubsection{Transformation der Annotationen}
+\subsubsection{Aktionssuche}
 
 An dieser Stelle der Pipeline können \gls{annotationen} und Videos miteinander kombiniert werden.
 Daher werden im nächsten Schritt alle Aktionen eines Spiels vom Datenprovider \gls{sbod} geladen.
 Diese externen, aus den 33 Oberkategorien bestehenden Klassendefinitionen werden in neu abgeleitete Aktionsklassen transformiert.
 
 In \autoref{lst:sbod} ist ein exemplarischer Auszug, der eine Annotation aus \gls{sbod} zeigt.
-Die Aktionsdatensätze der Datenbank beinhalten neben der \code{externalClass} (hier: übernommen aus Zeile 10), auch die weiteren Aktionsdetails (hier: ab Zeile 26) als \code{details}, aus die neuen, eigenen Aktionsklassen abgeleitet werden.
-Die neuen Aktionen aus \autoref{ch:aktionskatalog} werden durch einen Query-Selektor im MongoDB-Format\footnote{https://docs.mongodb.com/manual/reference/operator/query (Stand: 08.10.2020)} definiert.
-Mit dem Selektor können alle \gls{annotationen} dieser Klasse in einem Zug aus den \gls{sbod}-\gls{annotationen} eines Spiels gefiltert werden.
-Die Repräsentation als Selektor ist unabhängig von der Datenbankinstanz, die Grundlage dieses Datensets ist und lässt sich auch mit wenig Aufwand auf die \gls{json}-\gls{annotationen} in \gls{sbod} direkt anwenden.
-So können die Klassen auch nach Veröffentlichung des Datensets angepasst und erweitert werden.
+Die Aktionsdatensätze der Datenbank beinhalten neben der \code{externalClass} (hier: übernommen aus Zeile 10), auch die weiteren Aktionsdetails (hier: ab Zeile 26) als \code{details}, aus denen neue, eigene Aktionsklassen abgeleitet werden.
+Die neuen Aktionen aus \autoref{ch:aktionskatalog} werden durch einen Query-Selektor im MongoDB-Format\cite{Bradshaw16} definiert.
+Mit dem Selektor können alle \gls{annotationen} dieser Klasse in einem Zug aus den \gls{sbod}-\gls{annotationen} eines Spiels, die in separaten Dateien vorliegen, gefiltert werden.
+Die Repräsentation als Selektor ist unabhängig vom hier benutzten Datenschema und der Programmiersprache und lässt sich auch direkt auf die \gls{json}-\gls{annotationen} in \gls{sbod} anwenden.
 
 %\lstinputlisting[language=json, caption=Datenformat in SoccerNet]{code/soccernet.json}
 %\label{src:soccernet}
 
-\lstinputlisting[language=json, caption=Datenformat in Statsbomb Open Data]{code/sod.json}
-\label{lst:sbod}
+\lstinputlisting[language=json, label=lst:sbod, caption=Datenformat in Statsbomb Open Data]{code/sod.json}
 
 \subsubsection{Integritätscheck}
 
 Abschließend wird manuell noch die Überlagerung von Aktionen und Videos manuell kontrolliert.
-Dabei wird geprüft, ob das Alignment korrekt ist, indem der Nutzer pro Halbzeit die Videozeit der ersten und letzten Spielminute in einer \gls{gui} manuell verifiziert.
-Dazu wird das Video in die \gls{gui} geladen und es wird zu der jeweiligen Stelle im Video gesprungen, in der das Alignment die zweite \bzw letzte Spielminute vermutet.
+Dabei wird geprüft, ob das Aligning korrekt ist, indem der Nutzer pro Halbzeit die Videozeit der ersten und letzten Spielminute in einer \gls{gui} verifiziert.
+Dazu wird das Video in die \gls{gui} geladen und es wird zu der jeweiligen Stelle im Video gesprungen, in der das Aligning die zweite \bzw letzte Spielminute vermutet.
 Sieht der Nutzer nun \zB die Spieluhr mit der Anzeige \emph{01:00} bzw. \emph{44:00} (bei punktgenauem Abpfiff) kann er das Alignment verifizieren.
 Dadurch wird sichergestellt, dass keine Spielminuten aus dem Video herausgeschnitten wurden und dass die Abspielgeschwindigkeit der Originalgeschwindigkeit entspricht.
 
@@ -149,16 +146,14 @@ Denn ein fehlerhaftes Alignment führt zu einer systematischen Verschiebung alle
 Um den potenziell falsch ermittelten Nullpunkt des Alignings zu korrigieren, kann der Nutzer den Nullpunkt in der \gls{gui} um wenige Sekunden nach vorne oder nach hinter justieren.
 Zur Orientierung werden die Aktionen dabei unter dem Video in einer Zeitleiste eingeblendet.
 
-Ist der Integritätscheck durch den Nutzer abgeschlossen, wird das Spiel einem der drei Datensets (Trainings-, Validierungs- und Testset) zugewiesen.
+Ist der Integritätscheck durch den Nutzer abgeschlossen, wird das Spiel einem der drei Datensubsets (Trainings-, Validierungs- und Testset) zugewiesen.
 Bei Überschneidungen mit SoccerNet wird die Original-Zuteilung übernommen.
-In allen anderen Fällen geschieht die Zuweisung zufällig unter der Gewichtung $3:1:1$ (ebenfalls wie in~\cite{Giancola18}).
-Das Trainingsset ist die Basis, mithilfe dessen das Neuronale Netz lernt.
-Das Validierungsset ist zum Finden der passenden Hyperparameter und das Testset zur Vergleichbarkeit mit anderen Modellen vorgesehen~\cite{Burkov19}.
+In allen anderen Fällen geschieht die Zuweisung zufällig unter der Gewichtung $3:1:1$ -- wie in~\cite{Giancola18}.
 
 \subsubsection{Export}
 
-Der letzte Schritt der Datenerhebung ist der Export in ein maschinenlesbares Format, welches die Schnittstelle für weitere Anwendungen darstellt.
-Das Zielformat ist eine Art Erweiterung des Speicherformats in~\cite{Caba15}.
+Der letzte Schritt der Datenerhebung ist der Export in ein kompaktes Dateiformat, welches die Schnittstelle für weitere Anwendungen darstellt.
+Das Zielformat ist eine Art Erweiterung des Speicherformats in~\cite{Caba15} (basierend auf JSON).
 \autoref{fig:storage-format} zeigt das Format und hebt die Änderungen in Vergleich zum Basisformat hervor.
 
 \begin{figure}

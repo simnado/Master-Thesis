@@ -6,7 +6,7 @@ interface Dataset {
 }
 
 Dataset --> "*" Class : taxonomy
-Dataset --> "*" VideoHalf
+Dataset --> "*" Period
 
 interface Class {
     String nodeName
@@ -15,7 +15,7 @@ interface Class {
     Object selector
 }
 
-interface VideoHalf {
+interface Period {
     Number duration
     String resolution
     String subset
@@ -31,6 +31,6 @@ interface Annotation {
     String url
 }
 
-VideoHalf -right-> "*" Annotation : annotations
+Period -right-> "*" Annotation : annotations
 
 @enduml

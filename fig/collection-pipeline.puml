@@ -2,25 +2,25 @@
 
 
 
-    |automatic|
+    |automatisch|
     start
     if (Provider) then (SoccerNet)
-        :Local Video Search;
+        :Lokale Video-Suche;
     else (YouTube)
-        |manual|
-        :Online Video Search;
+        |manuell|
+        :Online-Video-Suche;
     endif
-    |automatic|
-    :Video Download;
+    |automatisch|
+    :Video-Download;
     if (Provider) then (SoccerNet)
 
     else (YouTube)
-      :OCR Align;
+      :OCR Aligning;
     endif
-    :Action Transformation;
-    |manual|
-    :Integrity Check;
-    |automatic|
+    :Aktionssuche;
+    |manuell|
+    :Integritätscheck;
+    |automatisch|
     stop
 
 
