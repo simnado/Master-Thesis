@@ -133,7 +133,7 @@ Während des Trainings werden folgende globalen Metriken erfasst:
     \item Precision: $PR = \frac{TP}{TP+FP}$
     \item Recall: $RE = \frac{TP}{TP+FN}$
     \item F1-Score: $F1 = \frac{2 \cdot TP}{2 \cdot TP + FP + FN}$
-    \item Area Under the Receiver Operating Characteristic Curve (AUROC)~\cite{Hand01}
+    \item Area Under the Receiver Operating Characteristic Curve (AUROC): siehe~\cite{Hand01}
 \end{itemize}
 
 Alle Metriken, werden jeweils pro Klasse erhoben, um später Aussagen über die individuelle Lernbarkeit einer einzelnen Klasse treffen zu können.
@@ -143,14 +143,14 @@ Sofern nicht anders hervorgehoben, sind die im weiteren Verlauf vorgestellten, s
 \section{Verifikation}
 \label{sec:nachgang}
 
-Im Phase 3 der Experimente werden basierend auf den vorhergegangenen Experimenten potenzielle Daten-Fehler verifiziert.
+Im einigen Experimente werden basierend auf den Ergebnissen potenzielle Daten-Fehler verifiziert.
 Da aus Zeitgründen nicht alle Samples kontrolliert werden können, wird sich auf diejenigen Samples beschränkt, die mit erhöhter Wahrscheinlichkeit fehlerhaft gelabelt sind.
 Hierfür wird auf die während des Trainings persistierten Scores und Losses zurückgegriffen, die in einem Fehlerbericht persistiert sind.
 Mithilfe des Fehlerberichts genügt es, nur die Samples mit den höchsten Loss-Werten manuell zu kontrollieren.
 
 Schon während des Samplings (\autoref{subsec:segmentierung-und-sampling-strategie}) wird jedes Sample mit einer eindeutigen ID verknüpft, die sich aus dem zugehörigen Match und der Startmarkierung (in Videozeit) zusammensetzt.
 Mithilfe der ID können die \gls{annotationen} auch nachträglich aus der JSON-Datenbank geladen und die Scores mit den Ground-Truth-Labels des Samples verglichen werden.
-Dabei werden die Samples der besten Epoche für alle Datensets absteigend nach ihrem Loss sortiert und mithilfe eines Relabel-Tools verifiziert und im Fehlerfall \ggf korrigiert.
+Dabei werden die Samples der besten Epoche für alle Datensets absteigend nach ihrem Loss sortiert und mithilfe eines Relabel-Tools verifiziert und im Fehlerfall korrigiert.
 Wird ein Fehler entdeckt kann dieser auf dreierlei Weisen behoben werden:
 
 \begin{description}
@@ -168,16 +168,15 @@ Zur Laufzeit wird die JSON-Datenbank in den Arbeitsspeicher geladen und kann dor
 Um die Transaktionen endgültig zu speichern, kann die angepasste Datenbank mit einer neuen Versionsnummer wieder auf dem Dateisystem persistiert werden.
 
 Die Verifikation folgt einem definiertem Protokoll:
-Sind alle Experimente einer Phase abgeschlossen, wird zunächst eine neue Transaktionsdatei erstellt.
-Für jedes der Experimente wird das Relabel-Tool mit den persistierten Score- und Loss-Werte des Fehlerreports initialisiert.
-Das Relabel-Tool erhält ebenfalls Zugriff auf die bestehende JSON-Datenbank.
-Die Samples werden absteigend nach Loss-Wert sortiert und dem Nutzer interaktiv präsentiert.
+zu Beginn wird eine neue Transaktionsdatei erstellt.
+Das Relabel-Tool wird dann mit den persistierten Score- und Fehlerwerten des Fehlerreports, der neuen Transaktionsdatei und der bestehenden JSON-Datenbank initialisiert.
+Die Samples des Fehlerreports werden absteigend nach Loss-Wert sortiert und dem Nutzer interaktiv präsentiert.
 Der Nutzer kann die einzelnen zugrunde liegenden \gls{annotationen} eines Samples ändern oder löschen oder eine neue Annotation hinzufügen.
-Jede dieser drei Operationen lässt sich in Form einer Transaktion in einer \gls{csv}-Datei speichern.
-Nach der Verifikation eines Experiments werden die Transaktionen separat gespeichert, dann auf die Datenbank angewendet und dann die Datenbank in einer neuen Version gespeichert.
-Die geänderten \gls{annotationen} werden zudem als verifiziert in der Datenbank markiert, sodass der Nutzer die gleichen Fehler nicht mehrmals im Relabel-Tool vorgeschlagen bekommt.
+Jede der drei Operationen lässt sich in Form einer Transaktion als Zeile einer \gls{csv}-Datei speichern.
+Nach der Verifikation eines Experiments werden die Transaktionen auf die Datenbank angewendet und dann die Datenbank in einer neuen Version exportiert.
+Die geänderten \gls{annotationen} werden zudem als verifiziert in der neuen Datenbank markiert, sodass der Nutzer die gleichen Fehler nicht mehrmals im Relabel-Tool vorgeschlagen bekommt.
 
 Eine weitere Funktion des Fehlerreports besteht darin nach Auffälligkeiten in den Daten zu suchen:
-Es kann der durchschnittliche Fehler pro Video ermittelt werden und Ausreißer können mit einem z-Test identifiziert werden.
+so kann der durchschnittliche Fehler pro Video ermittelt werden und Ausreißer können mit einem z-Test identifiziert werden.
 Diese Ausreißer sind \zB Videos mit vielen Kodierungsfehlern oder einer nicht konstanten Abspielgeschwindigkeit, die im Rahmen dieser Arbeit nicht zum Einsatz kommen sollten, da sie die Qualität des Datensets im Allgemeinen beeinträchtigen.
 Falls die Qualität dieser Videos inakzeptabel ist, werden sie manuell aus der Datenbank entfernt.
