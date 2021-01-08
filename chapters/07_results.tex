@@ -2,17 +2,17 @@
 \label{ch:results}
 
 In diesem Kapitel werden die Ergebnisse der in \autoref{sec:experimente} beschriebenen Experimente vorgestellt.
-Die Evaluation schließt die Ergebnisse aller vier Phasen, häufige Fehler in der Verifikation, sowie eine grobe Kategorisierung der Klassen ein.
+Die Evaluation schließt die Ergebnisse aller vier Phasen, häufige Fehler in der Verifikation, sowie eine grobe Kategorisierung der Aktionsklassen ein.
 
 \section{Benchmark}
 \label{sec:benchmark}
 
 In diesem Abschnitt werden die Rechenergebnisse der verschiedenen Modelle miteinander verglichen.
-Als Baseline-Modelle wurden R2+1D-34, ir-CSN-152 und zwei Varianten von SlowFast-50 getestet und mit $\gls{tld:Theta}_\text{train} = 200$ für 10 Epochen trainiert.
+Als Baseline-Modelle wurden R2+1D-34, ir-CSN-152 und zwei Varianten von SlowFast-50 getestet, die mit $\gls{tld:Theta}_\text{train} = 200$ für 10 Epochen trainiert.
 Beide SlowFast-Varianten wurden zunächst ohne Hinzunahme von Non-Local-Blöcken trainiert.
 In \autoref{tab:phase1} sind die Ergebnisse zu sehen, wobei alle Hyperparameter aus den ursprünglichen Publikationen übernommen wurden.
 Die Metriken basieren auf einem einheitlichen Testset mit $\Delta_\text{test} = 3$.
-Der Zeitkontext ist damit größer als im Trainingsset und während des Test-Loops durch zusätzliche Frames erreicht (\zB 36 statt 32 Frames bei SlowFast).
+Der Zeitkontext im Testset ist damit größer als im Trainingsset und wird durch zusätzliche Frames erreicht (\zB 36 statt 32 Frames bei ir-CSN), die die Modelle durch ihr dynamisches Pooling wieder auf die passende Länge stauchen.
 
 Überraschend ist, dass die SlowFast-Variante mit $\alpha = 8$ (SlowFast-50-4x16) bessere Ergebnisse erzielt als die Variante mit $\alpha = 4$ (SlowFast-50-8x8).
 Im ersteren erhält der Slow-Pathway schließlich nur halb so viele Frames, wie im letzteren und kann sich damit noch mehr auf räumliche Features fokussieren.
@@ -50,7 +50,7 @@ Bei der statistischen Analyse werden die Samples nach Halbzeitvideo gruppiert un
 Dadurch konnten insgesamt vier fehlerhafte Videos erkannt werden, da diese auffällig hohe Mittelwerte hatten (mit einem z-Score über 3).
 Zudem wurde für zwei weitere Videos, die nach dem gleichen Kriterium aufgefallen sind, das manuelle Aligning nachjustiert.
 
-Bei der Verifikation einzelner Samples wurden pro Modell 50 Samples (im Verhältnis 3:1:1 je Datenset) mit den höchsten Fehlerwerten manuell verifiziert.
+Bei der Verifikation einzelner Samples wurden pro Modell 50 Samples (im Verhältnis 3:1:1 je Datensubset) mit den höchsten Fehlerwerten manuell verifiziert.
 Dies entspricht 150 Samples, bei denen insgesamt 267 Transaktionen mit Korrekturvorschlägen gespeichert wurden.
 Die Transaktionen bestehen zu 72.6 \% aus Zeitfensteranpassungen.
 22.8 \% sind Löschungen von nicht sichtbaren Aktionen und 4.5 \% sind hinzugefügte Aktionen.
@@ -59,7 +59,7 @@ Besonders auffällig ist, dass \zB \code{save}- oder \code{card}-Aktionen in den
 Nach Durchsicht der Daten werden die 267 Transaktionen in die Datenbank übernommen.
 Alle weiteren Experimente beziehen sich somit auf die korrigierte Datenbank.
 
-Eine weitere Optimierung des Baseline-Modells anhand der verifizierten Datenbank, führt zu einer zusätzlichen Steigerung der Balanced Accuracy von 1.5 \% Prozent (siehe \autoref{tab:phase1}).
+Eine weitere Optimierung des Baseline-Modells (ir-CSN) anhand der verifizierten Datenbank, führt zu einer zusätzlichen Steigerung der Balanced Accuracy von 1.5 \% Prozent (siehe \autoref{tab:phase1}).
 
 \section{Hyperparameter-Optimierung}
 \label{sec:hyperparameter-optimierung}
