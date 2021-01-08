@@ -2,26 +2,18 @@
 \label{ch:training}
 
 In diesem Kapitel wird der detaillierte Trainingsablauf mit all seinen Hyperparametern beschrieben.
-Das Training stellt eine Form von Transfer Learning zur Multi-Label-Klassifikation dar.
+Das Training stellt eine Form des Transfer-Learnings zur Multi-Label-Klassifikation dar.
 Es werden ausschließlich vortrainierte Modell verwendet und angepasst.
 Alle Rechenergebnisse basieren auf einem einheitlichen Trainingsprotokoll, welches es ermöglicht, die Ergebnisse zu vergleichen und zu reproduzieren.
-%Die Implementationen basiert auf den Open-Source Bibliotheken PyTorch, Torchvision (für Bild- und Videoverarbeitung) und Ignite (als Framework für Training).
-
 Dazu werden alle möglichen Hyperparameter aufgelistet, kategorisiert und eine Entscheidungsfindung für die Wahl erläutert.
 Anschließend werden alle vorgelagerten Prozesse, der eigentliche Trainingsablauf, sowie nachgelagerte Prozesse veranschaulicht.
 
-\begin{tcolorbox}[title=Todo]
-    \begin{itemize}
-        \item Wireframe: Relabel (Beispiel von Fehlerhaftem Sample)
-    \end{itemize}
-\end{tcolorbox}
-
 Das Training von Deep-Learning-Modellen ist durch die Wahl etlicher Hyperparameter geprägt.
 Einige können mithilfe gängiger Best Practices, andere durch manuelle Verfahren oder durch iteratives Ausprobieren bestimmt werden.
-Der hier vorgestellte Trainingsablauf lässt sich in vier Parametergruppen gliedern:
+Die hier verwendeten Hyperparameter lassen sich in vier Gruppen gliedern:
 
 \begin{description}
-    \item[Sampling-Parameter] Die in \autoref{subsec:hyperparameter} vorgestellten Parameter $\gamma_s$ (Auflösung), $\gamma_\tau$ (Samplingrate) und $\gamma_t$ (Anzahl der Frames) sind Teil der Evaluation und werden in verschiedenen Experimenten ausprobiert.
+    \item[Sampling-Parameter] Die in \autoref{subsec:hyperparameter} vorgestellten Parameter $S$ (Auflösung), $\tau$ (Samplingrate) und $T$ (Anzahl der Frames) sind Teil der Evaluation und werden in verschiedenen Experimenten ausprobiert.
     Der Richtwert $\gls{tld:Theta}_\text{train}$, der die Maximalzahl von Samples pro Klasse beschränkt, wird zunächst auf 100 gesetzt, in späterem Experimenten zur weiteren Optimierung jedoch erhöht.
     \item[Hardware-abhängige Parameter]
     Zu dieser Gruppe gehört \zB die Batch-Größe, die durch die Speicherkapazität der Grafikkarte beschränkt wird.
@@ -34,29 +26,26 @@ Der hier vorgestellte Trainingsablauf lässt sich in vier Parametergruppen glied
 \section{Vorbereitung}
 \label{sec:vorbereitung}
 
-Bevor das eigentliche Training startet, müssen Parameter wie Batch-Größe und Lernrate durch iterative Prozesse in jedem Experiment bestimmt werden.
-Ebenfalls ist eine manuelle Einsicht in die Daten durch das Plotten zufälliger Samples (wie in \autoref{fig:sample_example}) hilfreich, um sicherzustellen, dass alle Pre-Processing-Schritte funktionieren.
+Bevor ein Training startet, werden Parameter wie Batch-Größe und Lernrate durch iterative Prozesse bestimmt.
+Ebenfalls ist eine manuelle Einsicht in die Daten durch das Plotten zufälliger Samples (wie in \autoref{fig:sample_example}) hilfreich, um sicherzustellen, dass alle Schritte der Datenaufbereitung funktionieren.
 
-\subsection{Hardwareeinschränkungen und Bestimmung der Batch Größe}
+\subsection{Hardwareeinschränkungen und Bestimmung der Batch-Größe}
 \label{subsec:hardwareeinschrankungen}
 
 Die Experimente werden mithilfe einer einzelnen \gls{gpu} (Modell Tesla P100-PCIE-16GB \bzw Tesla V100-SXM2-16GB) durchgeführt.
-Da die Feature-Maps proportional zu den Sampling-Parametern $\gamma_s$ und $\gamma_t$ wachsen, kann schon bei einer kleinen Batch-Größe das Speicherlimit der Grafikkarte erreicht werden.
+Da die Feature-Maps proportional zu den Sampling-Parametern $S$ und $T$ wachsen, kann schon bei einer kleinen Batch-Größe das Speicherlimit der Grafikkarte erreicht werden.
 
-Als Antwort auf diese Einschränkung werden zum einen die Modelle konsequent mit einer Genauigkeit von 16 Bit (Half Precision) statt der gängigen 32 Bit trainiert.
+Als Antwort auf diese Einschränkung werden zum einen die Modelle konsequent mit einer Genauigkeit von 16 Bit (Mixed Precision)~\cite{Micikevicius18} statt der gängigen 32 Bit trainiert.
 Zum anderen wird die Batch-Größe, als zentraler Parameter, der Einfluss auf Trainingsdauer und Performance hat, justiert.
 Größere Batches liefern stabilere Gradienten und meist bessere Ergebnisse, verlangsamen jedoch das Training da mehr Epochen bis zur Konvergenz nötig sind (\cite{Gugger20}).
 Als Richtwert wird eine Batch-Größe von 64 festgelegt.
 Dieser Wert orientiert sich am Transfer Learning in~\cite{Feichtenhofer18} und stellt zugleich sicher, dass in jedem Update-Schritt potenziell alle 32 Klassen, sowie Background-Samples repräsentiert sein können.
 
 Da eine Batch-Größe von 64 bei den allermeisten Experimenten nicht in den \gls{gpu}-Speicher passt, wird zunächst die maximal mögliche Batch-Größe mittels Binärer Suche bestimmt.
-Ist die maximale Batch-Größe größer oder gleich dem Richtwert, wird der Richterwert als Batch-Größe übernommen.
+Ist die maximale Batch-Größe größer oder gleich dem Richtwert, wird dieser Richterwert als Batch-Größe übernommen.
 Ist sie kleiner als der Richtwert, wird als weiteres Hilfsmittel eine Gradient Accumulation genutzt.
 Diese stellt sicher, dass die Gradienten der kleinere Batches solange für den Backpropagation-Schritt aufsummiert werden bis der Richtwert von 64 Samples wieder erreicht ist.
-Die eigentliche Batch-Größe wird dazu auf den größten gemeinsamen Teiler aus maximaler Batch-Größe und Richtwert abgerundet.
-Sollte die maximale Batch-Größer die untere Grenze von 8 unterschreiten, muss in letzter Instanz auf das Training vorderer Layer verzichtet werden, um so zusätzlich Speicher zu sparen.
-Die Auswahl über die Anzahl der Layer, die in diesem Fall eingefroren werden, passiert ebenfalls iterativ und wird entsprechend in den Experimenten angegeben.
-
+Die maximale Batch-Größe wird dazu auf die nächstniedrigere Zweierpotenz abgerundet.
 
 \subsection{Bestimmung der Lernrate}
 \label{subsec:vorkehrungen}
@@ -72,11 +61,11 @@ Dabei wird diejenige Rate als Lernrate empfohlen, deren Abstieg maximal ist~\cit
     \label{fig:lr-finder}
 \end{figure}
 
-Da im Folgenden ausschließlich Transfer Learning angewandt wird, wird die Lernrate nicht als skalarer Wert, sondern ein Intervall definiert.
+Da in den Trainings ausschließlich Transfer-Learning angewandt wird, wird die Lernrate nicht als skalarer Wert, sondern ein Intervall definiert.
 Mit sogenannte diskriminativen Lernraten (discriminative fine-tuning~\cite{Howard18}) erhalten vordere Layer eines Netzes kleinere Lernraten als hintere Layer.
 Dem liegt die Idee zugrunde, dass die vortrainierten Low-Level-Features der vorderen Layer eine allgemeinere Gültigkeit haben und weniger an die neue Domäne angepasst werden müssen, als die High-Level-Features hinterer Layer.
 Die diskriminativen Lernraten ergeben sich aus einem Intervall um den empfohlenen Richtwert, wobei das gesamte Intervall eine stetig negative Steigung ausweisen sollte.
-Im Beispiel aus \autoref{fig:lr-finder} wäre $[1e^{-03}, 1e^{-01}]$ ein mögliches Interval.
+Im Beispiel aus \autoref{fig:lr-finder} wäre $[1e^{-3}, 1e^{-1}]$ ein mögliches Interval.
 
 \section{Trainingsablauf}
 \label{sec:trainingsablauf}

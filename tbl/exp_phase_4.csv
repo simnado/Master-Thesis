@@ -1,7 +1,4 @@
-Arch,Weight Decay,$S$,Theta,AUROC,Balanced Acc,F1,Epochen
-R2+1D\_34,1.0E-4,112,200, ,,,
-R2+1D\_34, ,224,300, ,,,
-ir-CSN\_152 (6g),1.0E-4,224,200, ,,,
-ir-CSN\_152 (6g),,256,300,,,,
-SlowFast\_50\_4x16,1.0E-4,224,200,,,,
-SlowFast\_50\_4x16,,256,300,,,,
+$S$,Theta,AUROC,Balanced Acc,F1,Epochen
+224,500, ,,,
+240,500, ,,,
+256,500, ,,,
