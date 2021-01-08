@@ -220,7 +220,7 @@ Die JSON-Datenbank bildet damit die Import-Schnittstelle zu dem Framework.
 Während des Trainings die Trainingsdaten aus der Datenbank und die Modellgewichte aus entsprechenden Checkpoint-Dateien geladen.
 Anhand der Trainingsdaten wird das Modell optimiert und die optimierten Gewichte werden als Ergebnis in neuen Checkpoint-Dateien persistiert.
 Ebenso wird während des Trainings ein Fehlerreport erstellt, der pro Sample Metadaten, Scores und den jeweiligen Fehler der Loss-Funktion erfasst.
-Dieser Report wird als weiteres Ergebnis persistiert.
+Dieser Report wird als weiteres Ergebnis in Form einer CSV-Datei persistiert.
 Im Verifikationsschritt werden Checkpoints und Fehlerreport der potenziell besten Epoche geladen und auffällige Samples werden manuell verifiziert.
 Das Ergebnis ist eine angepasste Version der initialen Datenbank, in der die erkannten Fehler behoben sind.
 Der abschließende Schritt der Inferenz ist möglich mit der Export-Schnittstelle der Modellgewichte.

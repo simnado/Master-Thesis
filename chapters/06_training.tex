@@ -71,7 +71,7 @@ Im Beispiel aus \autoref{fig:lr-finder} wäre $[1e^{-3}, 1e^{-1}]$ ein mögliche
 \label{sec:trainingsablauf}
 
 Allen Experimenten geht die jeweilige Suche nach Batch-Größe und Lernraten voraus.
-Anschließend findet das eigentliche Training nach einem wie folgt beschriebenen, fest definierten Ablauf statt.
+Anschließend findet das eigentliche, wie folgt beschriebene Trainingsablauf statt:
 
 \subsection{Trainingsschleife}
 \label{subsec:trainingsschleife}
@@ -80,14 +80,13 @@ Alle Experimente folgen dem gleichen Schema in Form eines Trainings-Loops:
 \autoref{fig:train-loop} zeigt den Algorithmus des Trainings-Loops, in der pro Epoche eine Schleife durchlaufen wird:
 
 Zunächst werden Batches aus dem Trainingsset gesamplet, bevor der Vorwärts- und Rückwärts-Pass des \gls{har}-Modells durchlaufen wird.
-Aus den Scores (Predictions) des Vorwärtspasses, werden mithilfe der Ground-Truth-Labels $y$ die Fehlerwerte (Losses) berechnet.
-Scores und Losses werden intern zwischengespeichert und in einer separaten \code{Evaluator}-Komponente zwischengespeichert, die pro Epoche Metriken zur Bewertung des Modells erfasst und loggt.
-
+Aus den \gls{scores} (Predictions) des Vorwärtspasses, werden mithilfe der Ground-Truth-Labels $y$ die Fehlerwerte (Losses) berechnet.
+Scores und Fehlerwerte werden intern zwischengespeichert und geloggt.
 Sobald alle Trainingsdaten einmal verarbeitet wurden, werden analog die Validierungsdaten gesamplet, die allerdings nur den Vorwärtspass des \gls{har}-Modells durchlaufen.
-Diese resultierenden Scores und Losses werden analog im \code{Evaluator} zwischengespeichert.
-
-Am Ende einer Epoche wird anhand der Metriken geprüft, ob das Modell overfittet.
+Diese resultierenden Scores und Fehlerwerte werden ebenfalls geloggt.
+Am Ende einer Epoche werden anhand der Scores und Ground-Truth-Labels Metriken erhoben und anhand der Metriken wird geprüft, ob ein Overfitting stattgefunden hat.
 Ist letzteres der Fall, kann der Trainings-Loop vorzeitig abgebrochen werden (Early-Stopping).
+Nach dem Durchlauf werden alle Metriken, Hyperparameter, sowie die besten Modellgewichte (Checkpoints), der Quellcode und der Fehlerbericht an einen persistenten Cloud-Speicher übermittelt, sodass keine Informationen verloren gehen.
 
 \begin{figure}[htbp!]
     \centering
@@ -96,16 +95,11 @@ Ist letzteres der Fall, kann der Trainings-Loop vorzeitig abgebrochen werden (Ea
     \label{fig:train-loop}
 \end{figure}
 
-Nach dem Durchlauf werden alle Metriken, Hyperparameter, sowie die besten Modellgewichte (Checkpoints) und der Quellcode an einen persistenten Cloud-Speicher übermittelt, sodass keine Informationen verloren gehen.
-Auch die Scores und Losses werden mit weiteren Daten zur Identifizierung der jeweiligen Samples in Form einer \gls{csv}-Datei übermittelt.
-Die Speicherung von Scores und Losses dient letztlich der Fehleranalyse in \autoref{sec:nachgang}.
-
 Zudem geht dem beschriebenen Ablauf der Schritt des Scheduling in jeder Trainingsiteration vorher.
 Scheduling meint in diesem Zusammenhang das zeitabhängige Anpassen von Hyperparametern während des Trainings: in diesem Fall der Lernraten.
-
 In allen Experimenten wird hierzu ein One-Cycle-Schedule~\cite{Smith15} erstellt, der die Lernraten in jedem Iterationsschritt anpasst.
 Im ersten Drittel werden die Lernrate von einer 10x kleineren initial Lernrate aus angenähert, während sie sich in den letzten zwei Dritteln wieder auf null abkühlen.
-\autoref{fig:one-cylce} zeigt einen exemplarischen Verlauf für die Basis-Lernrate von 0.01.
+\autoref{fig:one-cylce} zeigt einen exemplarischen Verlauf für die Basis-Lernrate von $5e^{-3}$.
 Diese Praxis verspricht eine schnellere Konvergenz, indem der Optimizer im ersten Drittel mehr Freiheitsgrade bekommt, um nach einem guten Startpunkt zu suchen und lokalen Minima zu entkommen.
 In den hinteren Dritteln kann diese Startlösung langsamer optimiert werden als vorher, sodass zu große Sprünge vermieden werden.
 
@@ -126,18 +120,7 @@ In den hinteren Dritteln kann diese Startlösung langsamer optimiert werden als 
 \end{figure}
 
 Der Backward-Pass basiert auf einem Adam-Optimierer~\cite{Kingma14} mit der Standardkonfiguration nach~\cite{Gugger20}.
-Die Anzahl der Epochen wird in der ersten auf 10 beschränkt, was zum Initialisieren und einen einfachen Benchmark ausreicht.
-In späteren Experimenten werden meist weniger Epochen verwendet, da das Modell bereits auf ähnliche Daten angepasst ist.
-
-\subsection{Reaktive Änderungen}
-\label{subsec:reaktive-aenderungen}
-
-Wie schnell das Modell innerhalb des Trainings-Loops lernen kann ist letztlich auch von der Architektur selbst abhängig.
-Die Zykluslänge im One-Cycle-Scheduling ist definiert durch die Anzahl der Epochen.
-Sollte ein Modell im Zuge des Trainings massiv overfitten, ist es oft hilfreich den Durchlauf neu zu starten und dabei die Zahl der Epochen auf diejenige Epoch zu beschränken, in der zuvor das Overfitting begann~\cite{Gugger20}.
-
-Eine weitere Reaktion ist der Einsatz von L2-Regularisierung, die die Summe der Modellparameter in die Fehlerfunktion einfließen lässt.
-Das Maß des Einflusses wird durch eine Weight-Decay-Rate bestimmt, die, sofern nicht anders hervorgehoben, immer aus den Hyperparametern des vortrainierten Modells übernommen wird.
+Die Anzahl der Epochen variiert je nach Experiment und ist im Maximalfall auf 10 beschränkt.
 
 \subsection{Metriken}
 \label{subsec:metriken}
@@ -150,10 +133,10 @@ Während des Trainings werden folgende globalen Metriken erfasst:
     \item Precision: $PR = \frac{TP}{TP+FP}$
     \item Recall: $RE = \frac{TP}{TP+FN}$
     \item F1-Score: $F1 = \frac{2 \cdot TP}{2 \cdot TP + FP + FN}$
-    \item Area Under the Receiver Operating Characteristic Curve (AUROC)
+    \item Area Under the Receiver Operating Characteristic Curve (AUROC)~\cite{Hand01}
 \end{itemize}
 
-Die oberen vier Metriken, werden jeweils pro Klasse erhoben, um später Aussagen über die individuelle Lernbarkeit einer einzelnen Klasse treffen zu können.
+Alle Metriken, werden jeweils pro Klasse erhoben, um später Aussagen über die individuelle Lernbarkeit einer einzelnen Klasse treffen zu können.
 Darüber hinaus wird der Durchschnitt über alle Klassen Klasse (macro) oder das direkte Verhältnis auf Basis der klassenübergreifend aufsummieren Faktoren (TP, FP, etc.) erfasst (micro).
 Sofern nicht anders hervorgehoben, sind die im weiteren Verlauf vorgestellten, skalaren Metrikwerte immer Macro-Werte.
 
