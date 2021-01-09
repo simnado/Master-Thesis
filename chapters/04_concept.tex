@@ -190,9 +190,10 @@ Die beste Konfiguration wird schließlich mit zusätzlichen Daten im größeren 
 
 In der dritten Phase werden die 32 Aktionsklassen einzeln evaluiert und Klassen, die nur extrem selten korrekt klassifiziert werden, werden aus dem ursprünglichen Datenset entfernt.
 Da diese Klassen gravierenden Einfluss auf den Fehler und damit auf die Optimierung des Modells haben, wird das Netz erneut mit nur einer Untermenge der ursprünglichen Klassen nachtrainiert.
-Auch hier folgt anschließend ein Verifikationsschritt.
+Dabei wird als weiteres Hilfsmittel Label Smoothing~\cite{Szegedy16, Mueller20} genutzt.
+Anschließend folgt auch hier ein Verifikationsschritt.
 
-In der letzten Phase werden weitere Verbesserungen der Metriken angestrebt, durch manuelle Anpassungen äußerer Parameter, Regularisierungstechniken (siehe \autoref{subsec:reaktive-aenderungen}), sowie durch spezielle Techniken, wie Label Smoothing~\cite{Szegedy16, Mueller20} oder Multi-Grid-Training~\cite{Wu20}.
+In der letzten Phase werden weitere Verbesserungen der Metriken angestrebt, indem die räumliche Auflösung $S$ in Anlehnung an das Vorgehen in~\cite{Wu20} erhöht wird.
 
 %\subsubsection*{Vergleichbarkeit mit SoccerNet}
 

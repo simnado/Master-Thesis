@@ -1,7 +1,0 @@
-Arch,AUROC,Balanced Acc,F1,verified
-R2+1D\_34,79.6,58.2,7.6,+
-R2+1D\_34, ,,,-
-SlowFast\_50,81.9,62.3,12.3,+
-SlowFast\_50,,,,-
-ir-CSN\_152 (4g),84.2,66.1,15.5,+
-ir-CSN\_152 (4g),,,,-

@@ -1,24 +1,11 @@
-\chapter{Rechenergebnisse von HAR-Modellen in der Literatur}
-\label{ch:leaderboard}
-
-\autoref{tab:models} zeigt die publizierten Rechenergebnisse der in \autoref{ch:sota} vorgestellten Modelle im Vergleich.
-Die Ergebnisse von UCF-101 beziehen sich alle auf die als 3-fold-Accuracy angegebene Metrik.
-Sports-1M zeigt jeweils die Accuracy im Format \emph{clip@1}/\emph{video@1} und Kinetics stets die Top-1-Accuracy.
-
-\begin{figure}
-    \small
-    \csvautotabular{tbl/models.csv}
-    \label{tab:models}
-\end{figure}
-
 \chapter{Paarweise Intersektion von Spielaktionen}
 \label{ch:overlaps}
 
-In \autoref{fig:overlaps} wurde für alle 32 Klassen der prozentuale Anteil aller Sampler einer Klasse berechnet der jeweils in Kombination mit einer anderen Klasse auftritt.
+In \autoref{fig:overlaps} wurde für alle 32 Klassen der prozentuale Anteil aller Sampler einer Klasse berechnet, der jeweils in Kombination mit einer anderen Klasse auftritt.
 Ein Eintrag $c_{ij}$ lässt sich wie folgt interpretieren:
-$c_{ij}$ \% aller Samples der Klasse $i$ treten gemeinsam mit der der Klasse $j$ auf.
+$c_{ij}$ \% aller Samples der Klasse $i$ treten gemeinsam mit der Klasse $j$ auf.
 
-Wie man sieht, ereignen sich \zB 74 \% der Aktionen \code{saved} (innerhalb eines Zeitkontextes von $\Delta=5$ Sekunden) gleichzeitig mit Aktionen der Klasse \code{footShot}.
+Wie man sieht, ereignen sich \zB 74 \% der Aktionen \code{saved} gleichzeitig mit Aktionen der Klasse \code{footShot}.
 Bei einer niedrigeren Wahl von $\Delta$ sind die Abhängigkeiten entsprechend geringer, es treten jedoch die gleichen Kombinationen hoher Abhängigkeiten auf.
 
 \begin{figure}

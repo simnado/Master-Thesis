@@ -65,7 +65,7 @@ Eine weitere Optimierung des Baseline-Modells (ir-CSN) anhand der verifizierten 
 \label{sec:hyperparameter-optimierung}
 
 Das aktuelle Baseline-Modell bilden in seiner ursprünglichen Form mit $T=32$ und $\tau = 2$ einen Zeitkontext von 2.67 Sekunden ab.
-Da diese Hyperparameter auf Grundlage eines anderen Datensets gesetzt wurde, werden die oben genannten Hyperparameter im nachfolgenden Experiment in einer Grid-Suche anhand des vorliegenden Datensets angepasst.
+Da diese Hyperparameter auf Grundlage eines anderen Datensets festgesetzt wurden, werden die oben genannten Hyperparameter im nachfolgenden Experiment in einer Grid-Suche anhand des vorliegenden Datensets angepasst.
 Das Vorgehen ist weiter motiviert durch die Mindest-Dauer von 4 Sekunden in SoccerDB \bzw der unteren Grenze von 3 Sekunden basierend auf \gls{sbod}.
 
 Alle Modelle nutzen eine dynamisches Avg-\pool-Layer zwischen dem letzten \conv- und dem ersten \fc-Layer, das die Verarbeitung von \glspl{clip} variabler Länge $T$ zulässt.
@@ -107,10 +107,6 @@ So wirken sich zusätzliche Frames und ein hoher oder gleichbleibender Zeitschri
 Ein erhöhter Zeitkontext wirkt sich ebenfalls positiv auf den Recall auf.
 Die Precision scheint hingegen unabhängig vom Zeitkontext zu sein.
 
-Um ein gutes Gleichgewicht zwischen den beiden Metriken zu erlangen, werden nachfolgend nur noch Ergebnisse betrachtet, die einen besonders hohen F1-Score aufweisen.
-In \autoref{tab:phase2} sind diese Experimente gelistet, die maximal 1 \% von dem maximale F1-Score abweichen.
-Als zusätzlicher Filter werden Experimente ausgeschlossen, deren Balanced Accuracy mehr als 1 \% vom Maximum abweicht.
-
 \begin{figure}
     \centering
     \small
@@ -118,89 +114,99 @@ Als zusätzlicher Filter werden Experimente ausgeschlossen, deren Balanced Accur
     table head=\hline,late after line=\\\hline]{tbl/exp_phase_2.csv}
     {1=\model,2=\s,3=\t,4=\sr,5=\d,6=\auroc,7=\ba,8=\fone}
     {\t & \sr & \d & \ba & \fone & \auroc}
-    \caption{Ergebnisse aus Phase 2}
+    \caption{Ergebnisse des Validierungssets aus Phase 2}
     \label{tab:phase2}
 \end{figure}
 
-
-Das jeweils beste Modell wird nach Abschluss der Suche erneut für 5 Epochen mit $\gls{tld:Theta}_\text{train} = 200$ trainiert.
+Um ein gutes Gleichgewicht zwischen den beiden Metriken zu erlangen, werden nachfolgend nur noch Ergebnisse betrachtet, die einen besonders hohen F1-Score aufweisen.
+In \autoref{tab:phase2} sind nur Experimente gelistet, die maximal 1 \% von dem maximale F1-Score abweichen.
+Als zusätzlicher Filter werden Experimente ausgeschlossen, deren Balanced Accuracy mehr als 1 \% vom Maximum abweicht.
+Als Baseline-Modell für die nachfolgenden Experimente wird die Konfiguration mit $T=48$ und $\tau=2.4$ (10 \gls{fps}) gewählt.
+Da sich für dieses Modell ein Zeitkontext von $\Delta_\text{fit} = 4.8$ ergibt, wird für dieses und alle folgenden Experimente ein zweites Testset gesamplet mit $\Delta_\text{test} = 5$.
+Das neue Baseline-Modell wird erneut für 5 Epochen mit $\gls{tld:Theta}_\text{train} = 200$ trainiert und liefert dabei eine Balanced Accuracy von 68.18~\% auf dem neuen Testset.
 
 \section{Kategorisierung der Aktionsklassen}
 \label{sec:kategorisierung-der-aktionsklassen}
 
-\begin{tcolorbox}[title=Todo]
-    \begin{itemize}
-        \item Abweichung pro Metrik erheben: Klasse zu macro -> Durchschnitt
-        \item Idee: pca und clustering in vier gruppen
-        \item Vergleich der Evaluation auf subsets (SOCC-HAR-8, -16, -24, -32): Jeweils ROC Curve
-        \item Optional: SOCC-HAR-NET, SOCC-HAR-DB Klassen
-    \end{itemize}
-\end{tcolorbox}
+In den bisherigen Experimenten wurden jeweils nur die durchschnittlichen Metriken (macro) über alle Klassen betrachtet.
+In diesem Abschnitt wird das Baseline-Modell der zweiten Phase erstmals pro Klasse evaluiert.
+Dabei werden besonders schwere Klassen aus dem Datenset entfernt und das Modell wird ohne diese Klassen erneut nachtrainiert.
+
+Zuerst werden die Metriken des vorangegangenen Experiments pro Klasse erhoben.
+\autoref{fig:ba_by_class} zeigt die Balanced Accuracy zum Baseline-Modell aus Phase 2.
+Dem ist entnehmen, dass es teils sehr starke Abweichungen innerhalb der verschiedenen Klassen gibt.
+Während Aktionen wie \code{corner}, \code{footShot} oder \code{throwIn} hohe Werte vorweisen, können andere Klassen wie \code{offside} oder \code{handball} fast gar nicht klassifizieren werden.
+
+%Das wird insbesondere deutlich wenn man die Metriken Precision und Recall in \autoref{fig:precision-recall} betrachtet.
 
 \begin{figure}
     \centering
     \begin{subfigure}{.24\textwidth}
         \centering
-        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_balanced_accuracy_by_class_test_202012-2218-2841.eps}
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_ba_by_class_ph_2.eps}
+        \caption{Balanced Accurcy \newline mit 32 Klassen}
+        \label{fig:ba_by_class}
     \end{subfigure}%
     \begin{subfigure}{.24\textwidth}
         \centering
-        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_f1_by_class_test_202012-2218-2841.eps}
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_pca_by_class_ph_2.eps}
+        \caption{PCA-0 \newline mit 32 Klassen}
+        \label{fig:pca_by_class_phase_2}
     \end{subfigure}
     \begin{subfigure}{.24\textwidth}
         \centering
-        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_auroc_by_class_test_202012-2218-2842.eps}
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_pca_by_class_socc_har_28.eps}
+        \caption{PCA-0 \newline mit 28 Klassen}
     \end{subfigure}
     \begin{subfigure}{.24\textwidth}
         \centering
-        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_PCA_by_class_test_202012-2218-2843.eps}
+        \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_pca_by_class_socc_har_25.eps}
+        \caption{PCA-0 \newline mit 25 Klassen}
+        \label{fig:pca_by_class_phase_3}
     \end{subfigure}
     \caption{Metriken pro Klasse}
     \label{fig:class-metrics}
 \end{figure}
 
-Die bisherigen Rechenergebnissen wurden jeweils die durchschnittlichen Metriken (macro) über alle Klassen betrachtet.
-In diesem Abschnitt wird das Top-Modell hingegen an jeder Klasse einzeln evaluiert.
-Dazu werden die bereits verwendeten Metriken pro Klasse erhoben.
-Wie \autoref{fig:class-metrics} zu entnehmen ist, gibt es starke Abweichungen innerhalb der verschiedenen Klassen.
-Während Aktionen wie \code{corner}, \code{footShot} oder \code{throwIn} durchgehend hohe Metriken vorweisen, können andere Klassen wie \code{offside} oder \code{handball} praktisch gar nicht klassifizieren werden.
-Zwischen diesen Extrema ist es schwierig eine klare Rangordnung von leicht zu schwierig herzustellen.
-Das wird insbesondere deutlich wenn man die Metriken Precision und Recall in \autoref{fig:precision-recall} betrachtet.
+%Dabei fällt auch auf, dass vor die Klassen im unteren Bereich mit einer niedrigen Precision viele False Positives verursachen, obwohl sie zum Teil einen hohen Recall haben.
+%Auffällig ist auch, dass Aktionen, die sich im laufenden Spiel ereignen (\code{foul}, \code{cross}, \code{footShot}, \code{save}) einen besonders hohen Recall haben, während Aktionen die oft mit Spielunterbrechungen und Nahaufnahmen einhergehen (\code{substitution}, \code{goal}, \code{injury}) einen sehr niedrigen Recall aufweisen.
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_precision_recall_by_class.eps}
-    \caption{Vergleich von Precision und Recall pro Klasse}
-    \label{fig:precision-recall}
-\end{figure}
-
-Dabei fällt auch auf, dass vor die Klassen im unteren Bereich mit einer niedrigen Precision viele False Positives verursachen, obwohl sie zum Teil einen hohen Recall haben.
-Auffällig ist auch, dass Aktionen, die sich im laufenden Spiel ereignen (\code{foul}, \code{cross}, \code{footShot}, \code{save}) einen besonders hohen Recall haben, während Aktionen die oft mit Spielunterbrechungen und Nahaufnahmen einhergehen (\code{substitution}, \code{goal}, \code{injury}) einen sehr niedrigen Recall aufweisen.
-
-Man sieht also, dass keine pauschale Aussage über die Schwierigkeit der Aktionsklassen gemacht werden kann.
+Da sich für jede erhobene Metrik eine abweichende Rangfolge der Klassen ergibt, ist es schwierig auf eine allgemeingültige Rangordnung abzubilden, die die Komplexität der Klassen widerspiegelt.
+Es kann also keine pauschale Aussage über die Schwierigkeit einer Aktionsklassen gemacht werden.
 Dennoch lässt sich anhand der erfassten Metriken eine grobe Ordnung erstellen, auch wenn sie allgemein nicht repräsentativ ist.
-Hierzu werden alle Metriken pro Klasse zu einer zweidimensionalen Matrix $M \in (A \times 5)$ gesammelt und im Zuge einer \gls{pca} auf einen eindimensionalen Vektor projiziert.
-Die erste Komponente der \gls{pca} $c_0 \in (5 \times 1)$ deckt mit 80 \% hinreichend viel Varianz und projiziert die Metriken auf einen Vektor:
+Hierzu werden alle fünf Metriken pro Klasse zu einer zweidimensionalen Matrix $M \in \mathbb{R}^{(A \times 5)}$ angeordnet und im Zuge einer \gls{pca} auf einen eindimensionalen Vektor projiziert.
+Die erste Komponente der \gls{pca} $c_0 \in \mathbb{R}^{(5 \times 1)}$ deckt mit 80 \% hinreichend viel Varianz ab und projiziert die Metriken auf einen Vektor:
 
 \begin{equation}
     \label{eq:pca}
     \text{pca}_0 = M \cdot c_0
 \end{equation}
 
-Die resultierende Rangordnung ist ebenfalls in \autoref{fig:class-metrics} (rechts) abgebildet.
+Die resultierende Rangordnung ist in \autoref{fig:pca_by_class_phase_2} abgebildet.
+Als Folge werden die schwächsten vier Klassen aus dem ursprünglichen Datenset entfernt und das Modell wird erneut mit den übrigen 28 Klassen und $\gls{tld:Theta}_\text{train} = 300$ nachtrainiert.
+Anschließend wird dieser Prozess erneut wiederholt, indem drei weitere Klassen entfernt werden und das Modell nur mit den 25 besten Klassen nachtrainier wird.
+Nach beiden Trainings wurden wieder jeweils 50 Sample verifiziert und dabei insgesamt 187 weitere Transaktionen vorgenommen, um die Datenqualität zu verbessern.
 
-\subsection{Evaluation auf Teilmengen}
+Durch das Ausschließen dieser besonders schweren Klassen konnte eine zusätzliche Steigerung der Balanced Accuracy von 2.4~\% \bzw 6.4~\% erwirkt werden.
+Das Modell mit 25 Klassen gilt fortan als Baseline-Modell der dritten Phase und \autoref{fig:pca_by_class_phase_3} zeigt die resultierende Ordnung der Klassen nach ihrer Schwierigkeit.
+Analysiert man die Ordnungen, fällt auf, dass vor allem Klassen, die einen hohen Detailgrad in der Erkennung erfordern (\code{nutmeg}, \code{handBall}, \code{deflected}) schlecht abschneiden.
+Eine mögliche Erklärung ist die geringe Auflösung der Modelle, die nicht alle Informationen abbilden kann.
+Das Gegenteil ist der Fall bei Klassen, die oft in Kombination mit Nahaufnahmen gezeigt werden, wie \code{injury} oder \code{substitution}.
+Ebenfalls schlecht schneiden Klassen ab, die eine hohe Kontextabhängigkeit haben, wie \code{offside} oder \code{finalWhistle}.
+Während Klassen, die durch räumliche Gegebenheiten (insbesondere der Spielfeldmarkierungen) geprägt sind (\code{kickOff}, \code{corner}, \code{throwIn}), deutlich besser abschneiden.
+
+\subsection{Vergleich zu bestehenden Datensets}
 \label{subsec:evaluation-auf-teilmengen}
 
-Abschließend soll der Einfluss schwächerer Klassen auf das Gesamtergebnis gemessen werden.
-Dazu werden die Aktionsklassen absteigend nach der PCA-basierten Rangordnung sortiert und in vier Teilmengen gegliedert, die sich jeweils aus den oberen 8, 16, 24 und 32 Klassen zusammensetzen.
-In \autoref{tab:eval_subset} sind die Ergebnisse (macro) auf Berechnungsgrundlage der in der jeweiligen Teilmenge enthaltenen Klassen aufgeführt.
-Zusätzlich wurden zwei weitere Untermengen mit den gleichen Aktionsklassen aus den Datensets SoccerNet und SoccerDB abgeleitet.
-Die Ergebnisse sind keinesfalls direkt vergleichbar mit den publizierten Datensets, da die Datengrundlage eine andere ist.
+Aufgrund des zeitlichen Rahmens dieser Arbeit war es nicht möglich einen direkten Vergleich des Baseline-Modells anhand der Original-Datensets von SoccerNet und SoccerDB durchzuführen.
+Für eine grobe Einordnung wurden jedoch zwei weitere Untermengen von SOCC-HAR-32 abgeleitet -- mit den gleichen Aktionsklassen aus den genannten Datensets.
+Das Baseline-Modell dieser Phase wurde anhand beider Subsets ohne weiteres Training evaluiert.
+Die Ergebnisse in \autoref{tab:eval_subset} sind also keinesfalls direkt vergleichbar oder repräsentativ, da die Datengrundlage eine andere ist.
 Es soll dem Leser jedoch eine grobe Einordnung ermöglichen.
 
 \begin{figure}
     \centering
+    \small
     \csvreader[no head,tabular=|l||r|r|r|,
     table head=\hline,late after line=\\\hline]{tbl/eval_subsets.csv}
     {1=\dataset,2=\ba,3=\fbeta,4=\auroc}
@@ -209,27 +215,35 @@ Es soll dem Leser jedoch eine grobe Einordnung ermöglichen.
     \label{tab:eval_subset}
 \end{figure}
 
-\section{Fine-Tuning}
+\section{Training mit erhöhter Auflösung}
+\label{sec:fine-tuning}
 
 \begin{tcolorbox}[title=WIP]
     \begin{itemize}
-        \item Tabelle: Label Smooting, res,Anzahl Epochen, Weight Decay
-        \item Mit mehr Background trainieren um Precision zu erhöhen!
-        \item schon hier beschränken auf 24 Klassen?
-        \item Threshold auf Validierungsset bestimmen und an Testset testen
+        \item Werte nachtragen
     \end{itemize}
 \end{tcolorbox}
 
-In der vierten Phase wird das neue Baseline-Modell aus Phase 3 mit zusätzlichen Techniken weiter optimiert.
-Dazu zählt das Training mit einer erhöhten Auflösung $S$, der Einsatz von Label Smoothing \cite{Szegedy15} und die Justierung weitere Hyperparameter wie Weight Decay.
-\autoref{tab:exp4} zeigt die Ergebnisse.
+In der vierten Phase wird das Baseline-Modell der dritten Phase mit einer höheren Auflösung $S$ nachtrainiert.
+Das Vorgehen, welches sich am in~\cite{Wu20} vorgestellten Multi-Grid-Training orientiert, erhöht die Auflösung alle 5 Epochen.
+So findet ein zusätzliches Experiment statt mit $S=240$ und eins mit $S=256$.
+Eine höhere Auflösung ist aufgrund der Hardware-Einschränkungen nicht möglich.
+\autoref{tab:exp4} zeigt die Ergebnisse dieser und aller vorangegangenen Phase im Vergleich.
 
 \begin{figure}
     \centering
-    \csvreader[no head,tabular=|l|r||r|r|r||r|r|r|,
-    table head=\hline,late after line=\\\hline]{tbl/exp_phase_4.csv}
-    {1=\model,2=\wdecay,3=\s,4=\thet,5=\auroc,6=\ba,7=\fbeta,8=\epo}
-    {\model & \s & \epo & \thet & \wdecay & \ba & \fbeta & \auroc}
-    \caption{Ergebnisse aus Phase 4}
+    \small
+    \csvreader[no head,tabular=|l|l|r|r||r|r|r||r|r|r|,
+    table head=\hline,late after line=\\\hline]{tbl/exp_phase_1-4.csv}
+    {1=\phase,2=\s,3=\t,4=\lilTau,5=\bigDelta,6=\auroc,7=\ba,8=\fbeta,9=\bigTheta,10=\socchar}
+    {\phase & \socchar & \bigTheta & \bigDelta & \s & \t & \lilTau & \ba & \fbeta & \auroc}
+    \caption{Ergebnisse aus Phase 1-4}
     \label{tab:exp4}
 \end{figure}
+
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_precision_recall_by_class.eps}
+%    \caption{Vergleich von Precision und Recall pro Klasse}
+%    \label{fig:precision-recall}
+%\end{figure}

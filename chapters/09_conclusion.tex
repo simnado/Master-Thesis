@@ -1,88 +1,64 @@
-\chapter{Rekapitulation}
+\chapter{Fazit}
 \label{ch:zusammenfassung}
 
 In diesem letzten Kapitel wird zunächst das Vorgehen und die Erkenntnisse der Arbeit rekapituliert.
 Anschließend werden offene Probleme genannt und ein Ausblick für deren Lösung in Ausblick gestellt.
 Darüber hinaus werden weiterführende Forschungsfrage ausgeworfen.
 
-\begin{tcolorbox}[title=WIP]
- \begin{itemize}
-  \item Zusammenfassung: Vorgehen, Ergebnisse, Erkenntnisse (Forschungsfrage beantworten, Was zu beweisen war)
-  \item Ausblick: distanzierte Bewertung im Kontext der Problemstellung (Schneller durch mehr CPU-Power, Decoding ist primärer Bremser!), tiefere Modelle, action spotting, non-local
-  \item Forschungsbedarf: Weiterführung, Anschlussstudien
- \end{itemize}
- \end{tcolorbox}
-
 \section{Zusammenfassung}
 \label{sec:rekapitulation}
 
 Zur \gls{har} gibt es im Fußball-Sektor bis dato kein umfangreiches Datenset mit mehr als zehn Aktionsklassen.
-Deshalb wurde im Zuge dieser Arbeit zunächst ein mächtigeres Multi-Label-Datenset mit insgesamt 32 Klassen auf Basis öffentlich zugänglicher Daten erstellt.
+Deshalb wurde im Zuge dieser Arbeit mit SOCC-HAR-32 ein mächtigeres Multi-Label-Datenset mit insgesamt 32 Klassen auf Basis öffentlich zugänglicher Daten erstellt.
 Das Datenset selbst besteht aus Markierungen, die sich auf ein Intervall innerhalb eines ungeschnittenes Video beziehen.
 
-Um zu prüfen ob alle neuartigen Klassen mit Methoden des Deep-Learnings lernbar sind, wurden drei Baseline-Modelle aus drei unterschiedlichen Oberkategorien auf Eignung getestet:
-SlowFast als reines, R2+1D als Block-faktorisiertes und ir-CSN als Gruppen-faktorisiertes 3D-\gls{cnn}.
-Für jedes Baseline-Modell wurden optimale Hyperparameter gesucht, wobei alle Modelle bessere Ergebnisse erzielen, wenn sie auf \glspl{clip} mit einer längeren Dauer trainiert werden.
-Die zusätzliche Länge kann durch zusätzliche Frames oder durch ein dünneres Sampling erfolgen, wobei ersteres den größeren Erfolg verspricht.
-In einem Benchmark wurden die besten Konfigurationen der Baseline-Modelle übernommen und anhand von xxx-sekündigen Samples eines separaten Testsets verglichen, wobei ir-CSN mit XXX am besten abschnitt.
+Um zu prüfen, ob alle neuartigen Klassen mit Methoden des Deep-Learnings lernbar sind, wurden drei Baseline-Modelle aus drei unterschiedlichen Oberkategorien auf Eignung getestet:
+SlowFast, R2+1D und ir-CSN.
+Unter allen Baseline-Modelle schnitt ir-CSN bei einem einheitlichen Testset mit dreisekündigen Clips am besten ab.
+Anschließend wurden optimale Hyperparameter gesucht, wobei sich herausstellte, dass zusätzliche Frames und eine erhöhte Schrittweite beim Sampling die Ergebnisse zusätzlich verbessern, was eine Segementierung in fünfsekündige Clips zur Folge hat.
 
-Weitere Verbesserungen des CSN-Modells konnten erzielt werden, indem Samples mit auffällig hohen Fehlerwerten manuell verifiziert wurden.
-Durch die manuellen Korrekturen konnte eine Verbesserung von XXX erzielt werden.
-Eine weitere Steigerung wurde durch das Sampling mit einer höheren Auflösung, zusätzlicher Samples und Label Smoothing erreicht.
+Außerdem wurde die Komplexität der einzelnen Aktionsklassen anhand erhobener Metriken verglichen und in eine Rangordnung gebracht.
+Dabei wurden besonders schwierig zu erlernende Klassen aus einem abgeleiteten Datenset namens SOCC-HAR-25 entfernt.
 
-Darüber hinaus wurde auf Basis der Rechenergebnisse eine Analyse über die Schwierigkeit der 32 Aktionsklassen durchgeführt, wobei auffiel, einige Aktionen praktisch gar keine Wiedererkennung erfahren.
-Diese Aktionen wurden in Form eines Sub-Datensets mit nur 24 der ursprünglichen 32 Klassen entfernt und die Experimente wurden mit dem neuen Datenset wiederholt, was die höchste Performance-Steigerung brachte.
+Durch erneutes Training mit SOCC-HAR-25 und durch die Behebung zahlreicher Datenfehler konnten weitere Verbesserungen erzielt werden.
+Zuletzt wurde eine Steigerung durch das Sampling mit einer höheren Auflösung und zusätzlicher Samples erreicht, was zu einer Balanced Accuracy von \primarymetric \% (32 Klassen) \bzw \secondarymetric \% (25 Klassen) führte.
 
 \section{Weiterführende Erkenntnisse}
 \label{sec:weiterfuhrende-erkenntnisse}
 
-Mit Hinblick auf die Forschungsfrage wird mit SOCC-HAR-24 ein neues Datenset vorgestellt, welches 14 zusätzliche Klassen beinhaltet, die, wie anhand der Experimente belegt wurde, durch aktuelle Deep-Learning-Modelle erlernbar sind.
-
-Die Experimente legen weiterhin nah, dass bei einer \gls{har} mit Fußballvideos der Dynamik eine höhere Rolle zukommt als es bei generischen Datensets der Fall ist.
-Die höhere Genauigkeit von SlowFast-4x16 gegenüber SlowFast-8x8, sowie das Hyperparameter-Tuning stützen diese Hypothese.
-
-Die Analyse der Aktionsklassen belegt, dass bestiommte Aktionen (die \zB oft in Kombination mit Nahaufnahmen auftreten) vergleichsweise schlecht abschneiden, während andere durchweg besser abschneiden.
+Mit Hinblick auf die Forschungsfrage wird mit SOCC-HAR-32 (und SOCC-HAR-25) ein neues Datenset vorgestellt, welches mehr als dreimal (zweimal) so viele Aktionen abbildet, als bisherige Fußball-Datensets im Bereich HAR.
+Die Experimente belegen dabei, dass der Großteil der Aktionsklassen mit aktuellen Deep-Learning-Modelle erlernbar ist, wobei sich ir-CSN im Vergleich zu den anderen benutzen Modelle als besonders geeignet herausstellt.
+Als besonders schwer gilt weiterhin die Erkennung von Aktionen, die einen hohen Detailgrad oder einen langen zeitlichen Kontext benötigen, um identifiziert werden zu können.
 
 \section{Ausblick}
 \label{sec:ausblick}
 
-Im Rahmen dieser Arbeit war es nicht mehr möglich einen abschließenden Test der mit SOCC-HAR-32 trainierten Modelle, auf den Daten von SoccerNet und SoccerDB durchzuführen.
+Im Rahmen dieser Arbeit war es nicht mehr möglich alle Vorhaben in Perfektion umzusetzen.
+Bisherige Ergebnisse leiden vor allem an der mangelhaften Datenqualität \bzw der Qualität des Alignings.
+Durch eine umfassendere Verifikation und dem manuellen Justieren von Zeitfenstern innerhalb des Datensets wird entsprechend eine große Verbesserung der Ergebnisse zugerechnet.
+Als weiterer Schwachpunkt wird die statische Segmentierung in Clips angesehen:
+Eine aufwendigere Sampling-Strategie, die sicherstellt, dass Aktionen innerhalb eines Clips immer zeitlich zentriert sind, würde ebenfalls eine potenzielle Verbesserung mit sich ziehen.
+Die hier verwendete statische Segmentierung kann \zB nicht sicherstellen, dass nur die erste Hälfte einer Aktion gezeigt wird.
+Ebenfalls wird davon ausgegangen, dass zusätzliche Background-Samples während des Trainings zur einer höheren Precison und einem höheren F1-Score führen.
 
+Mit Hinblick auf eine zeitliche Action Detection könnte das Baseline-Modell in eines der in \autoref{sec:temporal-action-detection} vorgestellten Modelle integriert werden.
+Für das weiterführende Training eines Action-Detection-Modells ist jedoch auch (und zwar in noch höherem Maße) die Datenqualität der Aktionsintervalle entscheidend.
 
-Das belegt zwar, dass die Daten in SOCC-HAR-32 nicht frei von Fehlern sind, bedeutet im Umkehrschuss jedoch auch, dass
-
-Die Rechenergebnisse dieser Arbeit stellen eine solide Baseline zukünftiger Arbeiten dar, die durch zusätzlichen Aufwand noch viel Verbesserungspotential hat.
-Offensichtlich lassen sich noch bessere Ergebnisse erziehen, wenn das vorgestellte Baseline-Modell von Grund auf mit den neuen Datenset trainiert würde, was aus Hardware-Beschränkungen im Rahmen dieser Arbeit nicht möglich war.
-Weitere Fortschritte sind denkbar durch die Hinzunahme der Audiosignale der zugrunde liegenden Videos.
-Ein ähnlicher Ansatz wurde bereits in \cite{Wang19} beschrieben.
-Ebenso vielversprechend ist die in \cite{Wu20} vorgestellte Methodik die räumliche Auflösung während des Trainings von niedrig- zu höher auflösenden Samples zu variieren.
-
-Mehrschrittige Modell, die aufgrund des erhöhten Entwicklungsaufwand im Vorfeld ausgeschlossen wurden, könnten ebenfalls Fortschritte bringen.
-So könnten \zB vorab Kamerawechsel erkannt werden und \glspl{clip} ausschließlich so gesamplet werden, dass sie kontinuierliche Bewegung ohne Kameraschnitte zeigen.
-Alternative kann die Information eines Kamerawechsels, wie auch weitere separat erhobene Informationen wie Ballposition oder Spielerkoordinaten in das Baseline-Modell einfließen.
-
-Im Anschluss an die \gls{har} kann die hier nur naiv umgesetzte zeitliche Action Detection durch den Einsatz eines mächtigeren Modells aus \autoref{sec:temporal-action-detection} ersetzt werden, die mit genaueren \gls{annotationen} eines abgewandelten Datensets trainiert werden können.
-
-Zusätzlich kann auf der selben Datengrundlage (mit gleichen Spielen) ein Datenset mit Spielerkoordinaten und Identifiern erstellt werden.
-Mit solchen Daten kann \ggf ein Modell zum Tracking von Spielern oder sogar der Projizierung von Spielern auf Spielfeldkoordinaten erstellt werden und mit dem hier vorgestellten Modell zur Aktionserkennung verknüpft werden.
-So wäre eine vollständige Erfassung Spieler-bezogenen Statistiken auf Basis von Spielaktionen und Spielerpositionen möglich, die das Fußball-Scouting nachhaltig prägen könnte.
-
-schlecht:
-Zur Laufzeit müssen diese ungeschnittenen Videos in kleinere \glspl{clip} einer fester Länge segmentiert werden.
-Anhand der zugrundeliegenden Stammdaten, wurde eine Minimaldauer von 3 und eine Maximaldauer von 6 Sekunden für diese Segmentierung festgelegt.
-Die Segmentierung des Trainings- und Validierungssets folgt
-
-* Datenset Format anders: Superset von Soccernet, SoccerDB
+Eine weitere Fortsetzung wäre die Aktionen mit Spielfeldkoordinaten zu verknüpft:
+das Datenset kann auf derselben Datengrundlage (\gls{sbod}) um Spielfeldkoordinaten des ausführenden Spielers (oder des Balls) erweitert werden, sodass als zusätzlicher Output pro Aktion eine Position ermittelt wird.
+Die Ergebnisse eines separaten Modells zum Tracking von Spielern könnte mit diesen Koordinaten verknüpft werden, sodass die Aktionen letztlich ausführenden Spielern zugeordnet werden können.
+So wäre eine vollständige Erfassung Spieler-bezogenen Statistiken auf Basis von Spielaktionen und Spielerpositionen möglich, die auch eine automatische, taktische Analyse im Fußball-Scouting ermöglichen würde.
 
 \section{Forschungsbedarf}
 \label{sec:fazit}
 
-Abschließend lassen sich die Fragestellungen aus \autoref{sec:forschungsfrage} beide mit \emph{Ja} beantworten.
-Die Lernbarkeit von bis zu 32 wurde im Zuge zahlreicher Experimente mehrmals bewiesen.
-Als besonders anspruchsvoll gelten hierbei \dots
+Mit Hinblick auf die hier vorgestellte Baseline-Modell, steht der direkte Vergleich mit den Ergebnissen aus~\cite{Giancola18} und~\cite{Jiang19} noch aus.
+Das Baseline-Modell muss dazu mit der gleichen Datengrundlage nachtrainiert und verglichen werden.
+Erst dann lässt sich abschließend sagen, ob ir-CSN als \gls{har}-Modell besser geeignet ist, als die dort verwendeten Ansätze.
 
-% todo: zweite frage
+Analog sind weitere Benchmarks mit alternativen Modellen oder tieferen Varianten der hier verwendeten Modelle notwendig, um abschließend sicherzustellen, dass sich ir-CSN unter den vorgestellten Modellen am besten eignet.
+Dazu zählen insbesondere SlowFast-101, aber auch das in \autoref{subsec:factorized-convolution} vorgestellte X3D-L, welches eine noch deutliche höhere Auflösung ermöglicht und in anderen Benchmarks vergleichbar gut abschneidet.
+Außerdem können die Ergebnisse abweichen, wenn die Modelle von Grund auf mit SOCC-HAR-32 trainiert werden, statt nur mit reinem Transfer-Learning.
 
-Auch der produktive Einsatz der \gls{har} in eine Anwendung zur zeitlichen Action Detection war möglich.
-Aufgrund zu ungenauer Intervallgrenzen in dem neu erhobenen Datenset, konnte der Erfolg der Detection nicht quantifiziert werden.
-Jedoch werden die Ergebnisse (subjektiv) für anwendbar befunden.
+Zuletzt sei noch der Fortschritt durch die Hinzunahme von Audiosignalen genannt.
+Ein ähnlicher Ansatz wurde bereits in~\cite{Wang19} in Kombination mit einem SlowFast-Modelle beschrieben.
