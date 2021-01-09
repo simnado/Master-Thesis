@@ -4,10 +4,10 @@
 Die automatisierte Klassifizierung von Videomaterial ist im Alltag vieler Menschen ein fester Bestandteil.
 Auswertungen von Überwachungskameras, Gesten-Steuerung an Smartphones und Erkennung von Müdigkeit am Steuer sind nur einige Beispiele.
 Der Sport- und im Speziellen der Fußballsektor ist besonders gekennzeichnet durch eine hohe Anzahl öffentlich verfügbarer Videos~\cite{Giancola18}, aus denen neues Wissen abgeleitet werden kann.
-Diese Arbeit beschäftigt sich in diesem Zusammenhang mit der Erkennung atomarer, wohl-definierter Spielaktionen, wie Torschüsse, Auswechslungen oder Fouls, die eine spezielle Form der \gls{har} ist.
+Diese Arbeit beschäftigt sich in diesem Zusammenhang mit der Erkennung atomarer, wohl-definierter Spielaktionen, wie Torschüsse, Auswechslungen oder Fouls, die eine spezielle Form der Human Action Recognition (\gls{har}) ist.
 Die Spielaktionen sollen effizient und ausschließlich anhand des zugrunde liegenden Videobilds erkannt werden.
 
-Der Einsatz von Deep-Learning im Bereich der Video-Klassifizierung (\gls{har}) führte in den letzten Jahren zu einem signifikanten Fortschritt~\cite{Abu-Bakar19}.
+Der Einsatz von Deep-Learning im Bereich \gls{har} führte in den letzten Jahren zu einem signifikanten Fortschritt~\cite{Abu-Bakar19}.
 Besonders durch die Verfügbarkeit von \glspl{gpu} und den Veröffentlichungen neuer umfassender Datensets konnten die Erkennungsraten in den letzten Jahren deutlich verbessert werden. % todo: quelle
 
 In der Sportdomäne ergeben sich besondere technische Herausforderungen in der Erkennung von Spielaktionen -- vor allem durch die Ähnlichkeit der Videos.
@@ -41,7 +41,7 @@ In der Fußballdomäne gibt es zurzeit nur kleine oder unvollständige Datensets
 Darüber hinaus sind die Erkennungsraten bei der Anwendung auf diesen Datensets vergleichsweise gering verglichen mit den groß angelegten, generischen Datensets~\cite{Kay17,Karpathy14} im Bereich \gls{har}.
 Zum einen mag das daran liegen, dass diese ein deutlich breiteres Repertoire an Videomaterial einschließen und zum anderen, dass sie Benchmarks unter deutlich höherer Rechenlast optimiert wurden.
 Die vorliegende Arbeit versucht diese Lücke zu verringern, indem ein Datenset generiert wird, welches auch bisher unbeachtete Spielaktionen einschließt und mit 32 verschiedenen Klassen ein mehr als dreimal so großes Spektrum abbildet.
-Basierend auf diesem Datenset, genannt SOCC-HAR-32, werden aktuelle \gls{har}-Modelle (R2+1D-34, SlowFast-50, ir-CSN-152) trainiert und auf ihre Eignung geprüft.
+Basierend auf diesem Datenset, genannt SOCC-HAR-32, werden aktuelle \gls{har}-Modelle (R2+1D-34, SlowFast-50, ir-CSN-152) untersucht und auf ihre Eignung geprüft.
 
 Die Fragen, der sich diese Arbeit widmet, sind:
 \begin{enumerate}
@@ -66,16 +66,15 @@ Alle Fragen sollen unter Anwendung des aktuellen Forschungsstands (Januar 2020) 
     \end{tikzpicture}%
 
     %\includegraphics[width=\textwidth, height=0.9\textwidth, keepaspectratio, interpolate, trim=120 25 100 25, clip]{img/01_cover3.pdf}
-    \caption{Übersicht: Aktionserkennung in Video-Clips }
+    \caption{HAR in Fußballvideos: In einem Clip aus $T=16$ Frames (Input) werden zwei Aktionen (Output) erkannt }
     \label{fig:cover}
 \end{figure}
 
 \section{Abgrenzung und Zielsetzung}
 \label{sec:zielsetzung}
 
-Ziel der Arbeit ist ein auf SOCC-HAR-32 optimiertes \gls{har}-Modell zu trainieren, welches beliebige Video-\glspl{clip} einer bestimmten Länge klassifizieren kann.
+Ziel der Arbeit ist ein auf SOCC-HAR-32 optimiertes \gls{har}-Modell, welches beliebige Video-\glspl{clip} einer bestimmten Länge wie in \autoref{fig:cover} klassifizieren kann.
 Die Verarbeitung ungeschnittener Videos ist, genauso wie die Lokalisierung von Aktionen innerhalb der \glspl{clip}, nicht Gegenstand dieser Arbeit.
-Das Modell soll in der Lage sein, Spielaktionen, die durch visuellen Bewegungen identifiziert werden können, wie in \autoref{fig:cover}, korrekt zu erkennen.
 
 Der Input des Modells wird repräsentiert durch einen Video-\gls{clip} $x \in \mathbb{R}^{(C \times T \times S \times S)}$ mit $C$ Farbkanälen, einer festen Länge von $T$ Frames und einer Auflösung von $S$ Pixeln.
 Der Output $y \in \{0, 1\}^A$ entspricht einem One-Hot-Vektor aus $A$ Aktionsklassen (hier 32).

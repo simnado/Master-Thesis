@@ -1,4 +1,4 @@
-Model,Test Acc,Test stem:[\theta]-Acc,Best Val Acc,Batch size,Base LR,Params,Background,Bad Behavior,Goal,Substitution
+Modell,Test Acc,Test stem:[\theta]-Acc,Best Val Acc,Batch size,Base LR,Params,Background,Bad Behavior,Goal,Substitution
 ip-csn-152-32f,81.9,82.0,81.0,24,2.0e-04,8M/32M,,,,
 slowfast-50-16x8,77.3,77.5,80.6,24,3.0e-03,21M/34M,,,,
 r2+1d-34-32f-cycle,82.21,83.24,87.94,32,4.4e-05,,0.0389,0.1194,0.3555,0.6216

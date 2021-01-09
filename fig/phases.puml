@@ -1,9 +1,9 @@
 @startuml
 
 state "Benchmark" as Phase1
-state "Hparam-Optimierung" as Phase2
-state "Verkleinerung" as Phase3
-state "Fine-Tuning" as Phase4
+state "Hyperparameter-\nOptimierung" as Phase2
+state "Fokussierung" as Phase3
+state "Multi-Grid" as Phase4
 
 [*] -> Phase1
 Phase1 -> Phase2
@@ -19,9 +19,8 @@ Phase2 : 2. Transfer Learning
 Phase3 : 1. Analyse + Entfernen v. Klassen
 Phase3 : 2. Transfer-Learning
 Phase3 : 3. Verifikation
-Phase4 : 1. Manuelle Anpassung
-Phase4 : 1. Label Smoothing
-Phase4 : 1. Multi-Grid
+Phase4 : 1. Erhöhung der Auflösung
+Phase4 : 2. Verifikation
 
 
 @enduml

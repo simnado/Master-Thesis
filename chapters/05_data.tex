@@ -181,13 +181,19 @@ Aktionen, die hier keinen Wert vorweisen werden lediglich als Zeitpunkt in \gls{
     \small
     \begin{subfigure}{0.45\textwidth}
         \centering
-        \csvautotabular{tbl/actions_a.csv}
+        \csvreader[no head,tabular=|l|r|r|r|,
+        table head=\hline,late after line=\\\hline]{tbl/actions_a.csv}
+        {1=\colName,2=\colCount,3=\colAvg,4=\colMax}
+        {\colName & \colCount & \colAvg & \colMax}
     \end{subfigure}
     \begin{subfigure}{0.45\textwidth}
         \centering
-        \csvautotabular{tbl/actions_b.csv}
+        \csvreader[no head,tabular=|l|r|r|r|,
+        table head=\hline,late after line=\\\hline]{tbl/actions_b.csv}
+        {1=\colName,2=\colCount,3=\colAvg,4=\colMax}
+        {\colName & \colCount & \colAvg & \colMax}
     \end{subfigure}
-    \caption{Aktionskatalog in SOCC-HAR-32}
+    \caption{Aktionskatalog in SOCC-HAR-32: Anzahl, durchschnittliche und max. Dauer der Annotationen}
     \label{tab:action}
 \end{figure}
 
@@ -253,7 +259,7 @@ Die häufigsten Kombinationen sind (bei $\Delta=5$) folgende:
         \caption{$\Delta = 10$}
         %\label{fig:anno_classes}
     \end{subfigure}
-    \caption{Skalierung des Background- und Überschneidungsverhältnisses zur Wahl von $\Delta$}
+    \caption{Anteil von Background-Samples (blau), Samples einzelner Aktionen (orange) und Samples mit mehreren Aktionen (grün) bei steigendem Zeitkontext $\Delta$}
     \label{fig:ratios}
 \end{figure}
 
@@ -321,7 +327,7 @@ Zur Orientierung wird der Richtwert $\Theta$ als vertikale Linie aufgetragen.
         \caption{Testset: \newline mit $\Delta=5$}
         %\label{fig:anno_classes}
     \end{subfigure}
-    \caption{Verhalten der Samplingstrategie}
+    \caption{Verhalten der Samplingstrategie: Anzahl der Annotationen (blau), Anzahl segemntierter Clips (orange) und Anzahl verwendeter Samples pro Epoche (grün)}
     \label{fig:samples}
 \end{figure}
 

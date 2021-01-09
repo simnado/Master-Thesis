@@ -127,7 +127,6 @@ Die meisten Ansätze zur Umsetzung einer \gls{har} lassen sich in eine von drei 
 \end{description}
 
 Vergleicht man die drei genannten Gruppen, so ist nicht nur die Anzahl der Publikationen im Bereich \gls{deep-learning} höher, sondern auch die Genauigkeit der Modelle~\cite{Rahmad18}.
-Zudem ist die Umsetzung der beiden übrigen Kategorien aufgrund der aufwendigen Vorverarbeitung wesentlich zeitaufwendiger und würde den Rahmen dieser Arbeit sprengen.
 Daher werden im Folgenden ausschließlich \gls{deep-learning}-basierte Ansätze verfolgt.
 
 
@@ -137,7 +136,7 @@ Daher werden im Folgenden ausschließlich \gls{deep-learning}-basierte Ansätze 
 \gls{deep-learning}, als Untermenge des \glspl{ml}, setzt auf den Einsatz von Neuronalen Netzen zur Optimierung beliebig komplexer Funktionen.
 \glspl{dnn}, die dem menschlichen Gehirn nachempfunden sind, zeichnen sich durch eine Netzwerk-artige Struktur aus, bestehend aus Knoten, die in Schichten angeordnet und miteinander verbunden sind~\cite{Burkov19}.
 Das in~\cite{rosenblatt58} erstmals vorgestellte Perceptron (\autoref{fig:dnn} links) ist die einfachste Topologie eines Neuronalen Netzes bestehend aus einem zweischichtigem Netz.
-Mit der Hinzunahme weiterer \sog Hidden-Layer zwischen dem Input- und Output-Layer entstehen \emph{tiefe} \glspl{dnn} (auch \gls{mlp}), woher auch der Begriff Deep-Learning stammt~\cite{Burkov19}.
+Mit der Hinzunahme weiterer \sog Hidden-Layer zwischen dem Input- und Output-Layer entstehen \emph{tiefere} \glspl{dnn} (auch \gls{mlp}), woher auch der Begriff Deep-Learning stammt~\cite{Burkov19}.
 Die in \autoref{fig:dnn} gezeigten grünen Knoten entsprechen sogenannten \fc-Layern (fully-connected), die mit allen Knoten der Vorgänger- und allen Knoten der Nachfolger-Schicht verbunden sind.
 Intern können die Layer als Gewichtsmatrizen $W$ repräsentiert werden, die mittels eines Optimierungsverfahren, wie \gls{backpropagation}~\cite{rumelhart86} und anhand von Problem-spezifischer Beispieldaten optimiert werden können.
 
@@ -196,7 +195,7 @@ Daher werden die wichtigsten Konzepte und Modelle beider Oberkategorien zum allg
 
 \label{sec:conv}
 
-\section{Convolutional Neural Networks}
+\section{Convolutional Neural Networks (CNN)}
 \label{sec:cnn}
 
 \glspl{cnn} sind Neuronale Netze, die auf die Verarbeitung von Bildern zugeschnitten sind.
@@ -312,7 +311,7 @@ Separierbare Faltungen bestehen aus einer Faltung pro Kanal und einer Kanal-übe
 \Dh jeder Kernel erhält nur Zugriff auf je einen Kanal der vorherigen Feature-Map, sodass die Faltung keine direkte Interaktion zwischen den Kanälen abbildet.
 Um dennoch Interaktion abzubilden, folgt auf die Kanal-weise Faltung immer eine punktweise Faltung~\cite{Howard17}.
 
-\section{Recurrent Neural Networks}
+\section{Recurrent Neural Networks (RNN)}
 \label{subsec:recurrent-neural-networks}
 
 Die zweite Gruppe relevanter Backbone-Modelle stellen \glspl{rnn} dar.

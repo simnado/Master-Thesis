@@ -25,7 +25,7 @@ Da die Ergebnisse für SlowFast-50-4x16 durchweg besser ausfallen, wird diese Va
     table head=\hline,late after line=\\\hline]{tbl/exp_phase_1.csv}
     {1=\model,2=\aurocval,3=\baval,4=\fbetaval,5=\lr,6=\bs,7=\ba,8=\rec,9=\prec,10=\auroc}
     {\model & \lr & \ba & \prec & \rec & \auroc}
-    \caption{Ergebnisse aus Benchmark}
+    \caption{Ergebnisse aus Benchmark: Getestet mit $\Delta_\text{test} = 3$}
     \label{tab:phase1}
 \end{figure}
 
@@ -59,7 +59,7 @@ Besonders auffällig ist, dass \zB \code{save}- oder \code{card}-Aktionen in den
 Nach Durchsicht der Daten werden die 267 Transaktionen in die Datenbank übernommen.
 Alle weiteren Experimente beziehen sich somit auf die korrigierte Datenbank.
 
-Eine weitere Optimierung des Baseline-Modells (ir-CSN) anhand der verifizierten Datenbank, führt zu einer zusätzlichen Steigerung der Balanced Accuracy von 1.5 \% Prozent (siehe \autoref{tab:phase1}).
+Eine weitere Optimierung des Baseline-Modells (ir-CSN) anhand der verifizierten Datenbank, führt zu einer zusätzlichen Steigerung der Balanced Accuracy von 1.6\% Prozent (siehe \autoref{tab:phase1}).
 
 \section{Hyperparameter-Optimierung}
 \label{sec:hyperparameter-optimierung}
@@ -85,13 +85,13 @@ Zusätzlich wird das Baseline-Modell der vorherigen Phase erneut getestet.
         \caption{Punkte für Grid-Suche}
         \label{fig:exp-hparams-grid}
     \end{subfigure}%
-    \begin{subfigure}{.35\textwidth}
+    \begin{subfigure}{.37\textwidth}
         \centering
         \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_par_cor_prec.eps}
         \caption{Precision für Grid-Suche}
         \label{fig:exp-hparams-prec}
     \end{subfigure}
-    \begin{subfigure}{.35\textwidth}
+    \begin{subfigure}{.37\textwidth}
         \centering
         \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_par_cor_rec.eps}
         \caption{Recall für Grid-Suche}
@@ -114,7 +114,7 @@ Die Precision scheint hingegen unabhängig vom Zeitkontext zu sein.
     table head=\hline,late after line=\\\hline]{tbl/exp_phase_2.csv}
     {1=\model,2=\s,3=\t,4=\sr,5=\d,6=\auroc,7=\ba,8=\fone}
     {\t & \sr & \d & \ba & \fone & \auroc}
-    \caption{Ergebnisse des Validierungssets aus Phase 2}
+    \caption{Ergebnisse aus Hyperparameter-Optimierung: Modell entspricht ir-CSN-152, getestet mit $\Delta_\text{fit} = 4.8$}
     \label{tab:phase2}
 \end{figure}
 

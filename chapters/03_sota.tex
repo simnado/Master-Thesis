@@ -614,13 +614,13 @@ Die eigentliche Verarbeitung besteht aus einem mehrstufiges Modell aus folgenden
 
 \begin{enumerate}
     \item Feature-Extraktion mit 2D-ResNet für Frames alle 0.5 sek
-    \item Konkatenation der Features und PCA zur Komprimierung auf 120 Einträge
+    \item Konkatenation der Features und \gls{pca} zur Komprimierung auf 120 Einträge
     \item Klassifizierung der komprimierten Features mit ActionVLAD
 \end{enumerate}
 
-Das Ergebnis ist eine mAP von 67,8 \%.
-Zu beachten ist, dass mit mAP der Durchschnitt der Precision von nur drei der insgesamt vier Klassen gemeint ist.
+Das Ergebnis ist eine \gls{map} von 67,8 \%.
+Zu beachten ist, dass mit \gls{map} der Durchschnitt der Precision von nur drei der insgesamt vier Klassen gemeint ist.
 Die Precision der \emph{Background}-Klasse wird explizit herausgerechnet.
 
-Als Baseline für SoccerDB wurde ein SlowFast-50 Modell verwendet, das eine mAP von 69,24 \% erreicht.
+Als Baseline für SoccerDB wurde ein SlowFast-50 Modell verwendet, das eine \gls{map} von 69,24 \% erreicht.
 Zum aktuellen Stand\footnote{Stand: 01.09.2020} ist dieses Datenset allerdings noch unveröffentlicht.
