@@ -118,7 +118,7 @@ $\Delta$ drückt die Originallänge in Sekunden aus, die ein \gls{clip} im urspr
 Die Referenzmodelle nutzen unterschiedliche Kombinationen dieser Werte, die sich allerdings nur auf vortrainierte Modelle beziehen.
 \autoref{tab:coverage} zeigt die Parameter und den Zeitkontext bei einer Framerate von 25 \gls{fps}.
 
-\begin{figure}
+\begin{table}
     \centering
     \small
     \csvreader[no head,tabular=|l|r|r|r|r|,
@@ -127,7 +127,7 @@ Die Referenzmodelle nutzen unterschiedliche Kombinationen dieser Werte, die sich
     {\model & \s & \t & \sr & \d}
     \caption[Samplingstrategien]{Samplingstrategien der jeweiligen Modelle: Räumliche Auflösung $S$, Anzahl der Frames $T$, Zeitschritt $\tau$ und Zeitkontext $\Delta$}
     \label{tab:coverage}
-\end{figure}
+\end{table}
 
 Manche Aktionen (\bzw Aktivitäten) bestehen aus mehreren Unteraktionen und dauern daher länger als andere Aktionen.
 Enthalten die Trainingsdaten einen zu kurzen Zeitkontext, kann das Modell \uU nicht genug Informationen erfassen, um solche Klassen zu erkennen.

@@ -598,12 +598,16 @@ Eine Erweiterung von SoccerNet stellt SoccerDB~\cite{Jiang19} dar, welches sich 
 Statt drei, werden hier jedoch 10 Klassen annotiert, die sich in vielen Fällen überschneiden, was es zu einem Multi-Label-Datenset macht.
 Außerdem wird zusätzliches Videomaterial aus asiatischen Fußballligen verwendet.
 
-\begin{figure}
+\begin{table}
     \centering
-    \small\csvautotabular{tbl/datasets.csv}
+    \small
+    \csvreader[no head,tabular=|l|r|r|r|,
+    table head=\hline,late after line=\\\hline]{tbl/datasets.csv}
+    {1=\colDataset,2=\colVideos,3=\colClasses,4=\colDuration}
+    {\colDataset & \colVideos & \colClasses & \colDuration}
     \caption[Vergleich Datensets]{Vergleich Datensets}
     \label{tab:dataset}
-\end{figure}
+\end{table}
 
 Das Baseline-Modell in SoccerNet segmentiert vorab die ungekürzten Videos in 60-Sekunden-\glspl{clip}.
 Jeder \gls{clip} wird mit den Aktionen, die innerhalb des \glspl{clip} stattfinden, gelabelt.

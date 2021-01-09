@@ -18,7 +18,7 @@ Der Zeitkontext im Testset ist damit größer als im Trainingsset und wird durch
 Im ersteren erhält der Slow-Pathway schließlich nur halb so viele Frames, wie im letzteren und kann sich damit noch mehr auf räumliche Features fokussieren.
 Da die Ergebnisse für SlowFast-50-4x16 durchweg besser ausfallen, wird diese Variante im weiteren Verlauf als SlowFast-Baseline-Modell bezeichnet.
 
-\begin{figure}
+\begin{table}
     \centering
     \small
     \csvreader[no head,tabular=|l|r||r|r|r|r|,
@@ -27,7 +27,7 @@ Da die Ergebnisse für SlowFast-50-4x16 durchweg besser ausfallen, wird diese Va
     {\model & \lr & \ba & \prec & \rec & \auroc}
     \caption{Ergebnisse aus Benchmark: Getestet mit $\Delta_\text{test} = 3$}
     \label{tab:phase1}
-\end{figure}
+\end{table}
 
 \subsection{Vergleich der Modelle}
 \label{subsec:vergleich-der-modelle}
@@ -107,7 +107,7 @@ So wirken sich zusätzliche Frames und ein hoher oder gleichbleibender Zeitschri
 Ein erhöhter Zeitkontext wirkt sich ebenfalls positiv auf den Recall auf.
 Die Precision scheint hingegen unabhängig vom Zeitkontext zu sein.
 
-\begin{figure}
+\begin{table}
     \centering
     \small
     \csvreader[no head,tabular=|r|r|r||r|r|r|,
@@ -116,7 +116,7 @@ Die Precision scheint hingegen unabhängig vom Zeitkontext zu sein.
     {\t & \sr & \d & \ba & \fone & \auroc}
     \caption{Ergebnisse aus Hyperparameter-Optimierung: Modell entspricht ir-CSN-152, getestet mit $\Delta_\text{fit} = 4.8$}
     \label{tab:phase2}
-\end{figure}
+\end{table}
 
 Um ein gutes Gleichgewicht zwischen den beiden Metriken zu erlangen, werden nachfolgend nur noch Ergebnisse betrachtet, die einen besonders hohen F1-Score aufweisen.
 In \autoref{tab:phase2} sind nur Experimente gelistet, die maximal 1 \% von dem maximale F1-Score abweichen.
@@ -204,7 +204,7 @@ Das Baseline-Modell dieser Phase wurde anhand beider Subsets ohne weiteres Train
 Die Ergebnisse in \autoref{tab:eval_subset} sind also keinesfalls direkt vergleichbar oder repräsentativ, da die Datengrundlage eine andere ist.
 Es soll dem Leser jedoch eine grobe Einordnung ermöglichen.
 
-\begin{figure}
+\begin{table}
     \centering
     \small
     \csvreader[no head,tabular=|l||r|r|r|,
@@ -213,7 +213,7 @@ Es soll dem Leser jedoch eine grobe Einordnung ermöglichen.
     {\dataset & \ba & \fbeta & \auroc}
     \caption{Evaluation auf Teilmengen von Aktionsklassen}
     \label{tab:eval_subset}
-\end{figure}
+\end{table}
 
 \section{Training mit erhöhter Auflösung}
 \label{sec:fine-tuning}
@@ -230,7 +230,7 @@ So findet ein zusätzliches Experiment statt mit $S=240$ und eins mit $S=256$.
 Eine höhere Auflösung ist aufgrund der Hardware-Einschränkungen nicht möglich.
 \autoref{tab:exp4} zeigt die Ergebnisse dieser und aller vorangegangenen Phase im Vergleich.
 
-\begin{figure}
+\begin{table}
     \centering
     \small
     \csvreader[no head,tabular=|l|l|r|r||r|r|r||r|r|r|,
@@ -239,7 +239,7 @@ Eine höhere Auflösung ist aufgrund der Hardware-Einschränkungen nicht möglic
     {\phase & \socchar & \bigTheta & \bigDelta & \s & \t & \lilTau & \ba & \fbeta & \auroc}
     \caption{Ergebnisse aus Phase 1-4}
     \label{tab:exp4}
-\end{figure}
+\end{table}
 
 %\begin{figure}
 %    \centering

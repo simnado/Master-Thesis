@@ -1,7 +1,7 @@
-Datenset,Videos,Klassen,Video length
+Datenset,Videos,Klassen,Clip-Dauer
 UCF101,13.320,101,7.21 sec
-Sports1M,1.133.158,487,(untrimmed)
-ActivityNet,20.000,200,(untrimmed)
+Sports1M,1.133.158,487,(ungeschnitten)
+ActivityNet,20.000,200,(ungeschnitten)
 Kinetics-400,306.245,400,10 sec
 SSID,30,4,35 min
 Socc-Act-4,100,4,4-10 sec
