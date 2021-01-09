@@ -17,8 +17,6 @@ Dieser Prozess wird im Folgenden in zwei Teilprobleme unterteilt:
 
 \begin{tcolorbox}[title=WIP]
     \begin{itemize}
-        \item Bar-Plots: (boxplot für Re-sampling, bar-plots drehen, sodass beschriftung leichter lesbar ist)
-        \item Pie-Plots: schachteln
         \item Beispielsample mit und ohne Augmentation
     \end{itemize}
 \end{tcolorbox}
@@ -197,29 +195,10 @@ Aktionen, die hier keinen Wert vorweisen werden lediglich als Zeitpunkt in \gls{
 \label{subsec:ungleichverteilung-von-aktionen}
 
 Trotz der hohen Zahl an Aktionsklassen, besteht der Hauptteil des Videomaterials aus aktionsfreien Teilen (Background).
-\autoref{fig:anno_bg_ratio} zeigt das Verhältnis von durch Aktionen geprägter Videozeit bei einsekündiger Segmentierung aller Halbzeitvideos.
+Bei einsekündiger Segmentierung aller Halbzeitvideos beträgt der Anteil aller aktionsfreien Segmente 92.3\%.
 Die Zeit vor und nach den Halbzeiten wird nicht mitgezählt.
-Hinzu kommt, dass die Klassen untereinander sehr ungleich verteilt sind, wie \autoref{fig:anno_classes} zeigt.
-Die genauen Zahlen sind ebenso der Tabelle in \autoref{tab:action} zu entnehmen.
-
-\begin{figure}
-    \centering
-    \begin{subfigure}{.5\textwidth}
-        \centering
-        \includegraphics[width=.9\linewidth]{img/data-plots/background_ratio_all_annos.eps}
-        \caption{Anteil der Aktionen im Videomaterial}
-        \label{fig:anno_bg_ratio}
-    \end{subfigure}%
-    \begin{subfigure}{.5\textwidth}
-        \centering
-        \includegraphics[width=.95\linewidth]{img/data-plots/class_distribution_annotations_all.eps}
-        \caption{Verteilung der Klassen}
-        \label{fig:anno_classes}
-    \end{subfigure}
-    \caption{Eigenschaften zum Datenset}
-    \label{fig:annotations}
-\end{figure}
-
+Hinzu kommt, dass die Klassen untereinander sehr ungleich verteilt sind.
+Die genauen Zahlen sind \autoref{tab:action} zu entnehmen.
 
 \subsection{Überschneidungen von Aktionen}
 \label{sec:multi-label}
@@ -238,34 +217,40 @@ Stattdessen kann das ungeschnittene Videomaterial gleichmäßig in Clips segment
 
 Zudem wurde untersucht, wie oft sich eine Klasse mit einer anderen überschneidet.
 Eine dedizierte Grafik ist in \autoref{ch:overlaps} zu finden.
-Die häufigsten Kombinationen sind (bei $\Delta=4$) folgende:
+Die häufigsten Kombinationen sind (bei $\Delta=5$) folgende:
 
 \begin{enumerate}
     \item \code{saved} mit \code{footShot}: 74 \%
-    \item \code{penaltyKick} mit \code{goal}: 57 \%
-    \item \code{badBehavior} mit \code{card}: 51 \%
-    \item \code{goal} mit \code{footShot}: 50 \%
-    \item \code{collected} mit \code{cross}: 40 \%
+    \item \code{badBehavior} mit \code{card}: 61 \%
+    \item \code{penaltyKick} mit \code{goal}: 59 \%
+    \item \code{goal} mit \code{footShot}: 57 \%
+    \item \code{collected} mit \code{cross}: 43 \%
 \end{enumerate}
 
 \begin{figure}
     \centering
-    \begin{subfigure}{.3\textwidth}
+    \begin{subfigure}{.24\textwidth}
         \centering
-        \includegraphics[width=.95\linewidth]{img/data-plots/1sec/background_ratio_all_1sek.eps}
+        \includegraphics[width=.95\linewidth]{img/05_background_ratio_all_delta_1.eps}
         \caption{$\Delta = 1$}
         %\label{fig:anno_bg_ratio}
     \end{subfigure}%
-    \begin{subfigure}{.3\textwidth}
+    \begin{subfigure}{.24\textwidth}
         \centering
-        \includegraphics[width=.95\linewidth]{img/data-plots/4sec/background_ratio_all_202010-1419-3706.eps}
-        \caption{$\Delta = 4$}
+        \includegraphics[width=.95\linewidth]{img/05_background_ratio_all_delta_3.eps}
+        \caption{$\Delta = 3$}
+        %\label{fig:anno_bg_ratio}
+    \end{subfigure}%
+    \begin{subfigure}{.24\textwidth}
+        \centering
+        \includegraphics[width=.95\linewidth]{img/05_background_ratio_all_delta_5.eps}
+        \caption{$\Delta = 5$}
         %\label{fig:anno_classes}
     \end{subfigure}
-    \begin{subfigure}{.3\textwidth}
+    \begin{subfigure}{.24\textwidth}
         \centering
-        \includegraphics[width=.95\linewidth]{img/data-plots/8sec/background_ratio_all_202010-1419-4303.eps}
-        \caption{$\Delta = 8$}
+        \includegraphics[width=.95\linewidth]{img/05_background_ratio_all_delta_10.eps}
+        \caption{$\Delta = 10$}
         %\label{fig:anno_classes}
     \end{subfigure}
     \caption{Skalierung des Background- und Überschneidungsverhältnisses zur Wahl von $\Delta$}
@@ -281,7 +266,7 @@ Es umschließt einmalige Prozesse, sowie Prozesse, die pro Training oder pro Sam
 
 \begin{figure}
     \centering
-    \bigimage{fig/data-pipeline}{0.7\textwidth}
+    \bigimage{fig/data-pipeline}{0.6\textwidth}
     \caption{Pipeline zum Pre-Processing basierend auf Annotationen}
     \label{fig:data-pipeline}
 \end{figure}
@@ -313,23 +298,30 @@ Sind Videos und Metadaten lokal verfügbar, können die ungeschnittenen Videos z
 Die \glspl{clip} werden mit einer konfigurierbaren Auflösung $S$, Länge $T$ und Zeitschritt $\tau$ gesamplet.
 Um zusätzliche Training-Samples zu generieren, werden die \glspl{clip} mit einem Versatz von einer Sekunde gesamplet.
 Das hat zur Folge, dass sich die \glspl{clip} mit $\Delta > 1$ zeitlich überschneiden (Temporale Augmentation, siehe~\cite{Giancola18}) und so zusätzliche Samples aus der begrenzten Zahl an Annotationen entstehen.
-\autoref{fig:samples} zeigt die Auswirkungen, indem pro Klasse die Anzahl möglicher Samples zur Anzahl bestehender \gls{annotationen} bei einer Dauer von $\Delta=4$ Sekunden verglichen wird.
+\autoref{fig:samples} zeigt die Auswirkungen, indem pro Klasse die Anzahl bestehender \gls{annotationen}, die Anzahl segmentierter Clips und die Anzhal verwendeter Samples verglichen wird.
+Zur Orientierung wird der Richtwert $\Theta$ als vertikale Linie aufgetragen.
 
 \begin{figure}
     \centering
-    \begin{subfigure}{.5\textwidth}
+    \begin{subfigure}[b]{.33\textwidth}
         \centering
-        \includegraphics[width=.95\linewidth]{img/data-plots/4sec/class_distribution_annotations_train_202010-1419-3737.eps}
-        \caption{Trainingsdaten}
+        \includegraphics[width=.95\linewidth]{img/05_class_distribution_train_delta_5_Theta_500.eps}
+        \caption{Trainingsset: \newline mit $\Delta=4.8$, $\Theta_{\text{train}}=500$}
         %\label{fig:anno_bg_ratio}
     \end{subfigure}%
-    \begin{subfigure}{.5\textwidth}
+    \begin{subfigure}[b]{.33\textwidth}
         \centering
-        \includegraphics[width=.95\linewidth]{img/data-plots/4sec/class_distribution_annotations_val_202010-1419-3747.eps}
-        \caption{Validierungsdaten}
+        \includegraphics[width=.95\linewidth]{img/05_class_distribution_val_delta_5_Theta_50.eps}
+        \caption{Validierungsset: \newline mit $\Delta=4.8$, $\Theta_{\text{val}}=50$}
         %\label{fig:anno_classes}
     \end{subfigure}
-    \caption{Generierung zusätzlicher Samples aus den Annotationen (bei $\gls{tld:Delta} = 4.0$)}
+    \begin{subfigure}[b]{.33\textwidth}
+        \centering
+        \includegraphics[width=.95\linewidth]{img/05_class_distribution_test_delta_5.eps}
+        \caption{Testset: \newline mit $\Delta=5$}
+        %\label{fig:anno_classes}
+    \end{subfigure}
+    \caption{Verhalten der Samplingstrategie}
     \label{fig:samples}
 \end{figure}
 
@@ -373,14 +365,6 @@ Um die Vielfalt der Daten voll auszuschöpfen, variieren die Daten des Trainings
 Für die Daten aus $D_\text{val}$ wird das Sampling nur einmal (und mit einem festen Seed) ausgeführt, sodass die Daten über alle Epochen gleich bleiben und die Metriken pro Epoche vergleichbar bleiben.
 Für das Testset $D_\text{test}$ wird hingegen kein Sampling ausgeführt, da es bewusst die Ungleichgewichtungen der realen Welt abbilden soll.
 Hier wird immer mit der vollständigen Datenmenge getestet.
-Die Verteilung in \autoref{fig:resamples} zeigt das Ergebnis.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=.6\linewidth]{img/data-plots/4sec/class_distribution_used_samples_train_202010-1419-3803.eps}
-    \caption{Beispielhaftes Resampling des Trainings-Sets (bei $\gls{tld:Delta} = 4.0$)}
-    \label{fig:resamples}
-\end{figure}
 
 \subsection{Data-Augmentation und Standardisierung}
 \label{subsec:data-augmentation}
@@ -398,8 +382,18 @@ Für das Validierungs- und Testset wird nur ein 90 \%-iger zentraler Ausschnitt 
 
 \begin{figure}
     \centering
-    \includegraphics[width=.8\linewidth]{img/05_sample_example.png}
-    \caption{Beispielhaftes Samples eines Eckstoßes bestehend aus 32 Frames}
+    \begin{subfigure}[b]{.49\textwidth}
+        \centering
+        % trim={<left> <lower> <right> <upper>}
+        \includegraphics[width=.95\linewidth, trim=0 80 0 80, clip]{img/05_sample_orig.png}
+        \caption{Ohne Data-Augmentation}
+    \end{subfigure}%
+    \begin{subfigure}[b]{.49\textwidth}
+        \centering
+        \includegraphics[width=.95\linewidth, trim=0 80 0 80, clip]{img/05_sample_aug4.png}
+        \caption{Mit Data-Augmentation}
+    \end{subfigure}
+    \caption{Beispielhaftes Samples eines Eckstoßes bestehend aus 48 Frames}
     \label{fig:sample_example}
 \end{figure}
 

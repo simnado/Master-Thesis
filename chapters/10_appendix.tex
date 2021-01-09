@@ -6,6 +6,7 @@ Die Ergebnisse von UCF-101 beziehen sich alle auf die als 3-fold-Accuracy angege
 Sports-1M zeigt jeweils die Accuracy im Format \emph{clip@1}/\emph{video@1} und Kinetics stets die Top-1-Accuracy.
 
 \begin{figure}
+    \small
     \csvautotabular{tbl/models.csv}
     \label{tab:models}
 \end{figure}
@@ -17,12 +18,12 @@ In \autoref{fig:overlaps} wurde für alle 32 Klassen der prozentuale Anteil alle
 Ein Eintrag $c_{ij}$ lässt sich wie folgt interpretieren:
 $c_{ij}$ \% aller Samples der Klasse $i$ treten gemeinsam mit der der Klasse $j$ auf.
 
-Wie man sieht, ereignen sich \zB 74 \% der Aktionen \code{saved} (innerhalb eines Zeitkontextes von $\Delta=4$ Sekunden) gleichzeitig mit Aktionen der Klasse \code{footShot}.
+Wie man sieht, ereignen sich \zB 74 \% der Aktionen \code{saved} (innerhalb eines Zeitkontextes von $\Delta=5$ Sekunden) gleichzeitig mit Aktionen der Klasse \code{footShot}.
 Bei einer niedrigeren Wahl von $\Delta$ sind die Abhängigkeiten entsprechend geringer, es treten jedoch die gleichen Kombinationen hoher Abhängigkeiten auf.
 
 \begin{figure}
     \centering
-    \bigimage{img/data-plots/4sec/pairwise_occurrences_all_202010-1419-3817}{\textwidth}
-    \caption{Anteil paarweiser Überschneidungen pro Klasse (hier: $\Delta = 4$)}
+    \bigimage{img/05_pairwise_occurrences_all_delta_5.eps}{\textwidth}
+    \caption{Anteil paarweiser Überschneidungen pro Klasse (hier: $\Delta = 5$)}
     \label{fig:overlaps}
 \end{figure}

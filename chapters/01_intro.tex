@@ -56,11 +56,11 @@ Alle Fragen sollen unter Anwendung des aktuellen Forschungsstands (Januar 2020) 
     \centering
 
     \begin{tikzpicture}
-    \node [anchor=west] (water) at (1,1) {\Large Water};
+    \node [anchor=west] (water) at (10.2,1.7) {\Large Water};
     \begin{scope}[xshift=0cm]
         \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=\textwidth, height=0.9\textwidth, keepaspectratio, interpolate, trim=120 25 100 25, clip]{img/01_cover3.pdf}};
         \begin{scope}[x={(image.south east)},y={(image.north west)}]
-            \draw [-stealth, line width=5pt, cyan] (water) -- ++(0.4,0.0);
+            \draw [-stealth, line width=5pt, black] (water) -- ++(0.11,0.0);
         \end{scope}
     \end{scope}
     \end{tikzpicture}%
@@ -115,7 +115,6 @@ Basierend auf den Informationen der vorherigen Kapitel wird in \autoref{ch:conce
 In \autoref{sec:datenquellen} wird beschrieben, wie und auf welcher Grundlage ein Datenset vielfältiger Spielaktionen generiert werden kann.
 Dabei werden auch Anforderungen an die Beschaffenheit des generierten Datensets festgelegt.
 Anschließend werden in \autoref{sec:decisions} einige für die Klassifizierung geeignete Modelle ausgewählt und ein Vorhaben beschrieben, das zeigt wie die Modelle auf die Daten angepasst werden können.
-In \autoref{sec:multi-label} wird der Umgang mit zeitgleich stattfindenden Aktionen beleuchtet, wobei entschieden wird, das Modell als Multi-Label-Klassifizierer zu trainieren.
 In \autoref{sec:umgang-mit-fehlern-in-datenset} wird ein weiterer Feedback-Kanal zum Umgang mit Daten- und Klassifikationsfehlern präsentiert.
 Schließlich münden alle Entscheidungen in \autoref{sec:experimente} in einem Vorgehen, das festlegt, welche Experimente in welcher Abfolge durchgeführt werden.
 \autoref{sec:konzeptuelle-umsetzung} beschreibt dazu noch die modulare Implementation aller zu entwickelnden Komponenten im Gesamtbild.
