@@ -64,13 +64,13 @@ Eine weitere Optimierung des Baseline-Modells (ir-CSN) anhand der verifizierten 
 \section{Hyperparameter-Optimierung}
 \label{sec:hyperparameter-optimierung}
 
-Das aktuelle Baseline-Modell bilden in seiner ursprünglichen Form mit $T=32$ und $\tau = 2$ einen Zeitkontext von 2.67 Sekunden ab.
+Das aktuelle Baseline-Modell bilden in seiner ursprünglichen Form mit $T=32$ und $\tau = 2$ einen Zeitkontext von $\Delta_\text{fit}=2.67$ Sekunden ab.
 Da diese Hyperparameter auf Grundlage eines anderen Datensets festgesetzt wurden, werden die oben genannten Hyperparameter im nachfolgenden Experiment in einer Grid-Suche anhand des vorliegenden Datensets angepasst.
 Das Vorgehen ist weiter motiviert durch die Mindest-Dauer von 4 Sekunden in SoccerDB \bzw der unteren Grenze von 3 Sekunden basierend auf \gls{sbod}.
 
 Alle Modelle nutzen eine dynamisches Avg-\pool-Layer zwischen dem letzten \conv- und dem ersten \fc-Layer, das die Verarbeitung von \glspl{clip} variabler Länge $T$ zulässt.
 Um eine geeignete Methode zu finden, wird der Einfluss des Avg-Poolings durch ein höheres $T$ und von schnelleren \glspl{clip} durch einen höheren Zeitschritt $\tau$ verglichen.
-Die Grid-Suche betrachtet also Punkte für verschiedene Werte von $T$ und $\tau$, wobei der dadurch beeinflusste Zeitkontext sich innerhalb der unteren und oberen Grenze von 3 \bzw 6 Sekunden bewegen soll.
+Die Grid-Suche betrachtet also Punkte für verschiedene Werte von $T$ und $\tau$, wobei der dadurch beeinflusste Zeitkontext $\Delta$ sich innerhalb der unteren und oberen Grenze von 3 \bzw 6 Sekunden bewegen soll.
 Für die Wahl von $T$ werden sechs Werte zwischen 24 und 64 getestet, wobei 64 die maximale Anzahl von Frames darstellt.
 Zusätzliche Frames würden die Kapazität der \gls{gpu} überschreiten und sind im Rahmen der Arbeit technisch nicht möglich.
 Die Punkte für $\tau$ werden so gewählt, dass sich der resultierende Zeitkontext etwas um eine Sekunde unterscheidet.

@@ -13,7 +13,7 @@ Einige können mithilfe gängiger Best Practices, andere durch manuelle Verfahre
 Die hier verwendeten Hyperparameter lassen sich in vier Gruppen gliedern:
 
 \begin{description}
-    \item[Sampling-Parameter] Die in \autoref{subsec:hyperparameter} vorgestellten Parameter $S$ (Auflösung), $\tau$ (Samplingrate) und $T$ (Anzahl der Frames) sind Teil der Evaluation und werden in verschiedenen Experimenten ausprobiert.
+    \item[Sampling-Parameter] Die in \autoref{subsec:hyperparameter} vorgestellten Parameter $S$ (Auflösung), $\tau$ (Zeitschritt) und $T$ (Anzahl der Frames) sind Teil der Evaluation und werden in verschiedenen Experimenten ausprobiert.
     Der Richtwert $\gls{tld:Theta}_\text{train}$, der die Maximalzahl von Samples pro Klasse beschränkt, wird zunächst auf 100 gesetzt, in späterem Experimenten zur weiteren Optimierung jedoch erhöht.
     \item[Hardware-abhängige Parameter]
     Zu dieser Gruppe gehört \zB die Batch-Größe, die durch die Speicherkapazität der Grafikkarte beschränkt wird.

@@ -147,7 +147,7 @@ Die Klassifikation findet letztlich auf Basis hervorstechender Regionen innerhal
 
 Ein technischer Vorteil dieser Architektur ist allerdings, dass sie mit beliebig vielen Frames funktioniert, da das \pool-Layer einen variablen tiefen Input verarbeiten kann.
 Das macht das Modell vergleichsweise leichtgewichtig, denn die Zahl der Parameter ist unabhängig von der Zahl der Frames.
-Da die Feature-Extraktion viele redundante Informationen für konsekutive Frames berechnet, reicht in diesem Verfahren auch eine niedrigere Subsamplingrate von 6 \gls{fps}.
+Da die Feature-Extraktion viele redundante Informationen für konsekutive Frames berechnet, reicht es in diesem Verfahren aus, die Frames mit einer niedrigere Framerate von 6 \gls{fps} zu samplen.
 
 \subsubsection{Two-Stream-Fusion}
 
@@ -460,7 +460,7 @@ Folgende Faktoren (siehe~\autoref{fig:x3d}) wurden mithilfe eines Coordinate Des
 \begin{description}
     \item[$\gamma_s$] Faktor für höhere Auflösung ($\gamma_s = 1$ entspricht 112 Pixeln)
     \item[$\gamma_t$] Faktor für zusätzliche Frames ($\gamma_t = 1$ entspricht einem einzelnen Frame)
-    \item[$\gls{tld:gamma-tau}$] Faktor für Subsampling: Nur jeder $\gamma_\tau$-te Frame wird gesamplet. ($\gamma_\tau = 1$ entspricht der Original-Framerate)
+    \item[$\gamma_\tau$] Faktor für Subsampling: Nur jeder $\gamma_\tau$-te Frame wird gesamplet. ($\gamma_\tau = 1$ entspricht der Original-Framerate)
     \item[$\gamma_w$] Faktor für zusätzliche Residual-Blöcke innerhalb der vier \res-Layer der ResNet-Architektur ($\gamma_d = 1$ entspricht 1, 2, 5 und 3 Blöcken).
     \item[$\gamma_w$] Faktor für zusätzliche Kanäle pro Layer
     \item[$\gamma_b$] Faktor für zusätzliche Kanäle -- exklusiv für Bottleneck-Layer innerhalb der \res-Blöcke
@@ -498,8 +498,8 @@ Einige Modelle (darunter R2+1D, CSN, SlowFast und X3D) ermöglichen durch den Ei
 Allerdings ist die Nutzung nur dann optimal, wenn die Modelle zuvor auch mit der gleichen Anzahl an Frames trainiert wurden.
 Problematisch ist auch, dass die Feature-Maps trotzdem proportional zu $T$ mitwachsen, sodass diese Möglichkeit in der Praxis \zB durch das Speicherlimit einer GPU limitiert wird.
 
-Eine weitere Möglichkeit, die aber ebenfalls nur im geringen Maße praktikabel ist, ist die Erhöhung des Zeitschritts $\tau$ (Subsampling) (\cite{Ng15}).
-Einige Modelle, wie SlowFast oder X3D, nutzen ohnehin nicht jeden Frame.
+Eine weitere Möglichkeit, die aber ebenfalls nur im geringen Maße praktikabel ist, ist die Erhöhung des Zeitschritts $\tau$ \cite{Ng15}.
+Einige Modelle, wie SlowFast oder X3D, nutzen ohnehin nicht jeden Frame eines Clips.
 Werden die Frames allerdings mit einem zu hohen Zeitschritt gesamplet, kann insbesondere bei 3D-\glspl{cnn} die Performance einbrechen, da konsekutive Frames zu unterschiedlich sind und die Kernel weniger Zusammenhänge herstellen können.
 
 Benötigt der Klassifizierer einen deutlich längeren Zeitkontext $\Delta$, als das trainierte Modell abbilden kann, sind weder das dynamische Avg-Pooling noch Subsampling ausreichend.
