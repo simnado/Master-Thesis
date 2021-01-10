@@ -22,7 +22,7 @@ Allen drei liegt dasselbe 2D-CNN-Backbone zugrunde, welches einer abgewandelten 
 \begin{figure}[h!]
     \centering
     \bigimage{img/03_Karpathy14}{0.8\textwidth}
-    \caption{Fusion-Modelle für Frame-Features (Quelle:~\cite{Karpathy14})}
+    \caption[Fusion-Modelle für Frame-Features]{Fusion-Modelle für Frame-Features (Quelle:~\cite{Karpathy14})}
     \label{fig:fusion-types}
 \end{figure}
 
@@ -65,7 +65,7 @@ Eine weitere Möglichkeit Bewegungsinformationen aus Videos zu extrahieren ist d
 Die Differenz zweier Bilder kann damit wieder als ein oder zwei (für horizontale und vertikale Bewegungen) neue Bilder gespeichert werden.
 
 Das sogenannte Two Stream Network aus~\cite{Simonyan14} (siehe \autoref{fig:two-stream}) ist ein Modell, das mit zwei Input-Quellen in getrennten Netzen operiert.
-Im ersten Stream (Spatial Stream) wird ein einzelner Frame als normales Farbbild in ein CNN-backbone gegeben.
+Im ersten Stream (Spatial Stream) wird ein einzelner Frame als normales Farbbild in ein CNN-\gls{backbone} gegeben.
 Der zweite Stream (Temporal Stream) nimmt mehrere Bewegungsbilder pro \gls{clip}.
 Dazu wird für alle Frames des \glspl{clip} vorab die Differenz als Optischer Fluss gespeichert.
 Diese Bilder (je zwei pro Ausrichtung) werden als gleichwertige Kanäle in einen zweiten Stream gegeben.
@@ -94,12 +94,14 @@ Der Optische Fluss selbst kann als Zwischenergebnis nicht mit-optimiert werden u
         \caption{Two Stream Network (Quelle:~\cite{Simonyan14})}
         \label{fig:two-stream}
     \end{subfigure}%
+    \hfill
     \begin{subfigure}[b]{.5\textwidth}
         \centering
         \bigimage{img/03_Zhu17}{0.95\textwidth}
         \caption{Hidden Two Stream Network (Quelle:~\cite{Zhu17})}
         \label{fig:hidden-two-stream}
     \end{subfigure}
+    \caption{Aufbau exemplarischer Early-Fusion-Modelle}
 \end{figure}
 
 \subsubsection{Hidden Two Stream Network}
@@ -174,15 +176,17 @@ Das Lernen redundanter Informationen kann die Performance so letztlich ausbremse
     \begin{subfigure}[b]{.5\textwidth}
         \centering
         \bigimage{img/03_Feichtenhofer16}{0.95\textwidth}
-        \caption{Architektur: TwoStream Fusion (Quelle:~\cite{Feichtenhofer16})}
+        \caption{Two Stream Fusion (Quelle:~\cite{Feichtenhofer16})}
         \label{fig:two-stream-fusion}
     \end{subfigure}%
+    \hfill
     \begin{subfigure}[b]{.5\textwidth}
         \centering
         \bigimage{img/03_Girdhar17}{0.95\textwidth}
-        \caption{Architektur: ActionVLAD (Quelle:~\cite{Girdhar17})}
+        \caption{ActionVLAD (Quelle:~\cite{Girdhar17})}
         \label{fig:avlad}
     \end{subfigure}
+    \caption{Aufbau exemplarischer Late-Fusion-Modelle}
 \end{figure}
 
 \subsubsection{Action VLAD}
@@ -214,7 +218,7 @@ Die Klassifizierung eines \glspl{clip} setzt sich schließlich aus dem Durchschn
 \begin{figure}[h!]
     \centering
     \bigimage{img/03_Donahue14}{0.4\textwidth}
-    \caption{Architektur: LRCN (Quelle:~\cite{Donahue14})}
+    \caption[Aufbau des LRCNs]{Aufbau des LRCNs (Quelle:~\cite{Donahue14})}
     \label{fig:lrcn}
 \end{figure}
 
@@ -233,7 +237,7 @@ während bei LRCN ein Backpropagation-Schritt pro \gls{clip} (mit $T = 16$ Frame
 
 Die nächste große Generation der \gls{har}-Modelle war die erstmalig in~\cite{Ji13} vorgestellte 3D-Faltung (3D-Convolution).
 Die 3D-Faltung funktioniert analog zur 2D-Faltung aus \autoref{sec:cnn}:
-Statt eines $(C \times S \times S)$-Inputs, erhält das Netz einen $(C \times T \times S \times S)$-Input.
+Statt eines $(\gls{tld:C} \times S \times S)$-Inputs, erhält das Netz einen $(\gls{tld:C} \times T \times S \times S)$-Input.
 Alle \conv- und \pool-Layer haben nun dreidimensionale Kernel und erzeugen vierdimensionale Feature-Maps.
 
 Im Gegensatz zu vorherigen Early-Fusion-Modellen werden zeitliche Informationen nicht gemittelt.
@@ -257,7 +261,7 @@ So muss für längere \glspl{clip} stets der Durchschnitt einzelner Chunks erfas
 \begin{figure}[h!]
     \centering
     \bigimage{img/03_Varol16}{0.75\textwidth}
-    \caption{Architektur: LTC (Quelle:~\cite{Varol18})}
+    \caption[Aufbau des LTC-Netzes]{Aufbau des LTC-Netzes (Quelle:~\cite{Varol18})}
     \label{fig:ltc}
 \end{figure}
 
@@ -299,18 +303,20 @@ Die Gesamtarchitektur, sowie die eingesetzten TTLs sind in \autoref{fig:t3d} abg
 
 \begin{figure}
     \centering
-    \begin{subfigure}[b]{.5\textwidth}
+    \begin{subfigure}[b]{.45\textwidth}
         \centering
-        \bigimage{img/03_Diba17}{\textwidth}
-        \caption{Architektur: T3D (Quelle:~\cite{Diba17})}
+        \bigimage{img/03_ttl.eps}{\textwidth}
+        \caption{Aufbau eines TTLs in T3D (Quelle:~\cite{Diba17})}
         \label{fig:t3d}
     \end{subfigure}%
-    \begin{subfigure}[b]{.5\textwidth}
+    \hfill
+    \begin{subfigure}[b]{.45\textwidth}
         \centering
-        %\bigimage{img/03_Girdhar17}{0.95\textwidth}
-        \caption{Schaubild: Non-Local-Blöcke (Quelle:~\cite{Wang18})}
+        \bigimage{img/03_non-local.eps}{0.95\textwidth}
+        \caption{Abbildungen eines NL-Blocks (Quelle:~\cite{Wang18})}
         \label{fig:non-local}
     \end{subfigure}
+    \caption{Aufbau von TTLs und Non-Local-Blöcken}
 \end{figure}
 
 \subsubsection*{Non-Local Networks}
@@ -362,7 +368,7 @@ Die beiden Ströme sind wie folgt konzipiert:
 \begin{figure}[h!]
     \centering
     \bigimage{img/03_Feichtenhofer18}{0.8\textwidth}
-    \caption{Architektur: SlowFast (Quelle:~\cite{Feichtenhofer18})}
+    \caption[Aufbau des SlowFast-CNNs]{Aufbau des SlowFast-CNNs (Quelle:~\cite{Feichtenhofer18})}
     \label{fig:slowfast}
 \end{figure}
 
@@ -396,8 +402,8 @@ Man spricht in diesem Zusammenhang von einer Faktorisierung der gewöhnlichen 3D
 \subsubsection{Faktorisierte Architektur}
 
 In~\cite{Sun15} wird mit FstCN (Factorized spatio-temporal convolutional network) versucht 3D-Faltung in räumliche 2D-Faltung gefolgt von einer 2D-Faltung über die Zeit- und Kanaldimension, zu ersetzen.
-Die Frames werden zunächst einzeln verarbeitet, sodass man ${T}$ 3D-Feature-Maps $(C \times S \times S)$ erhält.
-Nach der normalen 2D-Faltung wird ein 4D-Tensor $(T \times C \times S \times S)$ aus allen Feature-Maps generiert und so transformiert, dass eine Feature-Map $(S^2 \times T \times C)$ entsteht.
+Die Frames werden zunächst einzeln verarbeitet, sodass man ${T}$ 3D-Feature-Maps $(\gls{tld:C} \times S \times S)$ erhält.
+Nach der normalen 2D-Faltung wird ein 4D-Tensor $(T \times \gls{tld:C} \times S \times S)$ aus allen Feature-Maps generiert und so transformiert, dass eine Feature-Map $(S^2 \times T \times C)$ entsteht.
 Es entsteht also ein Volume, welches in seinem Querschnitt ein Bild pro Pixel enthält.
 Die Pixelwerte ergeben sich aus dem jeweiligen Kanal der Feature-Map und dem Frame-Index.
 Diese Bilder werden nun analog mit 2D-Faltung weiter verarbeitet.
@@ -420,7 +426,7 @@ Weiter werden drei der in \autoref{fig:p3d} gezeigten Blocktypen eingeführt und
 \begin{figure}[h!]
     \centering
     \bigimage{img/03_Qiu17}{0.45\textwidth}
-    \caption{P3D-Blöcke}
+    \caption[Kombination von P3D-Blöcken]{Kombination von P3D-Blöcken (Quelle:~\cite{Qiu17})}
     \label{fig:p3d}
 \end{figure}
 
@@ -469,7 +475,7 @@ Folgende Faktoren (siehe~\autoref{fig:x3d}) wurden mithilfe eines Coordinate Des
 \begin{figure}[h!]
     \centering
     \bigimage{img/03_Feichtenhofer20}{0.75\textwidth}
-    \caption{Expansionsfaktoren in X3D (Quelle:~\cite{Feichtenhofer20})}
+    \caption[Expansionsfaktoren in X3D]{Expansionsfaktoren in X3D (Quelle:~\cite{Feichtenhofer20})}
     \label{fig:x3d}
 \end{figure}
 
@@ -523,7 +529,7 @@ Technisch gesehen lässt sich allerdings jedes der genannten Modelle einbinden~\
 \begin{figure}[h!]
     \centering
     \bigimage{img/03_Wang19}{0.8\textwidth}
-    \caption{Architektur: TSN (Quelle:~\cite{Wang19})}
+    \caption[Aufbau des TSNs]{Aufbau des TSNs (Quelle:~\cite{Wang19})}
     \label{fig:tsn}
 \end{figure}
 
@@ -605,7 +611,7 @@ Außerdem wird zusätzliches Videomaterial aus asiatischen Fußballligen verwend
     table head=\hline,late after line=\\\hline]{tbl/datasets.csv}
     {1=\colDataset,2=\colVideos,3=\colClasses,4=\colDuration}
     {\colDataset & \colVideos & \colClasses & \colDuration}
-    \caption[Vergleich Datensets]{Vergleich Datensets}
+    \caption[Vergleich bestehender Datensets]{Vergleich bestehender Datensets}
     \label{tab:dataset}
 \end{table}
 

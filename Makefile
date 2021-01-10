@@ -1,5 +1,5 @@
 all: pdf
 
 pdf: Makefile
-	pdflatex thesis && sudo biber thesis && pdflatex thesis
+	pdflatex thesis && makeglossaries thesis && sudo biber thesis && sudo pdflatex thesis
 

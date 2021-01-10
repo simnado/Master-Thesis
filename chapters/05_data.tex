@@ -28,13 +28,13 @@ Dieser Prozess wird im Folgenden in zwei Teilprobleme unterteilt:
 Das zu erstellende Datenset basiert auf den drei Datenquellen \gls{sbod}, SoccerNet und YouTube.
 \gls{sbod} gibt eine Liste potenzieller Spiele und damit verknüpfter Spielaktionen vor, für welche passendes Videomaterial aus den anderen zwei Quellen gefunden werden muss.
 
-\subsection{Datenschema}
+\subsection{Datenbankschema}
 \label{subsec:schema}
 
 \begin{figure}
     \centering
     \bigimage{fig/schema}{0.7\textwidth}
-    \caption{Datenbankschema zur Erhebung des Datensets}
+    \caption[Klassendiagramm zur Datenerhebung]{Klassendiagramm zur Datenerhebung (Quelle: Eigene Darstellung)}
     \label{fig:classes}
 \end{figure}
 
@@ -66,13 +66,14 @@ Zuletzt werden die relationalen Daten aus der Datenbank in eine JSON-Datei expor
         \caption{Gesamter Prozess}
         \label{fig:collection-pipeline_a}
     \end{subfigure}%
+    \hfill
     \begin{subfigure}[b]{.5\textwidth}
         \centering
         \includegraphics[width=.95\linewidth]{fig/collection-pipeline.eps}
         \caption{Matching pro Spiel}
         \label{fig:collection-pipeline_b}
     \end{subfigure}
-    \caption{Pipeline zur Datenerhebung}
+    \caption[Aktivitätsdiagramm für Datenerhebungspipeline]{Aktivitätsdiagramm für Datenerhebungspipeline (Quelle: Eigene Darstellung)}
     \label{fig:collection-pipeline}
 \end{figure}
 
@@ -157,7 +158,7 @@ Das Zielformat ist eine Art Erweiterung des Speicherformats in~\cite{Caba15} (ba
 \begin{figure}
     \centering
     \bigimage{fig/storage}{0.7\textwidth}
-    \caption{Dateiformat zur Speicherung des Datensets}
+    \caption[Klassendiagramm für Datenexport]{Klassendiagramm für Datenexport (Quelle: Eigene Darstellung)}
     \label{fig:storage-format}
 \end{figure}
 
@@ -193,7 +194,7 @@ Aktionen, die hier keinen Wert vorweisen werden lediglich als Zeitpunkt in \gls{
         {1=\colName,2=\colCount,3=\colAvg,4=\colMax}
         {\colName & \colCount & \colAvg & \colMax}
     \end{subfigure}
-    \caption{Aktionskatalog in SOCC-HAR-32: Anzahl, durchschnittliche und max. Dauer der Annotationen}
+    \caption[Aktionskatalog in SOCC-HAR-32]{Aktionskatalog in SOCC-HAR-32: Anzahl, durchschnittliche und max. Dauer der Annotationen}
     \label{tab:action}
 \end{table}
 
@@ -259,7 +260,7 @@ Die häufigsten Kombinationen sind (bei $\Delta=5$) folgende:
         \caption{$\Delta = 10$}
         %\label{fig:anno_classes}
     \end{subfigure}
-    \caption{Anteil von Background-Samples (blau), Samples einzelner Aktionen (orange) und Samples mit mehreren Aktionen (grün) bei steigendem Zeitkontext $\Delta$}
+    \caption[Eigenschaften der Samples bei steigendem Zeitkontext $\Delta$]{Eigenschaften der Samples bei steigendem Zeitkontext $\Delta$: Anteil der Background-Samples (blau), Samples mit nur einer Aktion (orange) und Samples mit mehreren Aktionen (grün) (Quelle: Eigene Darstellung)}
     \label{fig:ratios}
 \end{figure}
 
@@ -267,13 +268,13 @@ Die häufigsten Kombinationen sind (bei $\Delta=5$) folgende:
 \label{sec:pre-processing}
 
 Die Datenaufbereitung basiert auf dem exportierten Datenset des vorherigen Kapitels.
-Es umschließt einmalige Prozesse, sowie Prozesse, die pro Training oder pro Sample während des Trainings durchgeführt werden.
+Es umschließt einmalige Prozesse, sowie Prozesse, die pro Training oder pro \gls{sample} während des Trainings durchgeführt werden.
 \autoref{fig:data-pipeline} zeigt die Prozesse jeder dieser Kategorien.
 
 \begin{figure}
     \centering
     \bigimage{fig/data-pipeline}{0.6\textwidth}
-    \caption{Pipeline zum Pre-Processing basierend auf Annotationen}
+    \caption[Aktivitätsdiagramm zur Datenaufbereitungspipeline]{Aktivitätsdiagramm zur Datenaufbereitungspipeline (Quelle: Eigene Darstellung)}
     \label{fig:data-pipeline}
 \end{figure}
 
@@ -327,7 +328,7 @@ Zur Orientierung wird der Richtwert $\Theta$ als vertikale Linie aufgetragen.
         \caption{Testset: \newline mit $\Delta=5$}
         %\label{fig:anno_classes}
     \end{subfigure}
-    \caption{Verhalten der Samplingstrategie: Anzahl der Annotationen (blau), Anzahl segemntierter Clips (orange) und Anzahl verwendeter Samples pro Epoche (grün)}
+    \caption[Beispielhafte Auswirkungen der Samplingstrategie]{Beispielhafte Auswirkungen der Samplingstrategie: Gegebene Anzahl der Annotationen (blau), Anzahl segmentierter Clips (orange), Anzahl verwendeter Samples pro Epoche (grün) (Quelle: Eigene Darstellung)}
     \label{fig:samples}
 \end{figure}
 
@@ -339,7 +340,7 @@ Die Grenzen einer Aktion sind teils subjektiv gelabelt und durch das Erlauben kr
 Als Folge wird erwartet, dass das Modell die Aktionsgrenzen implizit selbst erlernt und da Background-Samples ohnehin überrepräsentiert sind, wird nicht erwartet, dass es so zu Performance-Einbußen kommt.
 Ein Background-Sample wird als kritisch deklariert, wenn es die dreisekündige Pufferzone einer anderen Aktion schneidet, was laut \autoref{subsec:hyperparameter} etwa der durchschnittlichen Länge einer Aktion entspricht.
 
-Zusätzlich wird die Maximalzahl an Samples pro Klasse durch einen Richtwert $\gls{tld:Theta}$ gedrosselt.
+Zusätzlich wird die Maximalzahl an Samples pro Klasse durch einen Richtwert \gls{tld:Theta} gedrosselt.
 Der Richtwert für Trainingsdaten orientiert sich an~\cite{Kay17} (250-1000 Samples pro Klasse) und ist konfigurierbar.
 Analog wird die Größe der Validierungssets auf 50 Samples pro Klasse begrenzt.
 Das Testset bleibt ungefiltert.
@@ -352,7 +353,7 @@ Die Gewichte $w_{y_i}$ setzen sich pro Sample wie in \autoref{eq:sample-weights}
 
 \begin{equation}
     \label{eq:sample-weights}
-    w_{y_i} = \frac{\sum_{a \in \gls{tld:A}} \frac{y_i^a r_{bg}}{r_a} }{\max \{1, \sum_{a \in \gls{tld:A}} y_i^a\}}
+    w_{y_i} = \frac{\sum_{a \in \gls{tld:A}} \frac{y_i^a r_{bg}}{r_a} }{\max \{1, \sum_{a \in \gls{tld:A}} y_i^{\gls{tld:a}}\}}
 \end{equation}
 
 Mit $r_{c}$ ist der Anteil aller Samples der jeweiligen Klasse unter allen Samples gemeint.
@@ -361,7 +362,7 @@ Die Gesamtzahl der Samples ist pro Datenset definiert durch \autoref{eq:limit}, 
 
 \begin{equation}
     \label{eq:limit}
-    | D_{\text{split} \in \{\text{train}, \text{val}\}} | = \gls{tld:Theta}_\text{split} + \sum\limits_{a \in \gls{tld:A}} \min \{ \gls{tld:Theta}_\text{split}, |D^a_\text{split}| \}
+    | \gls{tld:D}_{\text{split} \in \{\text{train}, \text{val}\}} | = \Theta_\text{split} + \sum\limits_{a \in \gls{tld:A}} \min \{ \Theta_\text{split}, |D^a_\text{split}| \}
 \end{equation}
 
 Dieses Vorgehen löst zum Teil auch das Problem der Ungleichgewichtung (Imbalance) der Klassen, was ein allgemeiner Nachteil für die Performance eines Klassifizierers ist~\cite{Giancola18, Burkov19}.
@@ -382,7 +383,7 @@ Jedoch können die Samples mit Methoden der gewöhnlichen Data Augmentation komb
 Im Zuge der Data Augmentation wird jeder \gls{clip}, nachdem er dekodiert wurde, zunächst auf 90 \% seiner Höhe und Breite zufällig zugeschnitten (Cropping).
 Anschließend werden Helligkeit, Kontrast und Sättigung leicht verändert (Jittering; siehe~\cite{Tran18}).
 In der Hälfte der Fälle wird das Bild horizontal gespiegelt.
-Abschließend wird das Bild auf die Zielauflösung des jeweils verwendeten \gls{har}-Backbones verkleinert.
+Abschließend wird das Bild auf die Zielauflösung des jeweils verwendeten \gls{har}-Modells verkleinert.
 Für das Validierungs- und Testset wird nur ein 90 \%-iger zentraler Ausschnitt des Bildes erfasst und auf die Zielauflösung geschrumpft.
 \autoref{fig:sample_example} zeigt ein beispielhaftes Sample nach Durchlaufen der Pre-Processing-Pipeline (bis einschließlich Data-Augmentation).
 
@@ -399,7 +400,7 @@ Für das Validierungs- und Testset wird nur ein 90 \%-iger zentraler Ausschnitt 
         \includegraphics[width=.95\linewidth, trim=0 80 0 80, clip]{img/05_sample_aug4.png}
         \caption{Mit Data-Augmentation}
     \end{subfigure}
-    \caption{Beispielhaftes Samples eines Eckstoßes bestehend aus 48 Frames}
+    \caption[Beispielhafte Data-Augmentation eines Samples]{Beispielhafte Data-Augmentation eines Samples der Klasse \code{corner} bestehend aus $T=48$ Frames (Quelle: Eigene Darstellung)}
     \label{fig:sample_example}
 \end{figure}
 

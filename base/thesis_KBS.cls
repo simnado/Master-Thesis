@@ -71,7 +71,7 @@
 % Textspiegel
 \areaset{16cm}{21cm}
 \else
-\LoadClass[11pt,a4paper,twoside,openright]{report}
+\LoadClass[11pt,a4paper,twoside,openright, listof=totoc]{scrreprt}
 \usepackage{typearea}
 % Textspiegel
 \areaset[0.75cm]{16cm}{21cm}

@@ -8,7 +8,7 @@ Die Evaluation schließt die Ergebnisse aller vier Phasen, häufige Fehler in de
 \label{sec:benchmark}
 
 In diesem Abschnitt werden die Rechenergebnisse der verschiedenen Modelle miteinander verglichen.
-Als Baseline-Modelle wurden R2+1D-34, ir-CSN-152 und zwei Varianten von SlowFast-50 getestet, die mit $\gls{tld:Theta}_\text{train} = 200$ für 10 Epochen trainiert.
+Als Baseline-Modelle wurden R2+1D-34, ir-CSN-152 und zwei Varianten von SlowFast-50 getestet, die mit $\Theta_\text{train} = 200$ für 10 Epochen trainiert.
 Beide SlowFast-Varianten wurden zunächst ohne Hinzunahme von Non-Local-Blöcken trainiert.
 In \autoref{tab:phase1} sind die Ergebnisse zu sehen, wobei alle Hyperparameter aus den ursprünglichen Publikationen übernommen wurden.
 Die Metriken basieren auf einem einheitlichen Testset mit $\Delta_\text{test} = 3$.
@@ -25,7 +25,7 @@ Da die Ergebnisse für SlowFast-50-4x16 durchweg besser ausfallen, wird diese Va
     table head=\hline,late after line=\\\hline]{tbl/exp_phase_1.csv}
     {1=\model,2=\aurocval,3=\baval,4=\fbetaval,5=\lr,6=\bs,7=\ba,8=\rec,9=\prec,10=\auroc}
     {\model & \lr & \ba & \prec & \rec & \auroc}
-    \caption{Ergebnisse aus Benchmark: Getestet mit $\Delta_\text{test} = 3$}
+    \caption[Ergebnisse aus Benchmark]{Ergebnisse aus Benchmark: Getestet mit $\Delta_\text{test} = 3$}
     \label{tab:phase1}
 \end{table}
 
@@ -70,7 +70,7 @@ Das Vorgehen ist weiter motiviert durch die Mindest-Dauer von 4 Sekunden in Socc
 
 Alle Modelle nutzen eine dynamisches Avg-\pool-Layer zwischen dem letzten \conv- und dem ersten \fc-Layer, das die Verarbeitung von \glspl{clip} variabler Länge $T$ zulässt.
 Um eine geeignete Methode zu finden, wird der Einfluss des Avg-Poolings durch ein höheres $T$ und von schnelleren \glspl{clip} durch einen höheren Zeitschritt $\tau$ verglichen.
-Die Grid-Suche betrachtet also Punkte für verschiedene Werte von $T$ und $\tau$, wobei der dadurch beeinflusste Zeitkontext $\Delta$ sich innerhalb der unteren und oberen Grenze von 3 \bzw 6 Sekunden bewegen soll.
+Die Grid-Suche betrachtet also Punkte für verschiedene Werte von $T$ und $\tau$, wobei der dadurch beeinflusste Zeitkontext \gls{tld:Delta} sich innerhalb der unteren und oberen Grenze von 3 \bzw 6 Sekunden bewegen soll.
 Für die Wahl von $T$ werden sechs Werte zwischen 24 und 64 getestet, wobei 64 die maximale Anzahl von Frames darstellt.
 Zusätzliche Frames würden die Kapazität der \gls{gpu} überschreiten und sind im Rahmen der Arbeit technisch nicht möglich.
 Die Punkte für $\tau$ werden so gewählt, dass sich der resultierende Zeitkontext etwas um eine Sekunde unterscheidet.
@@ -85,6 +85,7 @@ Zusätzlich wird das Baseline-Modell der vorherigen Phase erneut getestet.
         \caption{Punkte für Grid-Suche}
         \label{fig:exp-hparams-grid}
     \end{subfigure}%
+    \hfill
     \begin{subfigure}{.37\textwidth}
         \centering
         \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_par_cor_prec.eps}
@@ -97,9 +98,10 @@ Zusätzlich wird das Baseline-Modell der vorherigen Phase erneut getestet.
         \caption{Recall für Grid-Suche}
         \label{fig:exp-hparams-rec}
     \end{subfigure}
+    \caption[Punkte und Ergebnisse der Grid-Suche zur Hyperparamter-Optimierung]{Punkte und Ergebnisse der Grid-Suche zur Hyperparamter-Optimierung (Quelle: Eigene Darstellung)}
 \end{figure}
 
-Aufgrund der Vielzahl zusätzlicher Experimente wird die Laufzeit bei diesen Experimenten durch $\gls{tld:Theta}_\text{train} = 100$ und auf 3 Epochen begrenzt.
+Aufgrund der Vielzahl zusätzlicher Experimente wird die Laufzeit bei diesen Experimenten durch $\Theta_\text{train} = 100$ und auf 3 Epochen begrenzt.
 Da das Baseline-Modell nach der ersten Phase bereits neue Feature gelernt hat, wird zu Beginn eine neue Lernrate gesucht, die für alle Trainings der Grid-Suche gilt und dem Intervall $[3e^{-4}, 3e^{-6}]$ entspricht.
 \autoref{fig:exp-hparams-prec} und \autoref{fig:exp-hparams-rec} veranschaulichen die Ergebnisse der Grid-Suche in Form von Parallelen Koordinaten.
 Es fällt auf, dass die Hyperparameter sehr gegensätzlichen Einfluss auf die Metriken Precision und Recall haben.
@@ -114,7 +116,7 @@ Die Precision scheint hingegen unabhängig vom Zeitkontext zu sein.
     table head=\hline,late after line=\\\hline]{tbl/exp_phase_2.csv}
     {1=\model,2=\s,3=\t,4=\sr,5=\d,6=\auroc,7=\ba,8=\fone}
     {\t & \sr & \d & \ba & \fone & \auroc}
-    \caption{Ergebnisse aus Hyperparameter-Optimierung: Modell entspricht ir-CSN-152, getestet mit $\Delta_\text{fit} = 4.8$}
+    \caption[Ergebnisse aus Hyperparameter-Optimierung]{Ergebnisse aus Hyperparameter-Optimierung: ir-CSN-152 getestet mit $\Delta_\text{fit} = 4.8$}
     \label{tab:phase2}
 \end{table}
 
@@ -123,7 +125,7 @@ In \autoref{tab:phase2} sind nur Experimente gelistet, die maximal 1 \% von dem 
 Als zusätzlicher Filter werden Experimente ausgeschlossen, deren Balanced Accuracy mehr als 1 \% vom Maximum abweicht.
 Als Baseline-Modell für die nachfolgenden Experimente wird die Konfiguration mit $T=48$ und $\tau=2.4$ (10 \gls{fps}) gewählt.
 Da sich für dieses Modell ein Zeitkontext von $\Delta_\text{fit} = 4.8$ ergibt, wird für dieses und alle folgenden Experimente ein zweites Testset gesamplet mit $\Delta_\text{test} = 5$.
-Das neue Baseline-Modell wird erneut für 5 Epochen mit $\gls{tld:Theta}_\text{train} = 200$ trainiert und liefert dabei eine Balanced Accuracy von 68.18~\% auf dem neuen Testset.
+Das neue Baseline-Modell wird erneut für 5 Epochen mit $\Theta_\text{train} = 200$ trainiert und liefert dabei eine Balanced Accuracy von 68.18~\% auf dem neuen Testset.
 
 \section{Kategorisierung der Aktionsklassen}
 \label{sec:kategorisierung-der-aktionsklassen}
@@ -164,7 +166,7 @@ Während Aktionen wie \code{corner}, \code{footShot} oder \code{throwIn} hohe We
         \caption{PCA-0 \newline mit 25 Klassen}
         \label{fig:pca_by_class_phase_3}
     \end{subfigure}
-    \caption{Metriken pro Klasse}
+    \caption[Vergleich der Aktionsklassen anhand erhobener Metriken]{Vergleich der Aktionsklassen anhand erhobener Metriken (Quelle: Eigene Darstellung)}
     \label{fig:class-metrics}
 \end{figure}
 
@@ -174,7 +176,7 @@ Während Aktionen wie \code{corner}, \code{footShot} oder \code{throwIn} hohe We
 Da sich für jede erhobene Metrik eine abweichende Rangfolge der Klassen ergibt, ist es schwierig auf eine allgemeingültige Rangordnung abzubilden, die die Komplexität der Klassen widerspiegelt.
 Es kann also keine pauschale Aussage über die Schwierigkeit einer Aktionsklassen gemacht werden.
 Dennoch lässt sich anhand der erfassten Metriken eine grobe Ordnung erstellen, auch wenn sie allgemein nicht repräsentativ ist.
-Hierzu werden alle fünf Metriken pro Klasse zu einer zweidimensionalen Matrix $M \in \mathbb{R}^{(A \times 5)}$ angeordnet und im Zuge einer \gls{pca} auf einen eindimensionalen Vektor projiziert.
+Hierzu werden alle fünf Metriken pro Klasse zu einer zweidimensionalen Matrix $M \in \mathbb{R}^{(\gls{tld:A} \times 5)}$ angeordnet und im Zuge einer \gls{pca} auf einen eindimensionalen Vektor projiziert.
 Die erste Komponente der \gls{pca} $c_0 \in \mathbb{R}^{(5 \times 1)}$ deckt mit 80 \% hinreichend viel Varianz ab und projiziert die Metriken auf einen Vektor:
 
 \begin{equation}
@@ -183,7 +185,7 @@ Die erste Komponente der \gls{pca} $c_0 \in \mathbb{R}^{(5 \times 1)}$ deckt mit
 \end{equation}
 
 Die resultierende Rangordnung ist in \autoref{fig:pca_by_class_phase_2} abgebildet.
-Als Folge werden die schwächsten vier Klassen aus dem ursprünglichen Datenset entfernt und das Modell wird erneut mit den übrigen 28 Klassen und $\gls{tld:Theta}_\text{train} = 300$ nachtrainiert.
+Als Folge werden die schwächsten vier Klassen aus dem ursprünglichen Datenset entfernt und das Modell wird erneut mit den übrigen 28 Klassen und $\Theta_\text{train} = 300$ nachtrainiert.
 Anschließend wird dieser Prozess erneut wiederholt, indem drei weitere Klassen entfernt werden und das Modell nur mit den 25 besten Klassen nachtrainier wird.
 Nach beiden Trainings wurden wieder jeweils 50 Sample verifiziert und dabei insgesamt 187 weitere Transaktionen vorgenommen, um die Datenqualität zu verbessern.
 

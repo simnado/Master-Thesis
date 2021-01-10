@@ -41,7 +41,7 @@ In der Fußballdomäne gibt es zurzeit nur kleine oder unvollständige Datensets
 Darüber hinaus sind die Erkennungsraten bei der Anwendung auf diesen Datensets vergleichsweise gering verglichen mit den groß angelegten, generischen Datensets~\cite{Kay17,Karpathy14} im Bereich \gls{har}.
 Zum einen mag das daran liegen, dass diese ein deutlich breiteres Repertoire an Videomaterial einschließen und zum anderen, dass sie Benchmarks unter deutlich höherer Rechenlast optimiert wurden.
 Die vorliegende Arbeit versucht diese Lücke zu verringern, indem ein Datenset generiert wird, welches auch bisher unbeachtete Spielaktionen einschließt und mit 32 verschiedenen Klassen ein mehr als dreimal so großes Spektrum abbildet.
-Basierend auf diesem Datenset, genannt SOCC-HAR-32, werden aktuelle \gls{har}-Modelle (R2+1D-34, SlowFast-50, ir-CSN-152) untersucht und auf ihre Eignung geprüft.
+Basierend auf diesem \gls{dataset}, genannt SOCC-HAR-32, werden aktuelle \gls{har}-Modelle (R2+1D-34, SlowFast-50, ir-CSN-152) untersucht und auf ihre Eignung geprüft.
 
 Die Fragen, der sich diese Arbeit widmet, sind:
 \begin{enumerate}
@@ -66,7 +66,7 @@ Alle Fragen sollen unter Anwendung des aktuellen Forschungsstands (Januar 2020) 
     \end{tikzpicture}%
 
     %\includegraphics[width=\textwidth, height=0.9\textwidth, keepaspectratio, interpolate, trim=120 25 100 25, clip]{img/01_cover3.pdf}
-    \caption{HAR in Fußballvideos: In einem Clip aus $T=16$ Frames (Input) werden zwei Aktionen (Output) erkannt }
+    \caption[Beispiel für Multi-Label-HAR in Fußballvideos]{Beispiel für Multi-Label-HAR in Fußballvideos (Quelle: Eigene Darstellung). In einem Clip aus $T=16$ Frames (Input) werden zwei Aktionen (Output) erkannt.}
     \label{fig:cover}
 \end{figure}
 
@@ -76,9 +76,9 @@ Alle Fragen sollen unter Anwendung des aktuellen Forschungsstands (Januar 2020) 
 Ziel der Arbeit ist ein auf SOCC-HAR-32 optimiertes \gls{har}-Modell, welches beliebige Video-\glspl{clip} einer bestimmten Länge wie in \autoref{fig:cover} klassifizieren kann.
 Die Verarbeitung ungeschnittener Videos ist, genauso wie die Lokalisierung von Aktionen innerhalb der \glspl{clip}, nicht Gegenstand dieser Arbeit.
 
-Der Input des Modells wird repräsentiert durch einen Video-\gls{clip} $x \in \mathbb{R}^{(C \times T \times S \times S)}$ mit $C$ Farbkanälen, einer festen Länge von $T$ Frames und einer Auflösung von $S$ Pixeln.
+Der Input des Modells wird repräsentiert durch einen Video-\gls{clip} $x \in \mathbb{R}^{(\gls{tld:C} \times \gls{tld:T} \times \gls{tld:S} \times S)}$ mit $C$ Farbkanälen, einer festen Länge von $T$ Frames und einer Auflösung von $S$ Pixeln.
 Der Output $y \in \{0, 1\}^A$ entspricht einem One-Hot-Vektor aus $A$ Aktionsklassen (hier 32).
-Das Modell soll den Zusammenhang zwischen $x$ und $y$ mit hinreichend vielen Samples $(x_i, y_i)$ Ende-zu-Ende in einem einstufigen Modell abbilden.
+Das Modell soll den Zusammenhang zwischen $x$ und $y$ mit hinreichend vielen Samples $(\gls{tld:x}_i, \gls{tld:y}_i)$ Ende-zu-Ende in einem einstufigen Modell abbilden.
 \Dh es wird auf jede Form von zusätzlichen Zwischenschritten verzichtet.
 Das schließt insbesondere vorgelagerte Berechnungen von Feature-Repräsentationen ein, die in mehreren Zwischenschritten aufeinander aufbauen.
 Der Fokus auf ein einstufiges Modell ist primär durch den vergleichsweise geringen Entwicklungsaufwand begründet, der die Bearbeitung im Rahmen dieser Arbeit erst ermöglicht.

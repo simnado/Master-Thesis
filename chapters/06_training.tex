@@ -13,10 +13,10 @@ Einige können mithilfe gängiger Best Practices, andere durch manuelle Verfahre
 Die hier verwendeten Hyperparameter lassen sich in vier Gruppen gliedern:
 
 \begin{description}
-    \item[Sampling-Parameter] Die in \autoref{subsec:hyperparameter} vorgestellten Parameter $S$ (Auflösung), $\tau$ (Zeitschritt) und $T$ (Anzahl der Frames) sind Teil der Evaluation und werden in verschiedenen Experimenten ausprobiert.
-    Der Richtwert $\gls{tld:Theta}_\text{train}$, der die Maximalzahl von Samples pro Klasse beschränkt, wird zunächst auf 100 gesetzt, in späterem Experimenten zur weiteren Optimierung jedoch erhöht.
+    \item[Sampling-Parameter] Die in \autoref{subsec:hyperparameter} vorgestellten Parameter $S$ (Auflösung), \gls{tld:tau} (Zeitschritt) und $T$ (Anzahl der Frames) sind Teil der Evaluation und werden in verschiedenen Experimenten ausprobiert.
+    Der Richtwert $\Theta_\text{train}$, der die Maximalzahl von Samples pro Klasse beschränkt, wird zunächst auf 100 gesetzt, in späterem Experimenten zur weiteren Optimierung jedoch erhöht.
     \item[Hardware-abhängige Parameter]
-    Zu dieser Gruppe gehört \zB die Batch-Größe, die durch die Speicherkapazität der Grafikkarte beschränkt wird.
+    Zu dieser Gruppe gehört \zB die \gls{batch}-Größe, die durch die Speicherkapazität der Grafikkarte beschränkt wird.
     In \autoref{subsec:hardwareeinschrankungen} wird der Umgang mit begrenzten Speicher beschrieben und wie die Parameter gewählt werden.
     \item[Modell-abhängige Parameter] Zu dieser Gruppe zählt vorrangig die zu wählende Lernrate, die bestimmt in welchem Maß die Modellparameter angepasst werden.
     Auch hierzu wird in \autoref{subsec:vorkehrungen} ein Verfahren zur Findung erläutert.
@@ -52,12 +52,12 @@ Die maximale Batch-Größe wird dazu auf die nächstniedrigere Zweierpotenz abge
 
 Für die Wahl der passenden Lernrate wird ein iterativer Test für verschiedenen Lernraten durchgeführt.
 Der Test probiert verschiedene Lernraten aus und plottet diese gegen den resultierenden Fehler (in diesem Fall Binary Cross Entropy), wie \autoref{fig:lr-finder} zeigt.
-Dabei wird diejenige Rate als Lernrate empfohlen, deren Abstieg maximal ist~\cite{Smith15}.
+Dabei wird diejenige Rate als Lernrate empfohlen, deren Abstieg maximal ist~\cite{Smith15, Gugger20}.
 
 \begin{figure}
     \centering
     \bigimage{img/lr_finder}{0.65\textwidth}
-    \caption{Lernraten-Finder mit markierter Empfehlung aus~\cite{Gugger20}}
+    \caption[Lernraten-Plot mit Empfehlung]{Lernraten-Plot mit Empfehlung (rot) (Quelle: Eigene Darstellung)}
     \label{fig:lr-finder}
 \end{figure}
 
@@ -91,7 +91,7 @@ Nach dem Durchlauf werden alle Metriken, Hyperparameter, sowie die besten Modell
 \begin{figure}[htbp!]
     \centering
     \bigimage{fig/training}{0.95\textwidth}
-    \caption{Sequenzdiagramm: Trainings-Loop}
+    \caption[Sequenzdiagramm der Trainingsschleife]{Sequenzdiagramm der Trainingsschleife (Quelle: Eigene Darstellung)}
     \label{fig:train-loop}
 \end{figure}
 
@@ -110,12 +110,13 @@ In den hinteren Dritteln kann diese Startlösung langsamer optimiert werden als 
         \includegraphics[width=.9\linewidth]{img/06_one_cycle_lin.eps}
         \caption{lineare Skala}
     \end{subfigure}%
+    \hfill
     \begin{subfigure}{.5\textwidth}
         \centering
         \includegraphics[width=.9\linewidth]{img/06_one_cycle_log.eps}
         \caption{logarithmische Skala}
     \end{subfigure}
-    \caption{One Cycle Schedule für diskriminativen Lernraten}
+    \caption[Plot eines One Cycle Schedules mit diskriminativen Lernraten]{Plot eines One Cycle Schedules mit diskriminativen Lernraten (Quelle: Eigene Darstellung)}
     \label{fig:one-cylce}
 \end{figure}
 

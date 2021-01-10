@@ -125,7 +125,7 @@ Die Referenzmodelle nutzen unterschiedliche Kombinationen dieser Werte, die sich
     table head=\hline,late after line=\\\hline]{tbl/coverage.csv}
     {1=\model,2=\s,3=\t,4=\sr,5=\d}
     {\model & \s & \t & \sr & \d}
-    \caption[Samplingstrategien]{Samplingstrategien der jeweiligen Modelle: Räumliche Auflösung $S$, Anzahl der Frames $T$, Zeitschritt $\tau$ und Zeitkontext $\Delta$}
+    \caption[Samplingstrategien der Baseline-Modelle]{Samplingstrategien der Baseline-Modelle: Räumliche Auflösung $S$, Anzahl der Frames $T$, Zeitschritt $\tau$ und Zeitkontext $\Delta$}
     \label{tab:coverage}
 \end{table}
 
@@ -167,7 +167,7 @@ Die Experimente lassen sich dabei in vier Phasen (siehe \autoref{fig:phases}) gl
 \begin{figure}[htbp!]
     \centering
     \includegraphics[width=0.9\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{fig/phases.eps}
-    \caption{Ablauf der Experimente in vier Phasen}
+    \caption[Ablauf der Experimente]{Ablauf der Experimente in vier Phasen (Quelle: Eigene Darstellung)}
     \label{fig:phases}
 \end{figure}
 
@@ -210,7 +210,7 @@ In der letzten Phase werden weitere Verbesserungen der Metriken angestrebt, inde
 \begin{figure}[htbp!]
     \centering
     \includegraphics[width=0.9\textwidth, height=0.8\textwidth, keepaspectratio, interpolate]{fig/usecase.eps}
-    \caption{Anwendungsfalldiagramm: Framework}
+    \caption[Anwendungsfalldiagramm für entwickeltes Framework]{Anwendungsfalldiagramm für entwickeltes Framework (Quelle: Eigene Darstellung)}
     \label{fig:usecase}
 \end{figure}
 
@@ -233,15 +233,15 @@ In \autoref{fig:modules} sind die drei Kernmodule zur Datenintegration, Training
 \begin{figure}
     \centering
     \bigimage{fig/modules-top}{0.7\textwidth}
-    \caption{Module zur konzeptuellen Umsetzung}
+    \caption[Komponentendiagramm für entwickeltes Framework]{Komponentendiagramm für entwickeltes Framework (Quelle: Eigene Darstellung)}
     \label{fig:modules}
 \end{figure}
 
 Die Hyperparameter aus \autoref{subsec:hyperparameter} sind allesamt für das Datenmodul konfigurierbar.
 Das Datenmodul beinhaltet Klassen zum Erstellen und Bereitstellen valider Samples, die auf Grundlage der Datenbank erzeugt und vom Training- und Evaluation-Modul in Form von Batches genutzt werden können.
 
-Das Trainingsmodul nutzt diese Samples zur Optimierung des \gls{har}-Backbones.
-Das Backbones-Modell ist dabei gegen jede andere Architektur austauschbar, sofern sie eine wohl-definierte Schnittstelle bereitstellt.
+Das Trainingsmodul nutzt diese Samples zur Optimierung des \gls{har}-Modells.
+Das Modell ist dabei gegen jede andere Architektur austauschbar, sofern sie eine wohl-definierte Schnittstelle bereitstellt.
 Während des Trainings werden Metriken, Checkpoint- und Fehlerreport-Dateien erfasst und an das Evaluationsmodul in Form eines Loggings übermittelt.
 
 Das Evaluationsmodul sichert alle geloggten Daten zusammen mit weiteren Metadaten in einem Cloud-Speicher.

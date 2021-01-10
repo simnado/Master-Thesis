@@ -21,7 +21,11 @@
 \newcommand{\lstlistingautorefname}{Quellcode}% Listing -> Quellcode
 
 %\bibliography{library}
-\input{glossary}
+\newglossary[tlg]{symbols}{tld}{tdn}{Symbol Verzeichnis}
+\makeglossaries
+
+\loadglsentries{glossary}
+%\include{glossary}
 \include{util//commands}
 \include{util//abbreviations}
 \include{util//lst_json}
@@ -34,6 +38,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage{tablefootnote}
 \usepackage{amsfonts}
+\usepackage[T1]{fontenc}
 
 \begin{document}
 
@@ -57,6 +62,15 @@
 \cleardoublepage
 \tableofcontents
 
+%\cleardoublepage
+%\addcontentsline{toc}{chapter}{\listfigurename}
+\listoffigures% Abbildungsverzeichnis
+
+%\cleardoublepage
+%\addcontentsline{toc}{chapter}{\listtablename}
+\listoftables% Tabellenverzeichnis
+
+\printglossary[type=symbols, title=Symbolverzeichnis, toctitle=Symbolverzeichnis, nonumberlist]
 
 \startTextChapters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -85,9 +99,8 @@
 
 % Glossar
 \cleardoublepage
-\printglossary[type=\acronymtype, title=Abkürzungsverzeichnis, toctitle=Abkürzungsverzeichnis]
-\printglossary[title=Glossar, toctitle=Glossar]
-\printglossary[type=symbols, title=Symbolverzeichnis, toctitle=Symbolverzeichnis]
+\printglossary[type=\acronymtype, title=Abkürzungsverzeichnis, toctitle=Abkürzungsverzeichnis, nonumberlist]
+\printglossary[title=Glossar, toctitle=Glossar, nonumberlist]
 
 
 \closing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

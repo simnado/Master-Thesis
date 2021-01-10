@@ -24,3 +24,11 @@ src/package-lock.json
 .DS_Store/
 .DS_Store
 *.DS_Store
+*.acr
+*.alg
+*.glg
+*.gls
+*.lof
+*.lot
+*.tld
+*.tlg

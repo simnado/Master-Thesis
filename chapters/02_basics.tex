@@ -94,7 +94,7 @@ Zuletzt kann das \gls{har}-Modell in der zeitlichen Action Detection iterativ be
 Die Darstellung in \autoref{fig:problems} zeigt eine spezielle (binäre) Form der \gls{har}, die nur zwischen den Zuständen Tor und Nicht-Tor unterscheidet.
 Diese binäre Klassifizierung kann zu einer Multi-Class- und zu einer Multi-Label-Variante erweitert werden.
 Bei der Multi-Class-Erkennung kann zu jedem Zeitpunkt eine aus $\gls{tld:A}$ Aktionsklassen klassifiziert werden.
-Für den Fall, dass sich keine Aktion ereignet, wird ein künstliches Label (oft \emph{Background} genannt) eingeführt.
+Für den Fall, dass sich keine Aktion ereignet, wird ein künstliches \gls{label} (oft \emph{Background} genannt) eingeführt.
 Im Multi-Label-Fall können sich die Aktionen sogar zeitlich überschneiden, \dh zu jedem Zeitpunkt können $0$ bis $A$ Aktionsklassen erkannt werden.
 Die gleichzeitige Erkennung von zwei dicht aufeinanderfolgenden Aktionen innerhalb des gleichen \glspl{clip} ist also nur im Multi-Label-Fall möglich.
 
@@ -126,24 +126,24 @@ Die meisten Ansätze zur Umsetzung einer \gls{har} lassen sich in eine von drei 
     Das Modell erlernt alle Low-Level-Features stattdessen implizit mit~\cite{Rahmad18}.
 \end{description}
 
-Vergleicht man die drei genannten Gruppen, so ist nicht nur die Anzahl der Publikationen im Bereich \gls{deep-learning} höher, sondern auch die Genauigkeit der Modelle~\cite{Rahmad18}.
-Daher werden im Folgenden ausschließlich \gls{deep-learning}-basierte Ansätze verfolgt.
+Vergleicht man die drei genannten Gruppen, so ist nicht nur die Anzahl der Publikationen im Bereich Deep-Learning höher, sondern auch die Genauigkeit der Modelle~\cite{Rahmad18}.
+Daher werden im Folgenden ausschließlich Deep-Learning-basierte Ansätze verfolgt.
 
 
 \section{Neuronale Netze und Deep-Learning}
 \label{sec:deep-learning}
 
-\gls{deep-learning}, als Untermenge des \glspl{ml}, setzt auf den Einsatz von Neuronalen Netzen zur Optimierung beliebig komplexer Funktionen.
+Deep-Learning, als Untermenge des \glspl{ml}, setzt auf den Einsatz von Neuronalen Netzen zur Optimierung beliebig komplexer Funktionen.
 \glspl{dnn}, die dem menschlichen Gehirn nachempfunden sind, zeichnen sich durch eine Netzwerk-artige Struktur aus, bestehend aus Knoten, die in Schichten angeordnet und miteinander verbunden sind~\cite{Burkov19}.
 Das in~\cite{rosenblatt58} erstmals vorgestellte Perceptron (\autoref{fig:dnn} links) ist die einfachste Topologie eines Neuronalen Netzes bestehend aus einem zweischichtigem Netz.
 Mit der Hinzunahme weiterer \sog Hidden-Layer zwischen dem Input- und Output-Layer entstehen \emph{tiefere} \glspl{dnn} (auch \gls{mlp}), woher auch der Begriff Deep-Learning stammt~\cite{Burkov19}.
 Die in \autoref{fig:dnn} gezeigten grünen Knoten entsprechen sogenannten \fc-Layern (fully-connected), die mit allen Knoten der Vorgänger- und allen Knoten der Nachfolger-Schicht verbunden sind.
-Intern können die Layer als Gewichtsmatrizen $W$ repräsentiert werden, die mittels eines Optimierungsverfahren, wie \gls{backpropagation}~\cite{rumelhart86} und anhand von Problem-spezifischer Beispieldaten optimiert werden können.
+Intern können die Layer als Gewichtsmatrizen $W$ repräsentiert werden, die mittels eines Optimierungsverfahren, wie Backpropagation~\cite{rumelhart86} und anhand von Problem-spezifischer Beispieldaten optimiert werden können.
 
 \begin{figure}
     \centering
     \bigimage{img/02_dnn}{0.4\textwidth}
-    \caption{Topologie: \gls{dnn} nach~\cite{Veen17}}
+    \caption[Topologie eines DNNs]{Topologie eines \glspl{dnn} (Quelle:~\cite{Veen17})}
     \label{fig:dnn}
 \end{figure}
 
@@ -208,13 +208,13 @@ Stapelt man mehrere \conv-Layer hintereinander, kann man beobachten, dass in den
 \begin{figure}[hb!]
     \centering
     \bigimage{img/02_cnn}{0.4\textwidth}
-    \caption{Topologie: \gls{cnn} (Quelle:~\cite{Veen17})}
+    \caption[Topologie eines \glspl{cnn}]{Topologie eines \glspl{cnn} (Quelle:~\cite{Veen17})}
     \label{fig:cnn}
 \end{figure}
 
-Pro Layer ergibt sich eine dreidimensionale \gls{feature-map} aus einem Bild pro Kernel.
+Pro \gls{layer} ergibt sich eine dreidimensionale \gls{feature-map} aus einem Bild pro Kernel.
 Die einzelnen Bilder \bzw die Querschnitte einer Feature-Map werden auch als \glspl{channel} bezeichnet.
-Der Input des Netzes besteht typischerweise aus drei Kanälen für den jeweiligen \gls{rgb}-Kanal des Farbbilds.
+Der Input des Netzes besteht typischerweise aus drei Kanälen für den jeweiligen \gls{rgb}-\gls{channel} des Farbbilds.
 Eine Faltung, wie sie in tieferen Layern vorkommt (mit mehr als einem Kanal als Input), berechnet immer die Summe aller einzelnen Faltungen~\cite{Burkov19}.
 
 Häufig werden \conv- mit sogenannten \pool-Layern kombiniert (\gls{pooling}), die die Bilder pro Kanal auf eine niedrigerdimensionale Version komprimieren.
@@ -247,7 +247,7 @@ Inception-Blöcke ersetzen die gewöhnlichen \conv-Layer durch vier parallele St
 \begin{figure}[hb!]
     \centering
     \bigimage{img/02_inception}{0.4\textwidth}
-    \caption{Topologie: Inception-Block (Quelle:~\cite{Karim19})}
+    \caption[Topologie eines Inception-Blocks]{Topologie eines Inception-Blocks (Quelle:~\cite{Karim19})}
     \label{fig:inception}
 \end{figure}
 
@@ -273,7 +273,7 @@ Dieser Effekt war zuvor bei einem nicht ausgewogenen Verhältnis von Tiefe des N
 \begin{figure}[hb!]
     \centering
     \bigimage{img/02_identity}{0.5\textwidth}
-    \caption{Topologie: \res-Block (Quelle:~\cite{Karim19})}
+    \caption[Topologie eines \res-Blocks]{Topologie eines \res-Blocks (Quelle:~\cite{Karim19})}
     \label{fig:residual}
 \end{figure}
 
@@ -285,7 +285,7 @@ Diese Verdichtungen werden auch als Bottlenecks bezeichnet.
 
 Sofern die Möglichkeit des Overfittings besteht, ist das Netz nun in der Lage ein Identitätsmapping (Input $\to$ Input) zu lernen, indem es alle Gewichte eines Blocks auf null setzt.
 So können überflüssige Blöcke implizit während des Trainings deaktiviert werden und das Netz kann selbst entscheiden wie viele Layer es benötigt.
-Zudem wurde in ResNet-50 erstmalig eine Batch Normalisierung~\cite{Ioffe15} genutzt, was wiederum zu einem schnelleren und stabileren Training führt~\cite{Gugger20}.
+Zudem wurde in ResNet-50 erstmalig eine Batch-Normalisierung~\cite{Ioffe15} genutzt, was wiederum zu einem schnelleren und stabileren Training führt~\cite{Gugger20}.
 
 \subsubsection*{DenseNet}
 
@@ -322,14 +322,14 @@ Topologisch unterscheiden sie sich durch Zyklen innerhalb des Netzwerks (siehe \
 \begin{figure}[h!]
     \centering
     \bigimage{img/02_rnn}{0.2\textwidth}
-    \caption{Topologie: \gls{rnn} (Quelle:~\cite{Veen17})}
+    \caption[Topologie eines RNNs]{Topologie eines \glspl{rnn} (Quelle:~\cite{Veen17})}
     \label{fig:rnn}
 \end{figure}
 
 In seiner Reinform speichert ein \gls{rnn} zu jedem Zeitpunkt $t_i$ für den Input $x_{t_i}$ zusätzlich ein Hidden State $h_{t_i}$, der als zusätzlicher Input im nächsten Zeitpunkt $t_{i+1}$ genutzt wird.
 Jeder Block hat also eine Rückkopplung zu seinem vorherigen Zustand.
-Diese Architektur leidet allerdings besonders am \gls{vanish-gradient}.
-Ab einer gewissen Tiefe wird der Einfluss des Fehlers, welcher während der Backpropagation ermittelt wird, verschwindend (vanishingly) gering und das Netz kann im schlimmsten Fall nicht weiter optimiert werden~\cite{Pointer19}.
+Diese Architektur leidet allerdings besonders am Vanishing Gradient Problem:
+ab einer gewissen Tiefe wird der Einfluss des Fehlers, welcher während der Backpropagation ermittelt wird, verschwindend (vanishingly) gering und das Netz kann im schlimmsten Fall nicht weiter optimiert werden~\cite{Pointer19}.
 
 \subsection*{Long Short-Term Memory (LSTM)}
 

@@ -22,7 +22,7 @@ Um diese Hürde zu überwinden, werden drei verschiedene Methoden verglichen, de
     Das Modell aggregiert die Informationen somit intern.
 \end{description}
 
-Während des Training werden stets 5-dimensionale Input-Batches $x_\text{fit} \in (B \times C \times T \times S \times S)$ verwenden.
+Während des Training werden stets 5-dimensionale Input-Batches $x_\text{fit} \in (B \times \gls{tld:C} \times T \times S \times S)$ verwenden.
 Bei der Evaluation wird nun eine weitere Dimension benötigt, um die verschiedenen Crops abzubilden mit $x_\text{test} \in (B \times E \times C \times T \times S \times S)$.
 Dabei stell $E$ die Anzahl der zeitlichen Crops dar.
 

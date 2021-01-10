@@ -16,7 +16,7 @@ package "Framework" {
 
 
     component [TrainModule] {
-        () "HAR Backbone" as Net
+        () "HAR-Model" as Net
         () "Batch" as TrainBatch
     }
 
