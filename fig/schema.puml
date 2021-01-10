@@ -1,4 +1,6 @@
 @startuml
+skinparam monochrome true
+
 interface Match {
   Enum provider
   String externalId

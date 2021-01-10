@@ -301,10 +301,10 @@ Da die Feature-Maps hierfür jeweils die gleiche Auflösung haben müssen, wird 
 Innerhalb der Blöcke wird die Auflösung nicht verändert und alle Layer sind miteinander verbunden.
 Zwischen den Dense-Blöcken werden Transition-Layer (\ua mit \pool-Layern) eingebaut, sodass die Auflösung im Hinblick auf die Gesamtarchitektur dennoch reduziert werden kann.
 
-\subsection{Channel-wise Separable Convolution}
+\subsection{Separierbare Faltungen}
 \label{subsec:group-conv}
 
-Als letzte Untergruppe seien (Kanal-)separierbare Faltungen (Depthwise \bzw Channel-wise separable convolution) erwähnt.
+Als letzte Untergruppe seien (Kanal-)separierbare Faltungen (Depthwise oder auch Channel-wise separable convolution) erwähnt.
 Mit dem Einsatz in Architekturen, wie Xception (2016)~\cite{Chollet17} oder MobileNet (2017)~\cite{Howard17}, konnte \ua dank weniger Parametern und Rechenoperationen der Einsatz auf mobile Geräten ermöglicht werden.
 
 Separierbare Faltungen bestehen aus einer Faltung pro Kanal und einer Kanal-übergreifenden, punktweisen Faltung.

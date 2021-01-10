@@ -1,4 +1,5 @@
 @startuml
+skinparam monochrome true
 
 state "Benchmark" as Phase1
 state "Hyperparameter-\nOptimierung" as Phase2

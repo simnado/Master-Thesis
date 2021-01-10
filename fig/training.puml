@@ -1,4 +1,6 @@
 @startuml
+skinparam monochrome true
+
 participant Main
 
 Main -> Trainer: fit(model, train_data, val_data)

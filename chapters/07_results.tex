@@ -25,7 +25,7 @@ Da die Ergebnisse für SlowFast-50-4x16 durchweg besser ausfallen, wird diese Va
     table head=\hline,late after line=\\\hline]{tbl/exp_phase_1.csv}
     {1=\model,2=\aurocval,3=\baval,4=\fbetaval,5=\lr,6=\bs,7=\ba,8=\rec,9=\prec,10=\auroc}
     {\model & \lr & \ba & \prec & \rec & \auroc}
-    \caption[Ergebnisse aus Benchmark]{Ergebnisse aus Benchmark: Getestet mit $\Delta_\text{test} = 3$}
+    \caption[Ergebnisse aus Benchmark]{Ergebnisse aus Benchmark\footnote{Ergebnisse und Beispiele online unter https://www.comet.ml/narendorf/socc-har-32-benchmark}: Getestet mit $\Delta_\text{test} = 3$}
     \label{tab:phase1}
 \end{table}
 
@@ -116,7 +116,7 @@ Die Precision scheint hingegen unabhängig vom Zeitkontext zu sein.
     table head=\hline,late after line=\\\hline]{tbl/exp_phase_2.csv}
     {1=\model,2=\s,3=\t,4=\sr,5=\d,6=\auroc,7=\ba,8=\fone}
     {\t & \sr & \d & \ba & \fone & \auroc}
-    \caption[Ergebnisse aus Hyperparameter-Optimierung]{Ergebnisse aus Hyperparameter-Optimierung: ir-CSN-152 getestet mit $\Delta_\text{fit} = 4.8$}
+    \caption[Ergebnisse aus Hyperparameter-Optimierung]{Ergebnisse aus Hyperparameter-Optimierung\footnote{Ergebnisse und Beispiele online unter https://www.comet.ml/narendorf/socc-har-32-grid-search}: ir-CSN-152 getestet mit $\Delta_\text{fit} = 4.8$}
     \label{tab:phase2}
 \end{table}
 
@@ -220,7 +220,7 @@ Eine noch höhere Auflösung ist aufgrund der Hardware-Einschränkungen nicht m�
     table head=\hline,late after line=\\\hline]{tbl/exp_phase_1-4.csv}
     {1=\phase,2=\s,3=\t,4=\lilTau,5=\bigDelta,6=\auroc,7=\ba,8=\fbeta,9=\bigTheta,10=\socchar}
     {\phase & \socchar & \bigTheta & \bigDelta & \s & \t & \lilTau & \ba & \fbeta & \auroc}
-    \caption{Ergebnisse aus Phase 1 bis 4}
+    \caption[Ergebnisse aus Phase 1 bis 4]{Ergebnisse aus Phase 1 bis 4\footnote{Ergebnisse und Beispiele online unter https://www.comet.ml/narendorf/socc-har-32-baselines}}
     \label{tab:exp4}
 \end{table}
 

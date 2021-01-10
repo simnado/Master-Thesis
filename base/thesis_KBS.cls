@@ -152,7 +152,7 @@
 % Hypertext marks in LaTeX
 % http://www.ctan.org/tex-archive/macros/latex/contrib/hyperref/
 \RequirePackage[plainpages=false,
-                colorlinks,
+                colorlinks=false,
                 linkcolor=darkblue,
                 citecolor=darkgreen,
                 urlcolor=lightblue,

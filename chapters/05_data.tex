@@ -15,13 +15,6 @@ Dieser Prozess wird im Folgenden in zwei Teilprobleme unterteilt:
         Basierend auf dem Datenset, werden die persistierten Daten ausgelesen und dem \gls{har}-Modell in einer effizienten Weise bereitgestellt.
 \end{description}
 
-\begin{tcolorbox}[title=WIP]
-    \begin{itemize}
-        \item Beispielsample mit und ohne Augmentation
-    \end{itemize}
-\end{tcolorbox}
-
-
 \section{Datenerhebung}
 \label{sec:datenerhebung}
 
@@ -50,7 +43,7 @@ Die Zuordnung von Aktionen zu einem Teil-Datenset (\code{split}, hier: Trainings
 \Dh alle Aktionen innerhalb eines Spiels werden stets dem gleichen Datenset zugeordnet.
 Diese gängige Praxis wurde übernommen aus~\cite{Giancola18} und~\cite{Jiang19}.
 
-\subsection{Verarbeitungs-Pipeline}
+\subsection{Verarbeitungspipeline}
 \label{subsec:pipeline}
 
 Um die verschiedenen Datenquellen in das beschriebene Format zu überführen, wird ein semi-automatisierter Datenimport ausgeführt, deren Schritte in \autoref{fig:collection-pipeline_a} dargestellt sind.
@@ -385,7 +378,7 @@ Anschließend werden Helligkeit, Kontrast und Sättigung leicht verändert (Jitt
 In der Hälfte der Fälle wird das Bild horizontal gespiegelt.
 Abschließend wird das Bild auf die Zielauflösung des jeweils verwendeten \gls{har}-Modells verkleinert.
 Für das Validierungs- und Testset wird nur ein 90 \%-iger zentraler Ausschnitt des Bildes erfasst und auf die Zielauflösung geschrumpft.
-\autoref{fig:sample_example} zeigt ein beispielhaftes Sample nach Durchlaufen der Pre-Processing-Pipeline (bis einschließlich Data-Augmentation).
+\autoref{fig:sample_example} zeigt ein beispielhaftes Sample nach Durchlaufen der Pipeline (bis einschließlich Data-Augmentation).
 
 \begin{figure}
     \centering
