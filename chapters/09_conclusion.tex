@@ -39,13 +39,13 @@ Einer noch umfassenderen Verifikation und dem manuellen Justieren von Zeitfenste
 Als weiterer Schwachpunkt wird die statische Segmentierung in Clips angesehen:
 Eine aufwendigere Sampling-Strategie, die sicherstellt, dass Aktionen innerhalb eines Clips immer zeitlich zentriert sind, würde ebenfalls eine potenzielle Verbesserung mit sich bringen.
 Die hier verwendete statische Segmentierung kann \zB nicht sicherstellen, dass nur die erste Hälfte einer Aktion gezeigt wird.
-Ebenfalls wird davon ausgegangen, dass zusätzliche Background-Samples während des Trainings zur einer höheren Precison und einem höheren F1-Score führen.
+Ebenfalls wird davon ausgegangen, dass zusätzliche Background-Samples während des Trainings zur einer höheren Precision und einem höheren F1-Score führen.
 
 Mit Hinblick auf eine zeitliche Action Detection könnte das Baseline-Modell in eines der in \autoref{sec:temporal-action-detection} vorgestellten Modelle integriert werden.
 Für das weiterführende Training eines Action-Detection-Modells ist jedoch auch (und zwar in noch höherem Maße) die Datenqualität der Aktionsintervalle entscheidend.
 
 Eine weitere Fortsetzung wäre es, die Aktionen mit Spielfeldkoordinaten zu verknüpfen:
-das Datenset kann auf derselben Datengrundlage (\gls{sbod}) um Spielfeldkoordinaten des ausführenden Spielers (oder des Balls) erweitert werden, sodass als zusätzlicher Output pro Aktion eine Position ermittelt wird.
+Das Datenset kann auf derselben Datengrundlage (\gls{sbod}) um Spielfeldkoordinaten des ausführenden Spielers (oder des Balls) erweitert werden, sodass als zusätzlicher Output pro Aktion eine Position ermittelt wird.
 Die Ergebnisse eines separaten Modells zum Tracking von Spielern könnte mit diesen Koordinaten verknüpft werden, sodass die Aktionen letztlich ausführenden Spielern zugeordnet werden können.
 So wäre eine vollständige Erfassung Spieler-bezogener Statistiken auf Basis von Spielaktionen und Spielerpositionen möglich, die auch eine automatische, taktische Analyse im Fußball-Scouting ermöglichen würde.
 

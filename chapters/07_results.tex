@@ -66,7 +66,7 @@ Eine weitere Optimierung des Baseline-Modells (ir-CSN) mit der verifizierten Dat
 
 Das Baseline-Modell der ersten Phase bildet mit $T=32$ und $\tau = 2$ einen Zeitkontext von $\Delta_\text{fit}=2.67$ Sekunden ab.
 Da diese Hyperparameter auf Grundlage eines anderen Datensets festgesetzt wurden, werden die oben genannten Hyperparameter im nachfolgenden Experiment in einer Grid-Suche anhand des vorliegenden Datensets angepasst.
-Das Vorgehen ist weiter motiviert durch die Mindest-Dauer von 4 Sekunden in SoccerDB \bzw der unteren Grenze von 3 Sekunden basierend auf \gls{sbod}.
+Das Vorgehen ist weiter motiviert durch die Mindestdauer von 4 Sekunden in SoccerDB \bzw der unteren Grenze von 3 Sekunden basierend auf \gls{sbod}.
 
 Alle Modelle nutzen ein dynamisches Avg-\pool-Layer zwischen dem letzten \conv- und dem ersten \fc-Layer, das die Verarbeitung von \glspl{clip} variabler Länge $T$ zulässt.
 Um eine geeignete Methode zu finden, wird der Einfluss von Avg-Pooling durch ein höheres $T$ und von schnelleren \glspl{clip} durch einen höheren Zeitschritt $\tau$ verglichen.
@@ -146,7 +146,7 @@ Während Aktionen wie \code{corner}, \code{footShot} oder \code{throwIn} hohe We
     \begin{subfigure}{.24\textwidth}
         \centering
         \includegraphics[width=0.99\textwidth, keepaspectratio, interpolate]{img/07_ba_by_class_ph_2.eps}
-        \caption{Balanced Accurcy \newline mit 32 Klassen}
+        \caption{Balanced Accuracy \newline mit 32 Klassen}
         \label{fig:ba_by_class}
     \end{subfigure}%
     \begin{subfigure}{.24\textwidth}
@@ -220,7 +220,7 @@ Eine noch höhere Auflösung ist aufgrund der Hardware-Einschränkungen nicht m�
     table head=\hline,late after line=\\\hline]{tbl/exp_phase_1-4.csv}
     {1=\phase,2=\s,3=\t,4=\lilTau,5=\bigDelta,6=\auroc,7=\ba,8=\fbeta,9=\bigTheta,10=\socchar}
     {\phase & \socchar & \bigTheta & \bigDelta & \s & \t & \lilTau & \ba & \fbeta & \auroc}
-    \caption{Ergebnisse aus Phase 1-4}
+    \caption{Ergebnisse aus Phase 1 bis 4}
     \label{tab:exp4}
 \end{table}
 
