@@ -16,12 +16,12 @@ Phase1 : 1. Initialisierung
 Phase1 : 2. Transfer-Learning
 Phase1 : 3. Verifikation
 Phase2 : 1. Grid-Suche
-Phase2 : 2. Transfer Learning
+Phase2 : 2. Transfer-Learning
 Phase3 : 1. Analyse + Entfernen v. Klassen
 Phase3 : 2. Transfer-Learning
 Phase3 : 3. Verifikation
 Phase4 : 1. Erhöhung der Auflösung
-Phase4 : 2. Verifikation
+Phase4 : 2. Transfer-Learning
 
 
 @enduml
